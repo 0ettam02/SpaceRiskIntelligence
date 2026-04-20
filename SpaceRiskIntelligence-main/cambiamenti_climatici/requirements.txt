@@ -1,0 +1,8 @@
+pandas 
+requests
+geopandas
+geodatasets
+matplotlib
+mapclassify
+branca
+folium
