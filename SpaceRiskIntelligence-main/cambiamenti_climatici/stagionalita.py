@@ -22,6 +22,9 @@ from pathlib import Path
 import warnings
 warnings.filterwarnings("ignore")
 
+
+
+
 # ── Configurazione ────────────────────────────────────────────────────────────
 
 CSV_PATH  = "dataset_incendi_FIRMS.csv"
@@ -64,6 +67,18 @@ def carica_dati(path: str) -> tuple[pd.DataFrame, str]:
 
     print(f"[1/3] Caricamento dati da {p.name} …", end=" ", flush=True)
     df = pd.read_csv(p, low_memory=False)
+    
+        # ── DIAGNOSTICA TEMPORANEA ─────────────────────────────
+    print("\n=== DIAGNOSI CSV ===")
+    print(f"Righe totali: {len(df):,}")
+    print(f"Colonne: {list(df.columns)}")
+    
+    col_data_temp = next((c for c in COLONNE_DATA if c in df.columns), None)
+    if col_data_temp:
+        print(f"Valori data (primi 5): {df[col_data_temp].head().tolist()}")
+        print(f"Valori data (ultimi 5): {df[col_data_temp].tail().tolist()}")
+        print(f"Tipo colonna: {df[col_data_temp].dtype}")
+    print("====================\n")
 
     col_data = next((c for c in COLONNE_DATA if c in df.columns), None)
     if col_data is None:
