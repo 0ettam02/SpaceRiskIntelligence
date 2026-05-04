@@ -7,3 +7,6 @@ mapclassify
 branca
 folium
 seaborn
+scipy
+shapely
+ipywidgets
