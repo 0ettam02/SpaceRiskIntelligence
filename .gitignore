@@ -1,0 +1,14 @@
+camb_clim/
+
+cambiamenti_climatici/map.html
+
+*.so
+
+.ipynb_checkpoints/
+
+venv_orbital/
+space/
+
+cambiamenti_climatici/dataset_incendi_FIRMS.csv
+
+*.csv
