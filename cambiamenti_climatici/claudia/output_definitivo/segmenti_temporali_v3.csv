@@ -1,0 +1,7 @@
+segment_id,start,end,days,usable_for_model,reason
+0,2025-04-26,2025-09-28,156,True,segmento_continuo_utilizzabile
+1,2025-11-26,2025-11-27,2,False,troppo_corto_escluso
+2,2025-12-06,2025-12-07,2,False,troppo_corto_escluso
+3,2025-12-14,2025-12-15,2,False,troppo_corto_escluso
+4,2025-12-26,2026-04-24,120,True,segmento_continuo_utilizzabile
+5,2026-06-20,2026-07-17,28,True,segmento_continuo_utilizzabile

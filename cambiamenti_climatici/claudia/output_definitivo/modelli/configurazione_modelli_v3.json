@@ -1,0 +1,24 @@
+{
+  "random_state": 42,
+  "horizon": 7,
+  "features": [
+    "detection_lag_1d",
+    "detection_lag_3d",
+    "detection_lag_7d",
+    "detection_lag_14d",
+    "detection_sum_last_3d",
+    "detection_sum_last_7d",
+    "detection_sum_last_14d",
+    "detection_sum_last_30d",
+    "active_days_last_3d",
+    "active_days_last_7d",
+    "active_days_last_14d",
+    "active_days_last_30d",
+    "frp_sum_last_7d",
+    "frp_sum_last_14d",
+    "frp_mean_active_last_7d",
+    "sin_doy",
+    "cos_doy"
+  ],
+  "max_train_rows": 200000
+}
