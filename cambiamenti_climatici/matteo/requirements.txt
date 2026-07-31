@@ -10,3 +10,4 @@ seaborn
 scipy
 shapely
 ipywidgets
+sklearn
