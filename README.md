@@ -32,6 +32,8 @@ uvicorn app.main:app --reload --port 8000
 cd frontend
 npm install
 npm run dev
+
+
 ```
 
 Per collegare il frontend al backend reale invece dei dati mock, vedi la

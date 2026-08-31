@@ -1,0 +1,2 @@
+segment,train_days,validation_days,test_days,embargo_days,prevalence_train,prevalence_validation,prevalence_test
+0,63,21,21,7,0.5403845411374079,0.6211190647634377,0.5894605053494195

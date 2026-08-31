@@ -1,0 +1,2 @@
+raw_rows_estimated,observed_days,calendar_days,missing_days,usable_segments,sample_cells_per_segment_max,grid_size_degrees,panel_rows,note
+16255053,310,448,138,3,5000,0.1,1520000,Campione di celle attive; non stimare prevalenze globali senza pesi di inclusione.
