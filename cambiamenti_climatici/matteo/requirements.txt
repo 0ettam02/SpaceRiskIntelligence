@@ -1,0 +1,13 @@
+pandas 
+requests
+geopandas
+geodatasets
+matplotlib
+mapclassify
+branca
+folium
+seaborn
+scipy
+shapely
+ipywidgets
+sklearn
