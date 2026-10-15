@@ -1,8 +1,8 @@
 import numpy as np
 from fastapi import APIRouter, HTTPException
 
-from app.config import FEATURES, MODEL_LABELS, MODEL_SLUGS, RECOMMENDED_MODEL_SLUG
-from app.copy import MODEL_LIMITATIONS, MODEL_METHODOLOGY_NOTES
+from app.config import FEATURES, MODEL_LABELS, MODEL_SCOPES, MODEL_SLUGS, RECOMMENDED_MODEL_SLUG
+from app.copy import ITALY_MODEL_LIMITATIONS, MODEL_LIMITATIONS, MODEL_METHODOLOGY_NOTES
 from app.data_store import store
 
 router = APIRouter(tags=["models"])
@@ -26,7 +26,8 @@ def _summary(key, result):
         "specificity": round(metrics["specificity"], 3),
         "falsePositiveRate": round(metrics["falsePositiveRate"], 3),
         "recommended": key == "random_forest",
-        "status": "Raccomandato" if key == "random_forest" else "Valutato",
+        "status": "Raccomandato" if key == "random_forest" else "Sperimentale" if key.startswith("random_forest_italia") else "Valutato",
+        "scope": MODEL_SCOPES.get(key, ""),
     }
 
 
@@ -59,14 +60,18 @@ def get_models():
 @router.get("/models/{slug}")
 def get_model_details(slug: str):
     key = _SLUG_TO_KEY.get(slug)
-    if not key:
+    if not key or key not in store.model_results:
         raise HTTPException(status_code=404, detail="Modello non trovato")
 
     result = store.model_results[key]
     metrics = result["metrics"]
 
     confusion_matrix = None
-    if key == "random_forest":
+    if key in {"random_forest", "random_forest_italia_firms", "random_forest_italia_era5"}:
+        if key.startswith("random_forest_italia"):
+            source = f"Test temporale italiano isolato (19 celle, N = {result['testRows']})"
+        else:
+            source = f"Test temporale isolato (segmento {store.training_segment_id}, N = {result['testRows']})"
         confusion_matrix = {
             "testRows": result["testRows"],
             "positives": metrics["truePositive"] + metrics["falseNegative"],
@@ -75,14 +80,14 @@ def get_model_details(slug: str):
             "falseNegative": metrics["falseNegative"],
             "trueNegative": metrics["trueNegative"],
             "falsePositive": metrics["falsePositive"],
-            "source": f"Calcolata sulle predizioni reali del test set isolato (segmento {store.training_segment_id}, N = {result['testRows']})",
+            "source": f"Calcolata sulle predizioni reali del {source}",
         }
 
     return {
         **_summary(key, result),
-        "features": FEATURES,
+        "features": result.get("features", FEATURES),
         "methodologyNotes": MODEL_METHODOLOGY_NOTES.get(key, []),
-        "limitations": MODEL_LIMITATIONS,
+        "limitations": ITALY_MODEL_LIMITATIONS if key.startswith("random_forest_italia") else MODEL_LIMITATIONS,
         "confusionMatrix": confusion_matrix,
         "rocCurve": _downsample(result["rocCurve"]),
         "prCurve": _downsample(result["prCurve"]),

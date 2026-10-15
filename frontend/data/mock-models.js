@@ -1,6 +1,12 @@
 // Metriche reali del run definitivo (valutazione fire_next_7d, test temporale
 // isolato del segmento 0, embargo di 7 giorni fra train/validation/test).
 // Fonte: cambiamenti_climatici/claudia/output_definitivo/modelli/confronto_modelli_storico_v3.csv
+const BASE_FEATURES = [
+  "detection_lag_1d", "detection_lag_3d", "detection_lag_7d", "detection_lag_14d",
+  "detection_sum_last_3d", "detection_sum_last_7d", "detection_sum_last_14d", "detection_sum_last_30d",
+  "active_days_last_3d", "active_days_last_7d", "active_days_last_14d", "active_days_last_30d",
+  "frp_sum_last_7d", "frp_sum_last_14d", "frp_mean_active_last_7d", "sin_doy", "cos_doy",
+];
 export const MODELS = [
   {
     slug: "random-forest",
@@ -82,6 +88,57 @@ export const MODELS = [
     recommended: false,
     status: "Valutato",
   },
+  {
+    slug: "random-forest-italia-firms",
+    model: "Random Forest — FIRMS (Italia)",
+    accuracy: 0.356,
+    balancedAccuracy: 0.540,
+    precision: 0.067,
+    recall: 0.750,
+    f1: 0.123,
+    rocAuc: 0.412,
+    prAuc: 0.050,
+    threshold: 0.06,
+    specificity: 0.331,
+    falsePositiveRate: 0.669,
+    recommended: false,
+    status: "Sperimentale",
+    scope: "Italia · FIRMS · 19 celle",
+    features: BASE_FEATURES,
+  },
+  {
+    slug: "random-forest-italia-era5",
+    model: "Random Forest — FIRMS + ERA5 (Italia)",
+    accuracy: 0.516,
+    balancedAccuracy: 0.489,
+    precision: 0.058,
+    recall: 0.458,
+    f1: 0.102,
+    rocAuc: 0.496,
+    prAuc: 0.057,
+    threshold: 0.13,
+    specificity: 0.520,
+    falsePositiveRate: 0.480,
+    recommended: false,
+    status: "Sperimentale",
+    scope: "Italia · FIRMS + ERA5-Land · 19 celle",
+    features: [
+      ...BASE_FEATURES,
+      "temperature_mean_last_7d_c",
+      "temperature_max_last_7d_c",
+      "precipitation_sum_last_7d_mm",
+      "soil_water_l1_mean_last_7d_m3m3",
+      "wind_u10_mean_last_7d_ms",
+      "wind_v10_mean_last_7d_ms",
+      "wind_speed_10m_mean_last_7d_ms",
+      "wind_speed_10m_max_last_7d_ms",
+    ],
+    methodologyNotes: [
+      "Modello italiano valutato sulle stesse 19 celle con split temporale ed embargo di 7 giorni.",
+      "Le otto feature meteo riassumono i sette giorni precedenti; la soglia 0,13 è stata scelta sulla validazione.",
+      "Il test include 399 righe e 24 positivi. Le metriche sono esplorative e non dimostrano un vantaggio predittivo affidabile.",
+    ],
+  },
 ];
 
 export const RECOMMENDED_MODEL_SLUG = "random-forest";
@@ -101,26 +158,29 @@ export const RANDOM_FOREST_CONFUSION_MATRIX = {
   source: "Ricostruita dalle metriche reali del run (confronto_modelli_storico_v3.csv)",
 };
 
-// Feature utilizzate da tutti i modelli (identiche per ogni classificatore).
-export const MODEL_FEATURES = [
-  "detection_lag_1d",
-  "detection_lag_3d",
-  "detection_lag_7d",
-  "detection_lag_14d",
-  "detection_sum_last_3d",
-  "detection_sum_last_7d",
-  "detection_sum_last_14d",
-  "detection_sum_last_30d",
-  "active_days_last_3d",
-  "active_days_last_7d",
-  "active_days_last_14d",
-  "active_days_last_30d",
-  "frp_sum_last_7d",
-  "frp_sum_last_14d",
-  "frp_mean_active_last_7d",
-  "sin_doy",
-  "cos_doy",
+export const ITALY_CONFUSION_MATRICES = {
+  "random-forest-italia-firms": {
+    testRows: 399, positives: 24, negatives: 375,
+    truePositive: 18, falseNegative: 6, trueNegative: 124, falsePositive: 251,
+    source: "Test temporale italiano isolato (19 celle, N = 399)",
+  },
+  "random-forest-italia-era5": {
+    testRows: 399, positives: 24, negatives: 375,
+    truePositive: 11, falseNegative: 13, trueNegative: 195, falsePositive: 180,
+    source: "Test temporale italiano isolato (19 celle, N = 399)",
+  },
+};
+
+export const ITALY_MODEL_LIMITATIONS = [
+  "Il modello riguarda 19 celle campionate in Italia, non l'intero territorio nazionale.",
+  "Il test temporale contiene 399 righe e 24 positivi: le metriche hanno elevata incertezza.",
+  "Le stesse celle compaiono in training e test; la generalizzazione geografica non è stata verificata.",
+  "Le feature ERA5-Land sono stime su griglia 0,1° e non misure locali di stazione.",
+  "Il modello è sperimentale e non è un sistema operativo di allerta incendi.",
 ];
+
+// Feature utilizzate da tutti i modelli (identiche per ogni classificatore).
+export const MODEL_FEATURES = BASE_FEATURES;
 
 export const MODEL_METHODOLOGY_NOTES = {
   "random-forest": [

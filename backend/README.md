@@ -16,7 +16,7 @@ All'avvio del processo (una sola volta, non ad ogni richiesta) il backend:
 1. Carica i CSV reali già prodotti dalla pipeline (`segmenti_temporali_v3.csv`,
    `campione_celle_v3.csv`, `incendi_daily_segmentato_sample_v3.csv.gz`,
    `profilo_storico_segmentato_v3.csv`, `modelli/dati_ml_storico_v3.csv.gz`).
-2. Riaddestra i 5 classificatori di `fire_next_7d` **riproducendo esattamente**
+2. Riaddestra i 5 classificatori globali di `fire_next_7d` **riproducendo esattamente**
    iperparametri, split temporale con embargo di 7 giorni e selezione della
    soglia del notebook `cambiamenti_climatici/claudia/analisi_modelli_incendi_definitivo.ipynb`.
 3. Calcola la probabilità "corrente" per ogni cella campionata applicando la
@@ -27,6 +27,24 @@ All'avvio del processo (una sola volta, non ad ogni richiesta) il backend:
    serializzato su disco**: un riavvio riaddestra tutto da capo sugli stessi
    dati, con le stesse metriche (a meno di piccole variazioni numeriche dovute
    al riaddestramento).
+
+Se è presente `dati/era5_italy/dati_ml_storico_italia_era5_v1.csv.gz`, addestra
+inoltre due modelli sperimentali italiani: Random Forest con le sole feature
+FIRMS e Random Forest con feature FIRMS + ERA5-Land. Sono disponibili in
+`GET /models` e `GET /models/random-forest-italia-firms` / `...-era5`.
+Il dataset è locale e ignorato da Git. Per ricostruirlo dopo aver scaricato e
+preparato il pannello FIRMS + ERA5-Land:
+
+```bash
+space/bin/python cambiamenti_climatici/ingestion/build_ml_dataset.py \
+  --input cambiamenti_climatici/claudia/output_definitivo/incendi_daily_segmentato_sample_v3.csv.gz \
+  --weather-input dati/era5_italy/pannello_firms_era5_italia.csv \
+  --output dati/era5_italy/dati_ml_storico_italia_era5_v1.csv.gz \
+  --quality-report dati/era5_italy/qualita_dataset_ml_italia_era5_v1.json
+```
+L'avvio resta possibile senza questo file; in quel caso i due modelli italiani
+non compaiono nell'API. Le metriche italiane sono esplorative e non sostituiscono
+il modello globale raccomandato.
 
 Il caricamento + addestramento richiede **circa 40–90 secondi** la prima
 richiesta dopo l'avvio (dipende dalla macchina): è un costo una tantum, non per

@@ -3,6 +3,8 @@ import {
   MODELS,
   RECOMMENDED_MODEL_SLUG,
   RANDOM_FOREST_CONFUSION_MATRIX,
+  ITALY_CONFUSION_MATRICES,
+  ITALY_MODEL_LIMITATIONS,
   MODEL_FEATURES,
   MODEL_METHODOLOGY_NOTES,
   MODEL_LIMITATIONS,
@@ -40,10 +42,12 @@ export async function getModelDetails(slug) {
     if (!model) return withSimulatedLatency(null);
     return withSimulatedLatency({
       ...model,
-      features: MODEL_FEATURES,
-      methodologyNotes: MODEL_METHODOLOGY_NOTES[slug] || [],
-      limitations: MODEL_LIMITATIONS,
-      confusionMatrix: slug === RECOMMENDED_MODEL_SLUG ? RANDOM_FOREST_CONFUSION_MATRIX : null,
+      features: model.features || MODEL_FEATURES,
+      methodologyNotes: model.methodologyNotes || MODEL_METHODOLOGY_NOTES[slug] || [],
+      limitations: slug.startsWith("random-forest-italia") ? ITALY_MODEL_LIMITATIONS : MODEL_LIMITATIONS,
+      confusionMatrix: slug === RECOMMENDED_MODEL_SLUG
+        ? RANDOM_FOREST_CONFUSION_MATRIX
+        : ITALY_CONFUSION_MATRICES[slug] || null,
       rocCurve: generateRocCurve(model.rocAuc),
       prCurve: generatePrCurve(model.prAuc, model.precision),
       probabilityHistogram: generateProbabilityHistogram(model.threshold),

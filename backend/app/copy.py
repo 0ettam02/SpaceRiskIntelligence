@@ -28,6 +28,15 @@ MODEL_METHODOLOGY_NOTES = {
     "svm_rbf_approssimata": [
         "Approssimazione RBF con feature map casuale su un sottoinsieme del training per contenere i tempi di calcolo.",
     ],
+    "random_forest_italia_firms": [
+        "Modello italiano separato, confrontato sul test temporale delle 19 celle campionate.",
+        "Usa le stesse 17 feature FIRMS della baseline globale; non è un modello di copertura nazionale completa.",
+    ],
+    "random_forest_italia_era5": [
+        "Modello italiano sperimentale addestrato su 19 celle, con 17 feature FIRMS e otto feature ERA5-Land dei sette giorni precedenti.",
+        "Metriche e curve sono calcolate sulle predizioni osservate del test temporale; la soglia è scelta sulla validazione.",
+        "Il modello usa le stesse celle in training e test: la generalizzazione verso celle o regioni nuove non è stata valutata.",
+    ],
 }
 
 MODEL_LIMITATIONS = [
@@ -35,6 +44,15 @@ MODEL_LIMITATIONS = [
     "Il campione di celle è condizionato: include prevalentemente celle già attive in passato, non un campione casuale della superficie terrestre.",
     "La soglia di decisione è una configurazione dimostrativa dell'interfaccia; non è stata validata per un uso operativo.",
     "Il modello è addestrato in memoria all'avvio di questo backend e non è persistito su disco: riavviare il processo lo riaddestra da capo sugli stessi dati.",
+    "In modalità mock, curve e distribuzioni sono dimostrative; con l'API derivano dalle predizioni del test set.",
+]
+
+ITALY_MODEL_LIMITATIONS = [
+    "Il modello riguarda 19 celle campionate in Italia, non l'intero territorio nazionale.",
+    "Il test temporale contiene 399 righe e 24 positivi: le metriche hanno elevata incertezza.",
+    "Le stesse celle compaiono in training e test; la generalizzazione geografica non è stata verificata.",
+    "Le feature ERA5-Land sono stime su griglia 0,1° e non misure locali di stazione.",
+    "Il modello è sperimentale e non è un sistema operativo di allerta incendi.",
 ]
 
 DATA_QUALITY_WARNINGS = [

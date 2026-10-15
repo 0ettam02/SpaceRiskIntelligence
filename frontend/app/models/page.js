@@ -37,7 +37,7 @@ export default function ModelsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Modelli ML"
-        description="Confronto dei classificatori sperimentali valutati su fire_next_7d, su test temporale isolato con embargo di 7 giorni."
+        description="Confronto dei modelli valutati su fire_next_7d. I due modelli italiani sono separati dal campione globale e usano le stesse 19 celle."
       />
 
       {loading ? (
@@ -69,8 +69,8 @@ export default function ModelsPage() {
 
           <ChartCard
             title="Confronto metriche"
-            description="Seleziona la metrica da confrontare fra i 5 modelli"
-            srSummary="Grafico a barre che confronta una metrica selezionata fra i cinque modelli valutati."
+            description="Seleziona la metrica da confrontare fra i modelli disponibili"
+            srSummary="Grafico a barre che confronta una metrica selezionata fra i modelli valutati."
             actions={
               <label className="flex items-center gap-2 text-xs text-muted">
                 Metrica

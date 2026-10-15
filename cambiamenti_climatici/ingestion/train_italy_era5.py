@@ -21,6 +21,8 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
     roc_auc_score,
+    roc_curve,
+    precision_recall_curve,
 )
 from sklearn.pipeline import Pipeline
 
@@ -89,8 +91,9 @@ def classification_metrics(y_true, probabilities, threshold):
     }
 
 
-def train_and_evaluate(input_path=DEFAULT_INPUT, output_dir=DEFAULT_OUTPUT):
-    input_path, output_dir = Path(input_path), Path(output_dir)
+def train_and_evaluate(input_path=DEFAULT_INPUT, output_dir=DEFAULT_OUTPUT, include_runtime=False):
+    input_path = Path(input_path)
+    output_dir = Path(output_dir) if output_dir is not None else None
     data = pd.read_csv(input_path, parse_dates=["date"])
     firms_features = list(FIRMS_FEATURES)
     weather_features = list(WEATHER_FEATURES)
@@ -111,8 +114,10 @@ def train_and_evaluate(input_path=DEFAULT_INPUT, output_dir=DEFAULT_OUTPUT):
         "random_forest_firms_only": firms_features,
         "random_forest_firms_era5": firms_features + weather_features,
     }
-    output_dir.mkdir(parents=True, exist_ok=True)
+    if output_dir is not None:
+        output_dir.mkdir(parents=True, exist_ok=True)
     results, predictions_out, importances_out = {}, [], []
+    runtime_models = {}
     for model_name, features in estimators.items():
         pipeline = Pipeline([
             ("imputer", SimpleImputer(strategy="median")),
@@ -137,10 +142,14 @@ def train_and_evaluate(input_path=DEFAULT_INPUT, output_dir=DEFAULT_OUTPUT):
             ),
             "test": classification_metrics(test[TARGET], test_probabilities, threshold),
         }
-        joblib.dump({
-            "pipeline": pipeline, "features": features, "threshold": threshold,
-            "target": TARGET, "model_name": model_name,
-        }, output_dir / f"{model_name}.joblib")
+        test_labels = test[TARGET].to_numpy()
+        fpr, tpr, _ = roc_curve(test_labels, test_probabilities)
+        precision, recall, _ = precision_recall_curve(test_labels, test_probabilities)
+        if output_dir is not None:
+            joblib.dump({
+                "pipeline": pipeline, "features": features, "threshold": threshold,
+                "target": TARGET, "model_name": model_name,
+            }, output_dir / f"{model_name}.joblib")
         predicted = test[["date", "lat_cell", "lon_cell", TARGET]].copy()
         predicted["model"] = model_name
         predicted["probability"] = test_probabilities
@@ -151,6 +160,26 @@ def train_and_evaluate(input_path=DEFAULT_INPUT, output_dir=DEFAULT_OUTPUT):
             {"model": model_name, "feature": feature, "importance": float(importance)}
             for feature, importance in zip(features, model_importance)
         )
+        latest = data.loc[data.groupby(["lat_cell", "lon_cell"]).date.idxmax()].copy()
+        latest_probabilities = pipeline.predict_proba(latest[features])[:, 1]
+        runtime_models[model_name] = {
+            "pipeline": pipeline,
+            "features": features,
+            "threshold": threshold,
+            "metrics": results[model_name]["test"],
+            "testRows": int(len(test)),
+            "trainRows": int(len(train)),
+            "testProbabilities": test_probabilities,
+            "testLabels": test_labels,
+            "rocCurve": [{"fpr": float(x), "tpr": float(y)} for x, y in zip(fpr, tpr)],
+            "prCurve": [{"recall": float(x), "precision": float(y)} for x, y in zip(recall, precision)],
+            "latestPredictions": [
+                {"lat_cell": float(row.lat_cell), "lon_cell": float(row.lon_cell),
+                 "date": row.date.strftime("%Y-%m-%d"), "probability": float(probability),
+                 "predictedClass": int(probability >= threshold)}
+                for row, probability in zip(latest.itertuples(), latest_probabilities)
+            ],
+        }
 
     report = {
         "dataset": str(input_path),
@@ -176,12 +205,13 @@ def train_and_evaluate(input_path=DEFAULT_INPUT, output_dir=DEFAULT_OUTPUT):
             "Results are experimental and are not an operational fire alert.",
         ],
     }
-    (output_dir / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    pd.concat(predictions_out, ignore_index=True).to_csv(output_dir / "test_predictions.csv", index=False)
-    pd.DataFrame(importances_out).sort_values(
-        ["model", "importance"], ascending=[True, False]
-    ).to_csv(output_dir / "feature_importance.csv", index=False)
-    return report
+    if output_dir is not None:
+        (output_dir / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+        pd.concat(predictions_out, ignore_index=True).to_csv(output_dir / "test_predictions.csv", index=False)
+        pd.DataFrame(importances_out).sort_values(
+            ["model", "importance"], ascending=[True, False]
+        ).to_csv(output_dir / "feature_importance.csv", index=False)
+    return {"report": report, "models": runtime_models} if include_runtime else report
 
 
 def main():

@@ -5,6 +5,7 @@ HTTP rilegge i CSV da disco o riaddestra i modelli.
 """
 
 import logging
+import sys
 
 import numpy as np
 import pandas as pd
@@ -39,18 +40,62 @@ class Store:
         self.daily_panel_df = pd.read_csv(PATHS["daily_panel"], parse_dates=["date"])
         self.profile = pd.read_csv(PATHS["profile_summary"]).iloc[0].to_dict()
 
-        logger.info("Addestramento dei 5 modelli su fire_next_7d (split temporale con embargo)...")
+        logger.info("Addestramento dei 5 modelli globali su fire_next_7d (split temporale con embargo)...")
         training = train_all_models()
         self.ml_df = training["mlDataset"]
         self.model_results = training["models"]
         self.training_segment_id = training["segmentId"]
         logger.info("Addestramento completato per il segmento %s", self.training_segment_id)
+        self._load_italy_era5_models()
 
         self.ml_rows_per_segment = self.ml_df.groupby("segment_id").size().to_dict()
 
         self._build_calendar_series()
         self._build_cell_registry()
         logger.info("Store pronto: %d celle, %d giorni in serie calendariale", len(self.cells), len(self.calendar_series))
+
+    def _load_italy_era5_models(self):
+        dataset_path = PATHS["italy_era5_ml_dataset"]
+        if not dataset_path.exists():
+            logger.info("Dataset ML italiano ERA5 non presente; modelli italiani non caricati")
+            return
+        try:
+            ingestion_dir = PATHS["italy_era5_ml_dataset"].parents[2] / "cambiamenti_climatici" / "ingestion"
+            sys.path.insert(0, str(ingestion_dir))
+            from train_italy_era5 import train_and_evaluate
+
+            training = train_and_evaluate(dataset_path, output_dir=None, include_runtime=True)
+            metric_names = {
+                "accuracy": "accuracy", "balanced_accuracy": "balancedAccuracy",
+                "precision": "precision", "recall": "recall", "f1": "f1",
+                "roc_auc": "rocAuc", "pr_auc": "prAuc", "mcc": "mcc",
+                "brier": "brier",
+            }
+            result_names = {
+                "random_forest_firms_only": "random_forest_italia_firms",
+                "random_forest_firms_era5": "random_forest_italia_era5",
+            }
+            for source_name, model_key in result_names.items():
+                result = training["models"][source_name]
+                raw_metrics = result["metrics"]
+                metrics = {metric_names[key]: float(raw_metrics[key]) for key in metric_names}
+                tn, fp = raw_metrics["true_negatives"], raw_metrics["false_positives"]
+                metrics.update({
+                    "specificity": tn / max(tn + fp, 1),
+                    "falsePositiveRate": fp / max(tn + fp, 1),
+                    "truePositive": int(raw_metrics["true_positives"]),
+                    "falseNegative": int(raw_metrics["false_negatives"]),
+                    "trueNegative": int(tn), "falsePositive": int(fp),
+                })
+                self.model_results[model_key] = {
+                    **result, "metrics": metrics,
+                    "testLabels": result["testLabels"],
+                    "testProbabilities": result["testProbabilities"],
+                    "italyReport": training["report"],
+                }
+            logger.info("Modelli Italia FIRMS/ERA5 addestrati su %d righe", training["report"]["rows"])
+        except Exception:
+            logger.exception("Addestramento modelli italiani ERA5 fallito; proseguo con i modelli globali")
 
     def _build_calendar_series(self):
         daily = (

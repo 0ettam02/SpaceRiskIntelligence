@@ -162,6 +162,22 @@ export const FEATURE_GROUPS = [
   },
 ];
 
+export const ERA5_FEATURE_GROUP = {
+  id: "era5-weather",
+  label: "Meteo ERA5-Land · ultimi 7 giorni",
+  description: "Statistiche giornaliere t-7…t-1: il giorno da prevedere e i giorni successivi sono esclusi.",
+  features: [
+    { name: "temperature_mean_last_7d_c", description: "Temperatura media nei sette giorni precedenti (°C)" },
+    { name: "temperature_max_last_7d_c", description: "Massima temperatura giornaliera nei sette giorni precedenti (°C)" },
+    { name: "precipitation_sum_last_7d_mm", description: "Precipitazione cumulata nei sette giorni precedenti (mm)" },
+    { name: "soil_water_l1_mean_last_7d_m3m3", description: "Umidità volumetrica media del suolo, livello 1" },
+    { name: "wind_u10_mean_last_7d_ms", description: "Componente est-ovest media del vento a 10 m (m/s)" },
+    { name: "wind_v10_mean_last_7d_ms", description: "Componente nord-sud media del vento a 10 m (m/s)" },
+    { name: "wind_speed_10m_mean_last_7d_ms", description: "Velocità media del vento a 10 m (m/s)" },
+    { name: "wind_speed_10m_max_last_7d_ms", description: "Massima velocità giornaliera del vento a 10 m (m/s)" },
+  ],
+};
+
 export const TARGET_DEFINITIONS = [
   {
     name: "fire_next_7d",

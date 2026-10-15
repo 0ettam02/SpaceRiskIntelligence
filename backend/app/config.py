@@ -25,6 +25,7 @@ PATHS = {
     "daily_panel": DATA_DIR / "incendi_daily_segmentato_sample_v3.csv.gz",
     "profile_summary": DATA_DIR / "profilo_storico_segmentato_v3.csv",
     "ml_dataset": MODELS_DIR / "dati_ml_storico_v3.csv.gz",
+    "italy_era5_ml_dataset": REPO_ROOT / "dati" / "era5_italy" / "dati_ml_storico_italia_era5_v1.csv.gz",
     "models_config": MODELS_DIR / "configurazione_modelli_v3.json",
     "split_summary": MODELS_DIR / "split_temporale_storico_v3.csv",
     "historical_comparison": MODELS_DIR / "confronto_modelli_storico_v3.csv",
@@ -76,6 +77,19 @@ MODEL_LABELS = {
     "albero_decisionale": "Albero decisionale",
     "regressione_polinomiale": "Regressione polinomiale",
     "svm_rbf_approssimata": "SVM RBF approssimata",
+    "random_forest_italia_firms": "Random Forest — FIRMS (Italia)",
+    "random_forest_italia_era5": "Random Forest — FIRMS + ERA5 (Italia)",
+}
+
+MODEL_SLUGS.update({
+    "random_forest_italia_firms": "random-forest-italia-firms",
+    "random_forest_italia_era5": "random-forest-italia-era5",
+})
+
+MODEL_SCOPES = {
+    "random_forest": "Globale · 5.000 celle campionate",
+    "random_forest_italia_firms": "Italia · 19 celle · FIRMS",
+    "random_forest_italia_era5": "Italia · 19 celle · FIRMS + ERA5-Land",
 }
 
 CORS_ORIGINS = [

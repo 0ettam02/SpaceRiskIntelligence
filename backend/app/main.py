@@ -27,8 +27,9 @@ app = FastAPI(
     title="SpaceRiskIntelligence API",
     description=(
         "API sperimentale che espone gli artefatti reali della pipeline di ricerca "
-        "(cambiamenti_climatici/claudia/output_definitivo) e i 5 classificatori addestrati "
-        "in memoria all'avvio. Non è un sistema operativo di allerta incendi."
+        "(cambiamenti_climatici/claudia/output_definitivo) e i classificatori globali; "
+        "se è presente il dataset locale Italia/ERA5, espone anche i due modelli di confronto italiani. "
+        "Non è un sistema operativo di allerta incendi."
     ),
     version="0.1.0",
     lifespan=lifespan,

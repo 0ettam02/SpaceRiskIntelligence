@@ -8,6 +8,8 @@ describe("ModelComparisonTable", () => {
     render(<ModelComparisonTable models={MODELS} />);
     expect(screen.getAllByText("Random Forest").length).toBeGreaterThan(0);
     expect(screen.getAllByText("SVM RBF approssimata").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Random Forest — FIRMS + ERA5 (Italia)").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Italia · FIRMS + ERA5-Land · 19 celle").length).toBeGreaterThan(0);
     expect(screen.getAllByText("73,1%").length).toBeGreaterThan(0);
   });
 

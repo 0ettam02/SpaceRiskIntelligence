@@ -12,7 +12,7 @@ import { ConfusionMatrix } from "@/components/models/ConfusionMatrix";
 import { EmptyState } from "@/components/feedback/EmptyState";
 import { LoadingSkeleton } from "@/components/feedback/LoadingSkeleton";
 import { ErrorState } from "@/components/feedback/ErrorState";
-import { FEATURE_GROUPS } from "@/lib/constants";
+import { ERA5_FEATURE_GROUP, FEATURE_GROUPS } from "@/lib/constants";
 import { formatMetric, formatPercent } from "@/lib/formatters";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { getModelDetails } from "@/services/model-service";
@@ -31,6 +31,9 @@ export default function ModelDetailPage({ params }) {
   const { slug } = params;
   const fetcher = useCallback(() => getModelDetails(slug), [slug]);
   const { data: model, loading, error, reload } = useAsyncData(fetcher, [fetcher]);
+  const featureGroups = model?.features?.length === 25
+    ? [...FEATURE_GROUPS, ERA5_FEATURE_GROUP]
+    : FEATURE_GROUPS;
 
   return (
     <div className="space-y-6">
@@ -47,7 +50,7 @@ export default function ModelDetailPage({ params }) {
         <>
           <PageHeader
             title={model.model}
-            description={`Soglia di decisione: ${formatMetric(model.threshold, { digits: 2 })} · Stato: ${model.status}`}
+            description={`${model.scope ? `${model.scope} · ` : ""}Soglia: ${formatMetric(model.threshold, { digits: 2 })} · Stato: ${model.status}`}
             badge={
               model.recommended ? (
                 <span className="rounded-full border border-brand-400/30 bg-brand-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-brand-300">
@@ -126,9 +129,9 @@ export default function ModelDetailPage({ params }) {
 
           <section className="rounded-2xl border bg-surface p-5 shadow-panel">
             <h2 className="font-semibold">Feature utilizzate</h2>
-            <p className="mt-1 text-sm text-muted">Le stesse 17 feature sono utilizzate da tutti i modelli confrontati.</p>
+            <p className="mt-1 text-sm text-muted">Feature usate dal modello: {model.features.length}.</p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {FEATURE_GROUPS.map((group) => (
+              {featureGroups.map((group) => (
                 <div key={group.id}>
                   <p className="text-xs font-semibold uppercase tracking-[0.1em] text-brand-300">{group.label}</p>
                   <ul className="mt-2 space-y-1 text-sm text-muted">

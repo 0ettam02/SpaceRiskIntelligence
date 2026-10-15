@@ -19,7 +19,7 @@ export function ModelComparisonTable({ models }) {
       <div className="hidden overflow-x-auto lg:block">
         <table className="w-full min-w-[860px] border-collapse text-sm">
           <caption className="sr-only">
-            Tabella di confronto dei 5 classificatori valutati su fire_next_7d, con Accuracy, Balanced Accuracy, Precision, Recall, F1,
+            Tabella di confronto dei classificatori valutati su fire_next_7d, con Accuracy, Balanced Accuracy, Precision, Recall, F1,
             ROC-AUC, PR-AUC e soglia di decisione.
           </caption>
           <thead>
@@ -46,7 +46,7 @@ export function ModelComparisonTable({ models }) {
                 <th scope="row" className="px-4 py-3 text-left font-medium">
                   <Link href={`/models/${model.slug}`} className="inline-flex items-center gap-2 hover:text-brand-300">
                     {model.recommended ? <Star aria-hidden="true" size={14} className="fill-brand-300 text-brand-300" /> : null}
-                    {model.model}
+                    <span>{model.model}{model.scope ? <span className="mt-0.5 block text-xs font-normal text-muted">{model.scope}</span> : null}</span>
                     {model.recommended ? <span className="sr-only">(modello raccomandato)</span> : null}
                   </Link>
                 </th>
@@ -67,7 +67,7 @@ export function ModelComparisonTable({ models }) {
           <li key={model.slug} className={`p-4 ${model.recommended ? "bg-brand-400/[0.06]" : ""}`}>
             <Link href={`/models/${model.slug}`} className="flex items-center gap-2 font-semibold hover:text-brand-300">
               {model.recommended ? <Star aria-hidden="true" size={14} className="fill-brand-300 text-brand-300" /> : null}
-              {model.model}
+              <span>{model.model}{model.scope ? <span className="mt-0.5 block text-xs font-normal text-muted">{model.scope}</span> : null}</span>
             </Link>
             <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
               {COLUMNS.map((column) => (

@@ -109,7 +109,8 @@ NEXT_PUBLIC_API_BASE_URL=
   ```
 
   Il backend impiega circa 40–90 secondi ad avviarsi (carica i CSV reali e
-  riaddestra i 5 modelli): attendere `Application startup complete` nei suoi
+  riaddestra i 5 modelli globali e, se disponibile il dataset locale, i 2
+  modelli sperimentali italiani): attendere `Application startup complete` nei suoi
   log prima di navigare l'app. `.env.local` non è versionato (vedi `.gitignore`).
 
 Non sono presenti chiamate dirette a endpoint NASA né chiavi API nel codice
@@ -133,7 +134,8 @@ getPipelineStatus();
 Ogni informazione numerica dell'interfaccia rientra in una di queste categorie,
 esplicitata dove rilevante:
 
-- **Dato reale del run** — KPI della Overview, metriche dei 5 modelli, segmenti
+- **Dato reale del run** — KPI della Overview, metriche dei 5 modelli globali e,
+  se il dataset locale ERA5-Land è disponibile, dei 2 modelli italiani, segmenti
   temporali, righe del pannello giornaliero: estratti dagli output effettivi del
   progetto (`cambiamenti_climatici/claudia/output_definitivo/`). In modalità
   API, anche le celle della mappa e le curve ROC/Precision-Recall/istogramma
@@ -170,5 +172,6 @@ esplicitata dove rilevante:
 
 Il backend reale (FastAPI, Python) vive in `../backend`. Espone gli endpoint
 elencati sopra leggendo gli artefatti reali della pipeline di ricerca e
-riaddestrando i 5 modelli in memoria all'avvio — vedi `backend/README.md` per
+riaddestrando i 5 modelli globali in memoria all'avvio e caricando anche i 2
+modelli italiani quando il dataset locale è presente — vedi `backend/README.md` per
 installazione, avvio, test e limiti.
