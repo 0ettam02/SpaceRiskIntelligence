@@ -21,6 +21,9 @@ geografiche nei sette giorni successivi.
 
 ## Avvio rapido
 
+Per il recupero riprendibile dei giorni mancanti nei dati satellitari, vedi
+[ingestione FIRMS](cambiamenti_climatici/ingestion/README.md).
+
 ```bash
 # terminale 1 — backend (opzionale: il frontend funziona anche solo con i mock)
 cd backend

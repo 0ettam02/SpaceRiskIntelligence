@@ -1,0 +1,59 @@
+{
+  "verified_at_utc": "2026-10-15T10:43:54.532572+00:00",
+  "source": "MODIS_SP",
+  "area": "world",
+  "reference_period": {
+    "start": "2025-04-26",
+    "end": "2026-07-17"
+  },
+  "legacy_days_with_records": 310,
+  "legacy_missing_days": 138,
+  "recovered_days_with_records": 138,
+  "unresolved_requested_days": 0,
+  "recovered_records": 996439,
+  "minimum_records_per_day": 3110,
+  "maximum_records_per_day": 13832,
+  "recovered_csv_sha256": "690bd713386941e5a27a363cd15e71a70911ab9a053010ee0d6d6e8fc88be37a",
+  "availability": {
+    "data_id": "MODIS_SP",
+    "min_date": "2000-11-01",
+    "max_date": "2026-07-31"
+  },
+  "recovered_ranges": [
+    {
+      "start": "2025-09-29",
+      "end": "2025-11-25",
+      "days": 58
+    },
+    {
+      "start": "2025-11-28",
+      "end": "2025-12-05",
+      "days": 8
+    },
+    {
+      "start": "2025-12-08",
+      "end": "2025-12-13",
+      "days": 6
+    },
+    {
+      "start": "2025-12-16",
+      "end": "2025-12-25",
+      "days": 10
+    },
+    {
+      "start": "2026-04-25",
+      "end": "2026-06-19",
+      "days": 56
+    }
+  ],
+  "checks": [
+    "Daily file checksums verified",
+    "CSV dates and coordinates validated",
+    "Export counts match daily files",
+    "Recovered dates exactly match legacy gaps"
+  ],
+  "limitations": [
+    "Original raw CSVs are absent; no merged raw dataset or downstream ML artifacts regenerated.",
+    "Recovery uses MODIS_SP only; daily temporal presence does not establish per-cell observation coverage or cross-sensor homogeneity."
+  ]
+}

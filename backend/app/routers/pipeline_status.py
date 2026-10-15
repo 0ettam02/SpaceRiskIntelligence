@@ -67,7 +67,7 @@ def get_pipeline_status():
             "durationLabel": "≈ 9 min (dimostrativa)",
             "records": f"{_fmt(int(profile['panel_rows']))} righe",
             "input": "campione_celle_v3.csv + dataset consolidato",
-            "output": "incendi_daily_segmentato_sample_v3.csv",
+            "output": "incendi_daily_segmentato_sample_v3.csv.gz",
             "warnings": [],
         },
         {
@@ -77,7 +77,7 @@ def get_pipeline_status():
             "durationLabel": "≈ 4 min (dimostrativa)",
             "records": f"{_fmt(len(store.ml_df))} righe con 17 feature + target",
             "input": "Pannello giornaliero cella × data",
-            "output": "dati_ml_storico_v3.csv",
+            "output": "dati_ml_storico_v3.csv.gz",
             "warnings": ["Le finestre mobili escludono il giorno corrente tramite shift temporale."],
         },
         {
@@ -86,7 +86,7 @@ def get_pipeline_status():
             "status": "passed",
             "durationLabel": "≈ 1 min (dimostrativa)",
             "records": f"Segmento {store.training_segment_id} → {_fmt(rf['trainRows'])} train / {_fmt(rf['validationRows'])} validation / {_fmt(rf['testRows'])} test",
-            "input": "dati_ml_storico_v3.csv",
+            "input": "dati_ml_storico_v3.csv.gz",
             "output": "split in memoria (train/validation/test)",
             "warnings": ["7 giorni di embargo applicati fra train, validation e test per limitare la fuga di informazione temporale."],
         },

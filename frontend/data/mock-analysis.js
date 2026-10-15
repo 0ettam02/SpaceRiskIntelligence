@@ -1,6 +1,6 @@
 import { TIME_SEGMENTS } from "@/lib/constants";
 
-// Serie reale aggregata dal pannello giornaliero campionato (incendi_daily_segmentato_sample_v3.csv):
+// Serie reale aggregata dal pannello giornaliero campionato (incendi_daily_segmentato_sample_v3.csv.gz):
 // per ciascuna data disponibile, somma dei rilevamenti, somma FRP e numero di celle attive
 // nel campione di 5.000 celle per segmento (15.000 celle totali). Formato:
 // data,segmento,rilevamenti,frp_somma,celle_attive

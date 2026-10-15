@@ -1,0 +1,603 @@
+# SpaceRiskIntelligence
+## Report tecnico e commerciale per una presentazione di vendita
+
+**SpaceRiskIntelligence trasforma i rilevamenti satellitari NASA FIRMS in uno storico geografico strutturato, indicatori di attività e stime sperimentali della probabilità di rilevamenti nei sette giorni successivi.**
+
+Il valore del progetto è la catena completa che collega acquisizione dei dati, elaborazione geografica e temporale, machine learning e consultazione attraverso una dashboard.
+
+Questo report è basato sui notebook, sul codice e sugli artefatti presenti nel repository. Le metriche riportate provengono dalle esecuzioni salvate: non ho effettuato un nuovo addestramento.
+
+---
+
+## 1. Il progetto: cosa proponiamo al cliente
+
+SpaceRiskIntelligence è un prototipo di piattaforma di analisi geospaziale dedicata all’attività termica rilevata dai satelliti, con un primo caso d’uso orientato agli incendi.
+
+Permette di rispondere a tre domande:
+
+1. **Dove è stata rilevata attività?**
+2. **Come si è evoluta nel tempo?**
+3. **Quali celle presentano un segnale predittivo più alto di nuovi rilevamenti nei sette giorni successivi?**
+
+La piattaforma combina una componente descrittiva, che organizza ciò che è stato osservato, e una componente predittiva, che apprende le relazioni tra lo storico recente e le osservazioni future.
+
+**Messaggio per la presentazione**
+
+> «Dai dati satellitari a una lettura geografica dell’attività e delle priorità di approfondimento, attraverso una pipeline verificabile e modelli confrontati su dati successivi all’addestramento.»
+
+**Posizionamento attuale:** prototipo funzionante di ricerca, adatto come base per un progetto pilota. Non è ancora un sistema operativo di allerta incendi.
+
+---
+
+## 2. Il problema che affrontiamo
+
+I dati satellitari contengono numerose osservazioni puntuali, ma per utilizzarli in un processo aziendale occorre trasformarli.
+
+Una lista di coordinate, date e misure termiche non fornisce direttamente:
+
+- uno storico coerente per ciascun territorio;
+- indicatori confrontabili tra periodi;
+- una gestione esplicita delle interruzioni nei dati;
+- una stima dell’attività futura;
+- un’interfaccia consultabile da persone non specialiste.
+
+SpaceRiskIntelligence realizza questo passaggio: **dal singolo rilevamento a un’informazione organizzata per area geografica e giorno**.
+
+Il beneficio commerciale da verificare con un cliente è la possibilità di ridurre il lavoro manuale di analisi e rendere più sistematica la selezione delle aree da approfondire.
+
+---
+
+## 3. Fonte dei dati: NASA FIRMS
+
+La fonte esterna è **NASA FIRMS — Fire Information for Resource Management System**, un servizio che distribuisce osservazioni satellitari di incendi attivi e anomalie termiche.
+
+FIRMS rende disponibili, tra gli altri, dati dei sensori MODIS e VIIRS. Nel materiale esplorativo del progetto sono direttamente documentati record MODIS, inclusi `MODIS_NRT`, e osservazioni dei satelliti Terra e Aqua. Il codice di acquisizione interroga dinamicamente l’elenco dei dataset disponibili. [Fonte ufficiale NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/).
+
+È utile distinguere tre livelli:
+
+| Livello | Nome | Significato |
+|---|---|---|
+| Fonte esterna | NASA FIRMS | Servizio dal quale vengono acquisiti i rilevamenti |
+| Dataset iniziale del progetto | `dataset_incendi_FIRMS.csv` | Raccolta locale dei dati scaricati |
+| Dataset finale per il machine learning | `dati_ml_storico_v3.csv.gz` | Tabella elaborata con variabili predittive e risultati futuri da apprendere |
+
+**Precisazione sulla provenienza:** i due CSV grezzi richiamati dalla pipeline non sono presenti nell’attuale copia del repository. La loro elaborazione è documentata dal codice e dagli artefatti derivati, ma non è possibile verificare direttamente l’inventario completo delle fonti effettivamente confluite nei dati.
+
+Per una presentazione è quindi corretto dire **“dati provenienti da NASA FIRMS”**. L’elenco esatto di tutti i prodotti utilizzati richiede il recupero dei file originali.
+
+---
+
+## 4. Come sono fatti i dati grezzi
+
+Il dato iniziale è tabellare, in formato CSV. Non stiamo addestrando un modello direttamente sulle immagini satellitari: utilizziamo le informazioni estratte dai prodotti di rilevamento.
+
+Ogni riga rappresenta un’osservazione satellitare.
+
+Nel campione MODIS documentato nei notebook sono presenti questi campi:
+
+| Campo | Contenuto | Utilità |
+|---|---|---|
+| `latitude`, `longitude` | Coordinate del rilevamento | Localizzazione geografica |
+| `acq_date`, `acq_time` | Data e ora di acquisizione | Collocazione temporale |
+| `brightness` | Temperatura di brillanza | Caratterizzazione termica |
+| `bright_t31` | Temperatura di brillanza di un altro canale MODIS | Informazione termica aggiuntiva |
+| `frp` | Fire Radiative Power | Potenza radiativa associata al rilevamento |
+| `scan`, `track` | Dimensioni del pixel osservato | Geometria dell’osservazione |
+| `satellite` | Satellite di provenienza | Tracciabilità |
+| `instrument` | Sensore | Identificazione dello strumento |
+| `confidence` | Confidenza del rilevamento | Indicatore di qualità del prodotto |
+| `version` | Versione del prodotto | Tracciabilità tecnica |
+| `daynight` | Osservazione diurna o notturna | Contesto dell’acquisizione |
+| `dataset` | Identificativo della fonte interrogata | Provenienza, aggiunta dall’ingestione |
+| `chunk_start`, `chunk_end` | Estremi del blocco richiesto | Tracciamento del download |
+
+La **FRP è una potenza radiativa espressa in megawatt**, non una misura di radioattività. Anche la temperatura di brillanza non va presentata come temperatura dell’aria. [Definizioni ufficiali dei campi MODIS](https://firms.modaps.eosdis.nasa.gov/descriptions/FIRMS_MODIS_Firehotspots.html).
+
+Un punto fondamentale per raccontare correttamente il prodotto:
+
+> **Un rilevamento non equivale a un incendio distinto.** Uno stesso evento può generare più osservazioni, su pixel diversi o in passaggi successivi.
+
+Il progetto lavora quindi su **conteggi di rilevamenti**, non su un censimento deduplicato degli incendi.
+
+---
+
+## 5. Acquisizione: come abbiamo raccolto i dati
+
+Il notebook di ingestione implementa questo processo:
+
+1. Accesso alle API FIRMS tramite una chiave.
+2. Consultazione dei dataset disponibili.
+3. Iterazione sulle fonti restituite.
+4. Richiesta dei dati sull’area `world`.
+5. Suddivisione delle richieste in blocchi di due giorni.
+6. Aggiunta dei metadati di provenienza.
+7. Concatenazione dei risultati e salvataggio in CSV.
+
+Il codice imposta una ricerca relativa agli ultimi 365 giorni rispetto alla data di esecuzione. Lo storico consolidato utilizzato successivamente copre un intervallo più ampio, perché la pipeline definitiva legge due file sorgente.
+
+La presenza di una procedura di acquisizione non implica che l’applicazione sia già aggiornata automaticamente: **il backend attuale utilizza gli artefatti locali salvati**.
+
+**Valore commerciale:** esiste già il collegamento tecnico tra una fonte satellitare esterna e un formato utilizzabile dalla piattaforma.
+
+---
+
+## 6. Dimensioni e copertura del patrimonio dati
+
+I numeri verificati negli artefatti sono:
+
+| Indicatore | Valore |
+|---|---:|
+| Record validi stimati nel profilo della pipeline | **16.255.053** |
+| Intervallo complessivo | **26 aprile 2025 – 17 luglio 2026** |
+| Giorni di calendario | **448** |
+| Giorni con dati | **310** |
+| Giorni mancanti | **138** |
+| Segmenti temporali individuati | **6** |
+| Segmenti ammessi al pannello giornaliero | **3** |
+| Celle campionate nel pannello globale | **5.000** |
+| Coordinate di cella distinte nel campione | **5.000** |
+| Righe del pannello giornaliero aggiornato | **2.240.000** |
+| Righe del dataset ML aggiornato | **2.055.000** |
+| Variabili predittive del modello principale | **17** |
+
+I 16,26 milioni sono il conteggio riportato dal profilo per i record che superano i controlli sui campi essenziali. Non rappresentano 16,26 milioni di incendi.
+
+Il pannello aggiornato copre 5.000 celle campionate su 448 giorni; le righe non rappresentano 2,24 milioni di celle distinte.
+
+**Messaggio per la presentazione**
+
+> «La pipeline ha organizzato oltre 16 milioni di record validi stimati in un pannello giornaliero da 2,24 milioni di osservazioni territoriali, dal quale deriva un dataset predittivo da oltre 2 milioni di righe.»
+
+---
+
+## 7. Pulizia e preparazione dei dati
+
+La pipeline definitiva utilizza quattro campi del dato grezzo:
+
+- latitudine;
+- longitudine;
+- data di acquisizione;
+- FRP.
+
+Le operazioni principali sono:
+
+**Lettura a blocchi.**
+I file vengono elaborati in blocchi da 500.000 righe, contenendo l’uso della memoria.
+
+**Normalizzazione temporale.**
+Le date vengono convertite e ricondotte al giorno, coerentemente con la frequenza del modello.
+
+**Esclusione dei record incompleti.**
+Vengono eliminate le righe prive di coordinate, data valida o FRP.
+
+**Conversione dei tipi numerici.**
+L’impiego di tipi come `float32` riduce il peso delle elaborazioni.
+
+**Assegnazione a celle geografiche.**
+Le coordinate puntuali vengono trasformate in riferimenti a una griglia comune.
+
+Nei notebook iniziali erano presenti pulizie più generali, compresa l’eliminazione delle righe con valori mancanti. La pipeline definitiva adotta una selezione esplicita dei campi indispensabili.
+
+Non risulta implementata una deduplicazione completa tra fonti e sensori: rimane un passaggio da consolidare.
+
+---
+
+## 8. Organizzazione geografica: la griglia da 0,1°
+
+Il territorio viene suddiviso in celle di **0,1° di latitudine × 0,1° di longitudine**.
+
+Ogni rilevamento viene assegnato alla cella corrispondente arrotondando per difetto le coordinate al passo della griglia.
+
+Questo permette di aggregare osservazioni vicine e costruire lo storico di ciascuna area.
+
+La dimensione è espressa in gradi: **non corrisponde a una superficie costante in chilometri quadrati**, perché l’estensione di un grado di longitudine cambia con la latitudine.
+
+La griglia di analisi è inoltre distinta dalla risoluzione originaria del sensore.
+
+**Valore commerciale:** ottenere un’unità territoriale coerente sulla quale confrontare attività passata e segnali predittivi.
+
+---
+
+## 9. Gestione delle interruzioni temporali
+
+Uno degli aspetti più rilevanti del lavoro è la separazione tra:
+
+- un giorno senza rilevamenti in una cella;
+- un giorno assente nell’intera sorgente disponibile.
+
+Trattare entrambe le situazioni come zero produrrebbe uno storico fuorviante.
+
+La pipeline identifica quindi periodi consecutivi con dati:
+
+| Segmento | Periodo | Durata | Utilizzo |
+|---|---|---:|---|
+| 0 | 26/04/2025–28/09/2025 | 156 giorni | Pannello e dataset ML |
+| 1 | 26/11/2025–27/11/2025 | 2 giorni | Escluso |
+| 2 | 06/12/2025–07/12/2025 | 2 giorni | Escluso |
+| 3 | 14/12/2025–15/12/2025 | 2 giorni | Escluso |
+| 4 | 26/12/2025–24/04/2026 | 120 giorni | Pannello e dataset ML |
+| 5 | 20/06/2026–17/07/2026 | 28 giorni | Solo pannello |
+
+La soglia di ammissione al pannello è 28 giorni. Il modello, però, richiede fino a 30 giorni di storia e sette giorni futuri per costruire l’etichetta: il segmento da 28 giorni non produce righe ML valide.
+
+All’interno dei segmenti, le assenze di rilevamenti per cella diventano zero. Questo significa **“nessun rilevamento presente nei dati”**, senza garantire che il satellite abbia osservato ogni cella in condizioni ottimali.
+
+---
+
+## 10. Campionamento e costruzione del pannello giornaliero
+
+Per rendere trattabile l’elaborazione, vengono selezionate fino a 5.000 celle per ciascun segmento utilizzabile.
+
+Il campionamento:
+
+- è casuale senza reinserimento;
+- è riproducibile, con seed `42`;
+- riguarda le celle con almeno un rilevamento nel segmento.
+
+Successivamente si crea una riga per ogni combinazione:
+
+> **segmento × cella geografica × giorno**
+
+Per ogni riga si calcolano:
+
+| Variabile | Significato |
+|---|---|
+| `detection_count` | Numero di rilevamenti del giorno |
+| `daily_frp_sum` | Somma delle FRP osservate |
+| `daily_frp_mean` | FRP media dei rilevamenti |
+| `daily_frp_max` | FRP massima osservata |
+| `active_fire_day` | Presenza di almeno un rilevamento |
+| `segment_start`, `segment_end` | Confini del periodo continuo |
+
+Il risultato è `incendi_daily_segmentato_sample_v3.csv.gz`, con 2.240.000 righe nell'ultimo artefatto generato.
+
+Le somme FRP sono indicatori aggregati delle osservazioni: non sono una misura diretta dell’energia totale dell’incendio.
+
+**Limite di rappresentatività:** il campione riguarda celle storicamente attive. Le prestazioni ottenute non descrivono automaticamente tutta la superficie terrestre.
+
+---
+
+## 11. Feature engineering: come trasformiamo lo storico in informazione predittiva
+
+Il modello principale utilizza **17 variabili**, suddivise in cinque gruppi.
+
+| Gruppo | Variabili | Informazione rappresentata |
+|---|---|---|
+| Rilevamenti passati | `detection_lag_1d`, `3d`, `7d`, `14d` | Attività osservata in specifici giorni precedenti |
+| Attività cumulata | `detection_sum_last_3d`, `7d`, `14d`, `30d` | Volume recente dei rilevamenti |
+| Persistenza | `active_days_last_3d`, `7d`, `14d`, `30d` | Frequenza dei giorni con attività |
+| Segnale radiativo | `frp_sum_last_7d`, `frp_sum_last_14d`, `frp_mean_active_last_7d` | Intensità aggregata recente |
+| Stagionalità | `sin_doy`, `cos_doy` | Posizione del giorno nel ciclo annuale |
+
+### Perché queste variabili sono utili
+
+I lag descrivono la memoria puntuale del fenomeno. Le somme mobili misurano l’accumulo recente. I giorni attivi distinguono un episodio isolato da un’attività persistente.
+
+Seno e coseno rappresentano la stagionalità senza creare una discontinuità artificiale tra fine dicembre e inizio gennaio.
+
+Le finestre storiche applicano uno **spostamento di un giorno**, quindi escludono il giorno corrente e utilizzano solo osservazioni precedenti.
+
+### Un dettaglio che incide sul campione finale
+
+`frp_mean_active_last_7d` divide la somma FRP per il numero di giorni attivi della settimana precedente. Quando questi giorni sono zero, il risultato è mancante; la successiva selezione delle righe complete elimina tali osservazioni.
+
+Il dataset ML è quindi ulteriormente condizionato alla presenza di attività recente. Questo aiuta a definire il caso d’uso: **previsione di attività futura in contesti già caratterizzati da rilevamenti**, più che previsione universale di nuove accensioni in territori inattivi.
+
+---
+
+## 12. Cosa prediciamo esattamente
+
+Il target principale è `fire_next_7d`:
+
+> Assume valore 1 se nella stessa cella compare almeno un rilevamento tra il giorno successivo e il settimo giorno successivo; altrimenti assume valore 0.
+
+Viene costruito anche `fire_count_next_7d`, che contiene la somma dei rilevamenti nei sette giorni futuri.
+
+La variabile `target_horizon_complete_7d` verifica che tutti e sette i giorni siano disponibili. Le righe senza futuro completo vengono escluse dal dataset di addestramento.
+
+Il classificatore restituisce una probabilità stimata. Questa viene poi confrontata con una soglia per ottenere la classe positiva o negativa.
+
+La formulazione commerciale più fedele è:
+
+> «Stima sperimentale della probabilità di attività satellitare rilevata nei sette giorni successivi, sulla base dello storico della cella.»
+
+Non è una previsione della superficie bruciata, della propagazione, del danno economico o del numero di incendi indipendenti.
+
+---
+
+## 13. Analisi statistiche e trasformazioni esplorate
+
+Il progetto include diverse analisi di supporto:
+
+| Tecnica | Scopo | Stato |
+|---|---|---|
+| Matrice di correlazione e clustermap | Individuare relazioni e ridondanze tra variabili | Presente |
+| Boxplot e criterio IQR | Descrivere valori estremi e distribuzioni | Presente |
+| Medie mobili temporali | Leggere l’evoluzione della quota di target positivi | Presente |
+| Bootstrap per cella | Stimare la variabilità della prevalenza nel test | Presente |
+| Trasformazione `log1p` | Ridurre l’asimmetria di conteggi e FRP | Esperimento separato |
+| Densità spaziale KDE | Esplorare concentrazioni geografiche | Notebook esplorativo |
+| Indicatore di anomalia FRP | Evidenziare valori elevati rispetto alla distribuzione locale | Notebook esplorativo |
+
+Il bootstrap effettua 500 ricampionamenti e produce un intervallo di circa **57,2%–60,4%** per la prevalenza del target nel campione di test. Non è un intervallo di confidenza delle prestazioni del modello.
+
+La trasformazione `log1p` genera `dataset_log1p.csv`. **Non è applicata alla pipeline principale dei cinque classificatori**, ma viene utilizzata negli esperimenti successivi.
+
+Gli outlier vengono analizzati: non emerge una loro rimozione sistematica nel modello principale.
+
+---
+
+## 14. Modelli predittivi confrontati
+
+La pipeline principale confronta cinque approcci.
+
+| Modello | Funzionamento | Configurazione principale |
+|---|---|---|
+| Regressione logistica | Stima una relazione lineare sulle variabili trasformata in probabilità | Standardizzazione e pesi di classe |
+| Logistica con feature polinomiali | Introduce interazioni e termini quadratici | Polinomi di grado 2 |
+| Modello con approssimazione RBF | Introduce trasformazioni non lineari delle variabili | 400 componenti RBF, `gamma=0,05`, classificatore logistico |
+| Albero decisionale | Costruisce regole successive di separazione | Profondità massima 10, minimo 150 osservazioni per foglia |
+| Random Forest | Combina numerosi alberi | 120 alberi, profondità massima 16, minimo 100 osservazioni per foglia |
+
+Due nomi del repository vanno spiegati con precisione:
+
+- **“Regressione polinomiale”** è una classificazione logistica con feature polinomiali.
+- **“SVM RBF approssimata”** utilizza `RBFSampler` seguito da regressione logistica; non è una SVM classica addestrata con `SVC`.
+
+Le pipeline prevedono imputazione con la mediana e, dove necessario, standardizzazione. Queste trasformazioni vengono apprese sul training set.
+
+---
+
+## 15. Metodo di validazione
+
+Per la valutazione principale viene utilizzato il segmento temporale più lungo, con dati da aprile a settembre 2025.
+
+La separazione segue l’ordine temporale:
+
+| Insieme | Periodo delle righe ML | Righe |
+|---|---|---:|
+| Training | 26 maggio–27 luglio 2025 | **51.802** |
+| Embargo | 28 luglio–3 agosto | — |
+| Validation | 4–24 agosto 2025 | **23.609** |
+| Embargo | 25–31 agosto | — |
+| Test | 1–21 settembre 2025 | **26.358** |
+
+I sette giorni di embargo separano gli insiemi e limitano la sovrapposizione informativa dovuta all’orizzonte futuro del target.
+
+La soglia di classificazione viene scelta **esclusivamente sulla validation**, cercando il valore che massimizza F1 tra 0,05 e 0,95.
+
+Il test viene utilizzato per la valutazione finale.
+
+**Valore commerciale:** le prestazioni principali sono misurate su un periodo successivo a quello usato per addestrare il modello. Rimane comunque una validazione su un singolo intervallo, da ampliare prima dell’impiego operativo.
+
+---
+
+## 16. Risultati dei modelli
+
+I valori seguenti provengono dal CSV dettagliato delle metriche salvate.
+
+| Modello | Accuracy | ROC-AUC | AP¹ | Precision | Recall | F1 |
+|---|---:|---:|---:|---:|---:|---:|
+| **Random Forest** | **73,1%** | **0,816** | **0,862** | **71,5%** | **90,3%** | **0,798** |
+| Albero decisionale | 71,3% | 0,803 | 0,846 | 69,4% | 91,8% | 0,790 |
+| Regressione logistica | 66,4% | 0,813 | 0,859 | 64,3% | 96,3% | 0,771 |
+| Logistica con feature polinomiali | 67,2% | 0,762 | 0,787 | 65,9% | 91,9% | 0,768 |
+| Approssimazione RBF + logistica | 42,7% | 0,339 | 0,504 | 51,1% | 64,4% | 0,570 |
+
+¹ Nel repository chiamata `pr_auc`; il codice calcola **Average Precision**.
+
+### Perché è stata scelta Random Forest
+
+Nel confronto salvato offre il miglior risultato per Average Precision, F1 e accuracy.
+
+La soglia selezionata è **0,38**.
+
+Interpretazione pratica:
+
+- intercetta circa il **90% delle osservazioni positive** del test;
+- circa il **72% delle classificazioni positive** è corretto;
+- il tasso di falsi positivi tra i casi realmente negativi è circa **51,6%**.
+
+Quest’ultimo dato è importante: l’elevata sensibilità comporta numerose segnalazioni positive non confermate.
+
+Il **90,3% è recall, non accuratezza complessiva**. Inoltre, l’86,2% di Average Precision non significa “86,2% di previsioni corrette”.
+
+**Frase pronta per la slide**
+
+> «Nel test temporale isolato, Random Forest raggiunge ROC-AUC 0,816 e F1 0,798, con recall del 90,3% e precision del 71,5% sul campione analizzato.»
+
+---
+
+## 17. Altri esperimenti: classificazione e previsione dei conteggi
+
+Il repository contiene anche due linee sperimentali separate dalla pipeline principale.
+
+### Classificazione su dataset trasformato
+
+Un notebook utilizza una Random Forest da 100 alberi su `dataset_log1p.csv`, con divisione casuale 80/20.
+
+Riporta:
+
+- accuracy: **90,0%**;
+- precision: **89,2%**;
+- recall: **91,8%**;
+- F1: **0,905**.
+
+Questi risultati non sono direttamente confrontabili con il test temporale principale: cambiano le variabili e il protocollo, e osservazioni vicine nel tempo possono finire in insiemi differenti.
+
+Non userei quindi “90% di accuratezza” come dato principale di vendita.
+
+### Regressione sul numero di rilevamenti
+
+Un altro notebook utilizza `RandomForestRegressor` con 100 alberi per stimare `fire_count_next_7d`, trasformando il target con `log1p`.
+
+Sul test casuale, dopo il ritorno alla scala originale:
+
+| Metrica | Valore |
+|---|---:|
+| MAE | **2,61 rilevamenti** |
+| RMSE | **9,82 rilevamenti** |
+| R² | **0,389** |
+
+È presente anche un backtest temporale a finestre mensili, con cinque periodi valutati. La media delle metriche per periodo è:
+
+| Metrica | Media dei periodi |
+|---|---:|
+| MAE | **2,50** |
+| RMSE | **5,74** |
+| R² | **0,178** |
+
+Questo backtest non applica l’embargo di sette giorni utilizzato nella classificazione principale.
+
+**Posizionamento:** la previsione quantitativa dei rilevamenti è una linea di ricerca già avviata, con risultati più deboli e variabili nel tempo. Non risulta integrata nel servizio predittivo della dashboard.
+
+---
+
+## 18. Il prodotto già realizzato
+
+Il progetto comprende tre componenti.
+
+| Componente | Tecnologie | Funzione |
+|---|---|---|
+| Ricerca e preparazione dati | Python, pandas, NumPy, scikit-learn, notebook | Elaborazione, feature engineering e modelli |
+| Backend | FastAPI | Caricamento artefatti, addestramento in memoria, esposizione API |
+| Frontend | Next.js, React, Tailwind, MapLibre, Recharts | Consultazione geografica e analitica |
+
+La dashboard comprende:
+
+- panoramica dei principali indicatori;
+- mappa con dettagli delle celle;
+- analisi temporali;
+- confronto dei modelli;
+- metriche e grafici diagnostici;
+- controlli sulla qualità dei dati;
+- rappresentazione delle fasi della pipeline.
+
+Il backend carica i CSV, riaddestra i cinque classificatori all’avvio e utilizza Random Forest per calcolare le stime sulle ultime righe disponibili nel dataset ML.
+
+Le date di riferimento sono storiche: **la probabilità visualizzata non coincide necessariamente con una previsione fatta oggi**.
+
+---
+
+## 19. Cosa mostra la demo e cosa è già collegato ai dati reali
+
+La dashboard supporta due modalità.
+
+**Modalità mock:** utilizza dati locali per la dimostrazione. Alcuni indicatori provengono dagli output reali, mentre le celle della mappa e alcune curve sono dimostrative.
+
+**Modalità API:** utilizza gli artefatti effettivi e i risultati calcolati dal backend.
+
+Il confronto grafico “osservato vs previsione” dell’analisi temporale resta dimostrativo anche in modalità API: il modello di regressione sperimentale non è collegato a quel grafico.
+
+Anche le fasce qualitative “bassa”, “moderata”, “elevata” e “molto elevata” sono una configurazione dell’interfaccia, non soglie operative validate.
+
+Per una presentazione commerciale conviene mostrare la modalità API e rendere visibili le date di riferimento.
+
+---
+
+## 20. Il valore che possiamo proporre
+
+La proposta di valore attuale può essere articolata in quattro elementi:
+
+**Organizzazione del dato.**
+Una pipeline che trasforma osservazioni puntuali in serie territoriali utilizzabili.
+
+**Consultazione unificata.**
+Mappa, storico, indicatori e risultati dei modelli accessibili dalla stessa interfaccia.
+
+**Metodo verificabile.**
+Configurazioni, artefatti intermedi, separazione temporale e metriche documentate.
+
+**Base per personalizzazioni.**
+Un’architettura già separata in elaborazione, API e frontend, sulla quale costruire casi d’uso specifici.
+
+Possibili destinatari di un pilota includono gestori territoriali, operatori con infrastrutture distribuite e organizzazioni che analizzano esposizioni geografiche. L’integrazione con asset, processi decisionali e dati del cliente sarebbe parte del lavoro successivo.
+
+Non sono ancora dimostrati risparmi economici, riduzioni dei danni o miglioramenti operativi misurati sul campo.
+
+---
+
+## 21. Sviluppi necessari per un prodotto operativo
+
+| Area | Situazione attuale | Passo successivo |
+|---|---|---|
+| Aggiornamento dati | Artefatti locali storici | Acquisizione incrementale automatizzata |
+| Provenienza | Ricostruibile da codice e output | Recupero grezzi e inventario versionato delle fonti |
+| Qualità | Controlli essenziali e segmentazione | Deduplicazione e verifica della copertura per cella |
+| Campionamento | Celle attive e righe con attività recente | Valutazione su un universo territoriale più rappresentativo |
+| Validazione | Un test temporale principale | Più periodi, stagioni e territori esclusi dal training |
+| Probabilità | Output dei classificatori | Verifica e calibrazione delle probabilità |
+| Variabili | Storico rilevamenti, FRP, stagionalità | Integrazione e valutazione di meteo, vegetazione e suolo |
+| Gestione modelli | Riaddestramento a ogni avvio | Modelli persistiti, versioni e monitoraggio |
+| Applicazione | Prototipo locale senza autenticazione | Accessi, infrastruttura e prestazioni adeguate |
+| Processo cliente | Nessun impatto operativo misurato | Pilota con indicatori di successo concordati |
+
+L’aggiunta di meteo e vegetazione è una possibilità di sviluppo, **non una componente già utilizzata dai 17 predittori attuali**.
+
+---
+
+## 22. Come proporre commercialmente il progetto
+
+La proposta più coerente con lo stato attuale è un **pilota su un territorio o portafoglio di aree definito**.
+
+Il pilota dovrebbe includere:
+
+1. Selezione del territorio e del problema decisionale.
+2. Verifica e consolidamento delle fonti.
+3. Preparazione di uno storico sufficientemente continuo.
+4. Valutazione su periodi e aree separati dall’addestramento.
+5. Configurazione della dashboard.
+6. Misurazione dell’utilità per il cliente.
+
+Gli indicatori di successo dovrebbero comprendere precision e recall, numero di segnalazioni da esaminare, copertura e freschezza dei dati, oltre al tempo necessario per svolgere l’analisi.
+
+**Messaggio commerciale**
+
+> «Proponiamo di portare una pipeline già funzionante sul vostro territorio, misurarne le prestazioni e verificare come integrare i suoi indicatori nel vostro processo di analisi.»
+
+---
+
+## 23. Scaletta consigliata della presentazione
+
+| Slide | Titolo | Contenuto principale |
+|---|---|---|
+| 1 | SpaceRiskIntelligence | Visione e proposta di valore |
+| 2 | Il problema | Trasformare osservazioni satellitari in informazioni utilizzabili |
+| 3 | La fonte | NASA FIRMS e significato del rilevamento |
+| 4 | Il patrimonio dati | 16,26 milioni di record validi stimati e copertura temporale |
+| 5 | Dal dato grezzo al territorio | Pulizia, griglia e aggregazione |
+| 6 | Costruire uno storico affidabile | Segmentazione e gestione dei giorni mancanti |
+| 7 | Le variabili predittive | Memoria, persistenza, FRP e stagionalità |
+| 8 | La domanda del modello | Attività rilevata nei sette giorni successivi |
+| 9 | Il metodo di valutazione | Training, validation, embargo e test |
+| 10 | I risultati | Random Forest e confronto tra modelli |
+| 11 | La piattaforma | Mappa, indicatori, modelli e qualità dei dati |
+| 12 | Il valore per il cliente | Caso d’uso e processo da migliorare |
+| 13 | Il pilota | Perimetro, risultati attesi e criteri di successo |
+| 14 | Evoluzione del prodotto | Aggiornamento, nuove variabili e integrazione operativa |
+
+Per l’appendice tecnica: dizionario dei campi, iperparametri, risultati della regressione e limiti del campione.
+
+---
+
+## 24. Materiale disponibile e fonti del report
+
+Nel repository sono già presenti grafici utilizzabili come base:
+
+- confronto dei modelli;
+- andamento del target nei segmenti;
+- matrice di confusione Random Forest;
+- correlazioni tra variabili;
+- distribuzioni e trasformazione `log1p`.
+
+Prima di inserirli nelle slide, conviene riallinearli alla tabella delle metriche scelta: il riepilogo Markdown presenta alcune differenze rispetto al CSV dettagliato, soprattutto per il modello polinomiale.
+
+Riferimenti principali:
+
+- [Notebook di acquisizione](/Users/matteoarutadm/lavoro/digital_mens/SpaceRiskIntelligence/cambiamenti_climatici/matteo/data_ingestion.ipynb)
+- [Pipeline definitiva: segmentazione e pannello](/Users/matteoarutadm/lavoro/digital_mens/SpaceRiskIntelligence/cambiamenti_climatici/claudia/lag_target_daily_definitivo.ipynb)
+- [Feature engineering e confronto dei modelli](/Users/matteoarutadm/lavoro/digital_mens/SpaceRiskIntelligence/cambiamenti_climatici/claudia/analisi_modelli_incendi_definitivo.ipynb)
+- [CSV delle metriche utilizzate nel report](/Users/matteoarutadm/lavoro/digital_mens/SpaceRiskIntelligence/cambiamenti_climatici/claudia/output_definitivo/modelli/confronto_modelli_storico_v3.csv)
+- [Esperimenti di regressione e backtest](/Users/matteoarutadm/lavoro/digital_mens/SpaceRiskIntelligence/cambiamenti_climatici/matteo/modello_regressione_COUNT_7D.ipynb)
+- [Documentazione del backend](/Users/matteoarutadm/lavoro/digital_mens/SpaceRiskIntelligence/backend/README.md)
+- [Documentazione della dashboard](/Users/matteoarutadm/lavoro/digital_mens/SpaceRiskIntelligence/frontend/README.md)

@@ -1,0 +1,28 @@
+{
+  "verified_at_utc": "2026-10-15T11:20:56.646193+00:00",
+  "source": "MODIS_SP",
+  "area": "world",
+  "start": "2025-04-26",
+  "end": "2026-07-17",
+  "requested_days": 448,
+  "verified_days": 448,
+  "days_with_records": 448,
+  "unresolved_days": 0,
+  "records": 4183588,
+  "minimum_records_per_day": 3110,
+  "maximum_records_per_day": 30043,
+  "export_bytes": 465682781,
+  "export_sha256": "0c90dd0769b627df8c8b5cbd227f3bfd2428e5e2e7b47ac6f3f05ff247dddbb8",
+  "checks": [
+    "complete daily calendar",
+    "daily checksums",
+    "CSV schema/dates/coordinates",
+    "daily deduplication and counts",
+    "export dates/source/counts"
+  ],
+  "limitations": [
+    "Daily detections do not establish observation coverage of each cell.",
+    "Single-source reconstruction replaces, rather than replicates, the old raw dataset.",
+    "Existing ML artifacts have not been regenerated."
+  ]
+}

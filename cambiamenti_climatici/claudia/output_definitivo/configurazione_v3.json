@@ -4,7 +4,6 @@
   "min_segment_days": 28,
   "max_cells_per_segment": 5000,
   "sources": [
-    "../dataset_incendi_FIRMS.csv",
-    "../matteo/dataset_incendi_FIRMS.csv"
+    "/Users/matteoarutadm/lavoro/digital_mens/SpaceRiskIntelligence/cambiamenti_climatici/ingestion/output/modis_sp_history/recovered.csv"
   ]
 }

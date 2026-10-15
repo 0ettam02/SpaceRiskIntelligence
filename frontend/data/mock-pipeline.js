@@ -50,7 +50,7 @@ export const PIPELINE_STEPS = [
     durationLabel: "≈ 9 min (dimostrativa)",
     records: "1.520.000 righe (15.000 celle × giorni dei segmenti)",
     input: "campione_celle_v3.csv + dataset consolidato",
-    output: "incendi_daily_segmentato_sample_v3.csv",
+    output: "incendi_daily_segmentato_sample_v3.csv.gz",
     warnings: [],
   },
   {
@@ -60,7 +60,7 @@ export const PIPELINE_STEPS = [
     durationLabel: "≈ 4 min (dimostrativa)",
     records: "194.833 righe con 17 feature + target",
     input: "Pannello giornaliero cella × data",
-    output: "dati_ml_storico_v3.csv",
+    output: "dati_ml_storico_v3.csv.gz",
     warnings: ["Le finestre mobili escludono il giorno corrente tramite shift temporale."],
   },
   {
@@ -69,7 +69,7 @@ export const PIPELINE_STEPS = [
     status: "passed",
     durationLabel: "≈ 1 min (dimostrativa)",
     records: "Segmento 0 → 51.802 train / 23.609 validation / 26.358 test",
-    input: "dati_ml_storico_v3.csv",
+    input: "dati_ml_storico_v3.csv.gz",
     output: "split_temporale_storico_v3.csv",
     warnings: ["7 giorni di embargo applicati fra train, validation e test per limitare la fuga di informazione temporale."],
   },

@@ -14,8 +14,8 @@ lo stesso contratto JSON già usato dai service in `frontend/services/*.js`.
 All'avvio del processo (una sola volta, non ad ogni richiesta) il backend:
 
 1. Carica i CSV reali già prodotti dalla pipeline (`segmenti_temporali_v3.csv`,
-   `campione_celle_v3.csv`, `incendi_daily_segmentato_sample_v3.csv`,
-   `profilo_storico_segmentato_v3.csv`, `modelli/dati_ml_storico_v3.csv`).
+   `campione_celle_v3.csv`, `incendi_daily_segmentato_sample_v3.csv.gz`,
+   `profilo_storico_segmentato_v3.csv`, `modelli/dati_ml_storico_v3.csv.gz`).
 2. Riaddestra i 5 classificatori di `fire_next_7d` **riproducendo esattamente**
    iperparametri, split temporale con embargo di 7 giorni e selezione della
    soglia del notebook `cambiamenti_climatici/claudia/analisi_modelli_incendi_definitivo.ipynb`.

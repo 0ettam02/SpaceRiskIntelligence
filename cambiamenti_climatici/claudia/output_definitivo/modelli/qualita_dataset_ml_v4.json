@@ -1,0 +1,41 @@
+{
+  "input": "output_definitivo/incendi_daily_segmentato_sample_v3.csv.gz",
+  "output": "output_definitivo/modelli/dati_ml_storico_v3.csv.gz",
+  "rows_in_daily_panel": 2240000,
+  "rows_with_complete_30d_history_and_7d_target": 2055000,
+  "rows_excluded_for_incomplete_history_or_target": 185000,
+  "positive_target_rows": 132466,
+  "positive_target_share": 0.0644603406326034,
+  "retained_rows_without_activity_in_previous_7d": 1923633,
+  "retained_quiet_row_share": 0.9360744525547445,
+  "quiet_rows_with_positive_target": 83083,
+  "quiet_rows_lost_by_old_dropna": 1923633,
+  "horizon_days": 7,
+  "feature_columns_unchanged": [
+    "detection_lag_1d",
+    "detection_lag_3d",
+    "detection_lag_7d",
+    "detection_lag_14d",
+    "detection_sum_last_3d",
+    "detection_sum_last_7d",
+    "detection_sum_last_14d",
+    "detection_sum_last_30d",
+    "active_days_last_3d",
+    "active_days_last_7d",
+    "active_days_last_14d",
+    "active_days_last_30d",
+    "frp_sum_last_7d",
+    "frp_sum_last_14d",
+    "frp_mean_active_last_7d",
+    "sin_doy",
+    "cos_doy"
+  ],
+  "no_recent_activity_is_diagnostic_not_model_feature": true,
+  "checks": [
+    "unique cell/date rows",
+    "complete 30-day historical features",
+    "complete 7-day future labels",
+    "quiet complete histories retained",
+    "incomplete histories excluded"
+  ]
+}

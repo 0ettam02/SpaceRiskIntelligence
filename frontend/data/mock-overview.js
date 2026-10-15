@@ -1,6 +1,6 @@
 // Indicatori chiave del run disponibile. Fonte: file di output del progetto
-// (campione_celle_v3.csv, incendi_daily_segmentato_sample_v3.csv,
-// dati_ml_storico_v3.csv, segmenti_temporali_v3.csv) — dato reale del run.
+// (campione_celle_v3.csv, incendi_daily_segmentato_sample_v3.csv.gz,
+// dati_ml_storico_v3.csv.gz, segmenti_temporali_v3.csv) — dato reale del run.
 export const OVERVIEW_KPIS = [
   {
     id: "raw-detections",
