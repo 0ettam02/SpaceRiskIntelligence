@@ -97,6 +97,27 @@ Il dettaglio dei conteggi è in `output_definitivo/modelli/qualita_dataset_ml_v4
 I CSV prodotti sono artefatti locali ignorati da Git; le metriche salvate non si
 aggiornano con il solo build del dataset e vanno ricalcolate successivamente.
 
+## Dataset ML italiano con ERA5-Land
+
+Per costruire una versione italiana separata, dopo aver scaricato e unito ERA5-Land
+con FIRMS, eseguire dalla root del repository:
+
+```bash
+space/bin/python cambiamenti_climatici/ingestion/build_ml_dataset.py \
+  --input cambiamenti_climatici/claudia/output_definitivo/incendi_daily_segmentato_sample_v3.csv.gz \
+  --weather-input dati/era5_italy/pannello_firms_era5_italia.csv \
+  --output dati/era5_italy/dati_ml_storico_italia_era5_v1.csv.gz \
+  --quality-report dati/era5_italy/qualita_dataset_ml_italia_era5_v1.json
+```
+
+Il join controlla unicità e corrispondenza usando `lat_cell`, `lon_cell` e `date`;
+il risultato include solo celle e date con ERA5 valido. Aggiunge otto indicatori
+meteorologici calcolati sui sette giorni precedenti (`t-7`…`t-1`): temperatura,
+precipitazione, umidità del suolo e vento. Non usa il meteo del giorno da predire
+né quello futuro. Il dataset e il report risultanti sono locali e ignorati da Git.
+Il modello globale continua a usare le sue 17 feature; questa versione italiana
+ha invece 25 feature e va valutata separatamente prima di confrontare algoritmi.
+
 Gli artefatti ML e le metriche esistenti non vengono rigenerati automaticamente:
 derivano ancora dallo storico precedente, fino alla riesecuzione della pipeline.
 
