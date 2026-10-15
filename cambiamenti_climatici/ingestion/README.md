@@ -118,6 +118,22 @@ né quello futuro. Il dataset e il report risultanti sono locali e ignorati da G
 Il modello globale continua a usare le sue 17 feature; questa versione italiana
 ha invece 25 feature e va valutata separatamente prima di confrontare algoritmi.
 
+## Addestramento e confronto temporale
+
+Per confrontare la Random Forest FIRMS-only con la stessa Random Forest che usa
+anche ERA5, eseguire dalla root:
+
+```bash
+space/bin/python cambiamenti_climatici/ingestion/train_italy_era5.py
+```
+
+Lo script mantiene un holdout temporale con 7 giorni di embargo, seleziona la
+soglia solo sulla validazione e salva modelli, previsioni e metriche in
+`dati/era5_italy/training/`. I risultati di questa esecuzione sono documentati
+in `cambiamenti_climatici/claudia/RISULTATI_ITALIA_ERA5_V1.md`. Questo test
+temporale riutilizza le stesse 19 celle in tutti gli split: non misura la
+generalizzazione geografica verso celle mai viste.
+
 Gli artefatti ML e le metriche esistenti non vengono rigenerati automaticamente:
 derivano ancora dallo storico precedente, fino alla riesecuzione della pipeline.
 
