@@ -1,0 +1,106 @@
+dati pronti 86s, righe 2055000, prevalenza ufficiale 0.0645, senza buco 0.0644
+W0 v6 V9, target ufficiale [t+1,t+7]       valAP(wf)=0.3496 testAP(wf)=0.3301 AUC=0.829 P=0.328 R=0.416 F1=0.365 [440s]
+W1 v6 V9, target senza buco [t,t+6]        valAP(wf)=0.3620 testAP(wf)=0.3428 AUC=0.833 P=0.341 R=0.422 F1=0.373 [498s]
+W2 W1 + vicinato a raggio                  valAP(wf)=0.3697 testAP(wf)=0.3503 AUC=0.840 P=0.346 R=0.429 F1=0.380 [577s]
+W3 W1 + meteo passato                      valAP(wf)=0.3680 testAP(wf)=0.3537 AUC=0.839 P=0.334 R=0.438 F1=0.374 [586s]
+W4 W1 + vicinato + meteo passato           valAP(wf)=0.3712 testAP(wf)=0.3572 AUC=0.843 P=0.346 R=0.432 F1=0.382 [656s]
+W5 W4 + meteo futuro (ORACOLO)             valAP(wf)=0.3944 testAP(wf)=0.3805 AUC=0.855 P=0.366 R=0.443 F1=0.399 [700s]
+SELEZIONATO (val AP walk-forward): W4 W1 + vicinato + meteo passato
+                                      val_ap_wf  test_ap_wf  test_ap_wf_std  auc_wf  precision_wf  recall_wf   f1_wf  brier_wf  prevalenza_wf  fold_ap_meglio_di_W1  ufficiale_prevalenza  ufficiale_ap  ufficiale_roc_auc  ufficiale_precision  ufficiale_recall  ufficiale_f1  ufficiale_brier
+variante                                                                                                                                                                                                                                                                                        
+W0 v6 V9, target ufficiale [t+1,t+7]     0.3496      0.3301          0.0866  0.8290        0.3280     0.4162  0.3648    0.0493         0.0602                     0                0.0692        0.4979             0.8949               0.4502            0.5542        0.4968           0.0464
+W1 v6 V9, target senza buco [t,t+6]      0.3620      0.3428          0.0844  0.8332        0.3407     0.4223  0.3729    0.0487         0.0604                     0                0.0688        0.5034             0.8973               0.4668            0.5509        0.5054           0.0457
+W2 W1 + vicinato a raggio                0.3697      0.3503          0.0858  0.8403        0.3458     0.4291  0.3802    0.0483         0.0604                    10                0.0688        0.5111             0.9002               0.4924            0.5348        0.5127           0.0452
+W3 W1 + meteo passato                    0.3680      0.3537          0.0840  0.8390        0.3337     0.4380  0.3742    0.0476         0.0604                    10                0.0688        0.5172             0.9056               0.4754            0.5491        0.5096           0.0450
+W4 W1 + vicinato + meteo passato         0.3712      0.3572          0.0843  0.8430        0.3457     0.4321  0.3816    0.0474         0.0604                    10                0.0688        0.5216             0.9064               0.4724            0.5677        0.5157           0.0447
+W5 W4 + meteo futuro (ORACOLO)           0.3944      0.3805          0.0725  0.8553        0.3655     0.4435  0.3992    0.0461         0.0604                    10                0.0688        0.5346             0.9079               0.5200            0.5296        0.5247           0.0440
+                                                       precision  recall     f1  segnalazioni_per_1000
+variante                             punto_operativo                                                  
+W0 v6 V9, target ufficiale [t+1,t+7] F1 massima            0.328   0.416  0.365                 77.286
+                                     precision >= 60%      0.612   0.138  0.197                 17.636
+                                     precision >= 70%      0.715   0.079  0.135                  7.494
+                                     recall >= 70%         0.204   0.666  0.308                204.131
+                                     recall >= 80%         0.158   0.778  0.260                308.591
+W1 v6 V9, target senza buco [t,t+6]  F1 massima            0.341   0.422  0.373                 77.337
+                                     precision >= 60%      0.605   0.165  0.230                 20.493
+                                     precision >= 70%      0.713   0.100  0.162                  9.729
+                                     recall >= 70%         0.210   0.670  0.315                200.517
+                                     recall >= 80%         0.161   0.784  0.264                305.570
+W2 W1 + vicinato a raggio            F1 massima            0.346   0.429  0.380                 75.825
+                                     precision >= 60%      0.600   0.167  0.235                 20.594
+                                     precision >= 70%      0.707   0.098  0.160                  9.794
+                                     recall >= 70%         0.215   0.672  0.321                194.859
+                                     recall >= 80%         0.166   0.782  0.272                292.072
+W3 W1 + meteo passato                F1 massima            0.334   0.438  0.374                 79.714
+                                     precision >= 60%      0.615   0.169  0.243                 19.456
+                                     precision >= 70%      0.728   0.102  0.167                  9.449
+                                     recall >= 70%         0.212   0.675  0.318                199.370
+                                     recall >= 80%         0.162   0.781  0.265                300.871
+W4 W1 + vicinato + meteo passato     F1 massima            0.346   0.432  0.382                 76.318
+                                     precision >= 60%      0.623   0.165  0.238                 19.101
+                                     precision >= 70%      0.728   0.096  0.160                  8.959
+                                     recall >= 70%         0.219   0.669  0.325                190.634
+                                     recall >= 80%         0.167   0.777  0.273                288.399
+W5 W4 + meteo futuro (ORACOLO)       F1 massima            0.366   0.443  0.399                 72.942
+                                     precision >= 60%      0.602   0.211  0.290                 23.761
+                                     precision >= 70%      0.710   0.138  0.217                 12.850
+                                     recall >= 70%         0.231   0.679  0.340                182.024
+                                     recall >= 80%         0.179   0.781  0.288                269.766
+{
+ "W4 W1 + vicinato + meteo passato vs W1": {
+  "delta_ap": 0.018207892393629632,
+  "delta_ap_ic95": [
+   0.010715014653200511,
+   0.026299302520768512
+  ],
+  "delta_auc": 0.009018525287233348,
+  "delta_auc_ic95": [
+   0.005829484596172346,
+   0.012535478676180878
+  ]
+ },
+ "W4 vs W2 (contributo del meteo)": {
+  "delta_ap": 0.010508593567685853,
+  "delta_ap_ic95": [
+   0.002675413586073255,
+   0.01793652027627107
+  ],
+  "delta_auc": 0.006119705391321784,
+  "delta_auc_ic95": [
+   0.0026583114817770232,
+   0.009646858046343392
+  ]
+ }
+}
+                               gruppo                             variante  prevalenza  roc_auc     ap  precision  recall     f1
+0     continuazione (attiva nei 7 gg)  W1 v6 V9, target senza buco [t,t+6]       0.442    0.791  0.729      0.600   0.866  0.709
+1     continuazione (attiva nei 7 gg)     W4 W1 + vicinato + meteo passato       0.442    0.799  0.740      0.602   0.881  0.715
+2     continuazione (attiva nei 7 gg)       W5 W4 + meteo futuro (ORACOLO)       0.442    0.804  0.750      0.620   0.852  0.718
+3         intermedia (30 ma non 7 gg)  W1 v6 V9, target senza buco [t,t+6]       0.181    0.789  0.442      0.424   0.579  0.490
+4         intermedia (30 ma non 7 gg)     W4 W1 + vicinato + meteo passato       0.181    0.803  0.449      0.417   0.609  0.495
+5         intermedia (30 ma non 7 gg)       W5 W4 + meteo futuro (ORACOLO)       0.181    0.811  0.489      0.452   0.576  0.506
+6  nuova accensione, cella con storia  W1 v6 V9, target senza buco [t,t+6]       0.022    0.808  0.137      0.227   0.245  0.236
+7  nuova accensione, cella con storia     W4 W1 + vicinato + meteo passato       0.022    0.818  0.141      0.231   0.233  0.232
+8  nuova accensione, cella con storia       W5 W4 + meteo futuro (ORACOLO)       0.022    0.822  0.157      0.288   0.188  0.228
+                     tipo                                                           gruppo  quota  recall
+0  positivi per intensità                               1 solo rilevamento nella settimana  0.428   0.418
+1  positivi per intensità                                                  2-3 rilevamenti  0.321   0.640
+2  positivi per intensità                                                  4-9 rilevamenti  0.196   0.769
+3  positivi per intensità                                                  10+ rilevamenti  0.056   0.592
+4          falsi positivi          cella attiva negli ultimi 7 gg (incendio che si spegne)  0.384     NaN
+5          falsi positivi                     brucia nella settimana successiva (anticipo)  0.230     NaN
+6          falsi positivi  vicino entro 50 km brucia nella settimana (errore di posizione)  0.205     NaN
+7          falsi positivi                                    almeno uno dei tre casi sopra  0.597     NaN
+8           veri positivi                                  quota TP con 1 solo rilevamento  0.315     NaN
+target >=2 giorni:           fold  prevalenza  roc_auc     ap  precision  recall     f1  brier    ece  soglia  segnalazioni_per_1000  false_per_1000  vere_per_1000
+0   2025-09-01       0.024    0.894  0.238      0.176   0.538  0.265  0.025  0.020   0.177                 72.836          60.029         12.807
+1   2025-10-01       0.018    0.856  0.235      0.368   0.192  0.252  0.016  0.008   0.354                  9.193           5.814          3.379
+2   2025-11-01       0.015    0.887  0.253      0.283   0.264  0.273  0.013  0.003   0.114                 14.179          10.164          4.014
+3   2025-12-01       0.015    0.937  0.335      0.342   0.402  0.370  0.012  0.003   0.131                 17.893          11.771          6.121
+4   2026-01-01       0.018    0.942  0.337      0.318   0.434  0.367  0.015  0.003   0.143                 25.193          17.171          8.021
+5   2026-02-01       0.014    0.902  0.256      0.335   0.221  0.266  0.012  0.003   0.184                  9.214           6.129          3.086
+6   2026-03-01       0.014    0.864  0.182      0.345   0.169  0.227  0.013  0.003   0.213                  6.879           4.507          2.371
+7   2026-04-01       0.014    0.874  0.256      0.345   0.268  0.302  0.012  0.001   0.194                 10.750           7.043          3.707
+8   2026-05-01       0.010    0.905  0.280      0.505   0.237  0.323  0.008  0.002   0.228                  4.486           2.221          2.264
+9   2026-06-01       0.018    0.946  0.389      0.387   0.549  0.454  0.014  0.002   0.179                 25.900          15.879         10.021
+10   ufficiale       0.023    0.943  0.411      0.355   0.604  0.447  0.017  0.006   0.216                 38.886          25.076         13.810

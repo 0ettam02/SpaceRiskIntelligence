@@ -1,0 +1,175 @@
+{
+  "criterio_selezione": "media AP validation interne walk-forward, varianti con target senza buco e senza oracolo",
+  "selezionato": "W4 W1 + vicinato + meteo passato",
+  "sintesi": {
+    "W0 v6 V9, target ufficiale [t+1,t+7]": {
+      "val_ap_wf": 0.3495592899,
+      "test_ap_wf": 0.3301223472,
+      "test_ap_wf_std": 0.0866351482,
+      "auc_wf": 0.829014362,
+      "precision_wf": 0.327965648,
+      "recall_wf": 0.4162313794,
+      "f1_wf": 0.3648093359,
+      "brier_wf": 0.0493253432,
+      "prevalenza_wf": 0.0601607143,
+      "fold_ap_meglio_di_W1": 0,
+      "ufficiale_prevalenza": 0.0691904762,
+      "ufficiale_ap": 0.4978600629,
+      "ufficiale_roc_auc": 0.8948903884,
+      "ufficiale_precision": 0.4502348468,
+      "ufficiale_recall": 0.554163799,
+      "ufficiale_f1": 0.4968223607,
+      "ufficiale_brier": 0.0464223196
+    },
+    "W1 v6 V9, target senza buco [t,t+6]": {
+      "val_ap_wf": 0.3619815862,
+      "test_ap_wf": 0.3427639541,
+      "test_ap_wf_std": 0.0843893613,
+      "auc_wf": 0.8332485827,
+      "precision_wf": 0.3407487036,
+      "recall_wf": 0.4223151457,
+      "f1_wf": 0.3729395709,
+      "brier_wf": 0.0487128681,
+      "prevalenza_wf": 0.06035,
+      "fold_ap_meglio_di_W1": 0,
+      "ufficiale_prevalenza": 0.068752381,
+      "ufficiale_ap": 0.5034141831,
+      "ufficiale_roc_auc": 0.8973435154,
+      "ufficiale_precision": 0.4668388308,
+      "ufficiale_recall": 0.5509073279,
+      "ufficiale_f1": 0.5054009404,
+      "ufficiale_brier": 0.0456800417
+    },
+    "W2 W1 + vicinato a raggio": {
+      "val_ap_wf": 0.3696902168,
+      "test_ap_wf": 0.3502792287,
+      "test_ap_wf_std": 0.0858099864,
+      "auc_wf": 0.8403033968,
+      "precision_wf": 0.3457501851,
+      "recall_wf": 0.4291254011,
+      "f1_wf": 0.3801918639,
+      "brier_wf": 0.048284668,
+      "prevalenza_wf": 0.06035,
+      "fold_ap_meglio_di_W1": 10,
+      "ufficiale_prevalenza": 0.068752381,
+      "ufficiale_ap": 0.5111134819,
+      "ufficiale_roc_auc": 0.9002423353,
+      "ufficiale_precision": 0.4924116822,
+      "ufficiale_recall": 0.5348386203,
+      "ufficiale_f1": 0.512749004,
+      "ufficiale_brier": 0.045233369
+    },
+    "W3 W1 + meteo passato": {
+      "val_ap_wf": 0.3679806452,
+      "test_ap_wf": 0.3536804308,
+      "test_ap_wf_std": 0.0840297635,
+      "auc_wf": 0.8390181827,
+      "precision_wf": 0.333723646,
+      "recall_wf": 0.438035764,
+      "f1_wf": 0.3742419527,
+      "brier_wf": 0.0476133469,
+      "prevalenza_wf": 0.06035,
+      "fold_ap_meglio_di_W1": 10,
+      "ufficiale_prevalenza": 0.068752381,
+      "ufficiale_ap": 0.5172154061,
+      "ufficiale_roc_auc": 0.9056310691,
+      "ufficiale_precision": 0.4753567574,
+      "ufficiale_recall": 0.5491065244,
+      "ufficiale_f1": 0.5095770665,
+      "ufficiale_brier": 0.0450136276
+    },
+    "W4 W1 + vicinato + meteo passato": {
+      "val_ap_wf": 0.371166747,
+      "test_ap_wf": 0.3571872517,
+      "test_ap_wf_std": 0.0843488641,
+      "auc_wf": 0.8429716697,
+      "precision_wf": 0.3457195638,
+      "recall_wf": 0.4320911939,
+      "f1_wf": 0.3816439445,
+      "brier_wf": 0.0473919921,
+      "prevalenza_wf": 0.06035,
+      "fold_ap_meglio_di_W1": 10,
+      "ufficiale_prevalenza": 0.068752381,
+      "ufficiale_ap": 0.5216220755,
+      "ufficiale_roc_auc": 0.9063620407,
+      "ufficiale_precision": 0.4723919308,
+      "ufficiale_recall": 0.5676686522,
+      "ufficiale_f1": 0.5156662892,
+      "ufficiale_brier": 0.0446704107
+    },
+    "W5 W4 + meteo futuro (ORACOLO)": {
+      "val_ap_wf": 0.3943784984,
+      "test_ap_wf": 0.3804622678,
+      "test_ap_wf_std": 0.0724828159,
+      "auc_wf": 0.8552535968,
+      "precision_wf": 0.3655313069,
+      "recall_wf": 0.4434881074,
+      "f1_wf": 0.3992363668,
+      "brier_wf": 0.0460627486,
+      "prevalenza_wf": 0.06035,
+      "fold_ap_meglio_di_W1": 10,
+      "ufficiale_prevalenza": 0.068752381,
+      "ufficiale_ap": 0.5346252757,
+      "ufficiale_roc_auc": 0.9078816976,
+      "ufficiale_precision": 0.5199945593,
+      "ufficiale_recall": 0.5295747333,
+      "ufficiale_f1": 0.5247409238,
+      "ufficiale_brier": 0.0440273466
+    }
+  },
+  "bootstrap_ufficiale": {
+    "W4 W1 + vicinato + meteo passato vs W1": {
+      "delta_ap": 0.018207892393629632,
+      "delta_ap_ic95": [
+        0.010715014653200511,
+        0.026299302520768512
+      ],
+      "delta_auc": 0.009018525287233348,
+      "delta_auc_ic95": [
+        0.005829484596172346,
+        0.012535478676180878
+      ]
+    },
+    "W4 vs W2 (contributo del meteo)": {
+      "delta_ap": 0.010508593567685853,
+      "delta_ap_ic95": [
+        0.002675413586073255,
+        0.01793652027627107
+      ],
+      "delta_auc": 0.006119705391321784,
+      "delta_auc_ic95": [
+        0.0026583114817770232,
+        0.009646858046343392
+      ]
+    }
+  },
+  "target_2_giorni_media_wf": {
+    "prevalenza": 0.015998571428571428,
+    "roc_auc": 0.9006304301196828,
+    "ap": 0.2760488035956751,
+    "precision": 0.34031925034963384,
+    "recall": 0.3273793553160069,
+    "f1": 0.30984071843491484,
+    "brier": 0.01382222811013839,
+    "ece": 0.0046188708345872905,
+    "soglia": 0.1917482039971963,
+    "segnalazioni_per_1000": 19.652142857142856,
+    "false_per_1000": 14.072857142857142,
+    "vere_per_1000": 5.579285714285715
+  },
+  "target_2_giorni_ufficiale": {
+    "prevalenza": 0.022857142857142857,
+    "roc_auc": 0.9427673428362573,
+    "ap": 0.41084517391079645,
+    "precision": 0.35513103110457994,
+    "recall": 0.6041666666666666,
+    "f1": 0.4473237698596329,
+    "brier": 0.016799305373757924,
+    "ece": 0.005727789690284119,
+    "soglia": 0.21623138722730653,
+    "segnalazioni_per_1000": 38.885714285714286,
+    "false_per_1000": 25.076190476190476,
+    "vere_per_1000": 13.80952380952381
+  },
+  "secondi_totali": 4289
+}

@@ -1,0 +1,10 @@
+tipo,gruppo,quota,recall
+positivi per intensità,1 solo rilevamento nella settimana,0.4276215542318881,0.41820537738905084
+positivi per intensità,2-3 rilevamenti,0.3205430114974373,0.6395851339671564
+positivi per intensità,4-9 rilevamenti,0.1958720044327469,0.7694483734087695
+positivi per intensità,10+ rilevamenti,0.05596342983792769,0.5915841584158416
+falsi positivi,cella attiva negli ultimi 7 gg (incendio che si spegne),0.3840943849683199,
+falsi positivi,brucia nella settimana successiva (anticipo),0.2302818440026218,
+falsi positivi,vicino entro 50 km brucia nella settimana (errore di posizione),0.2051562158619183,
+falsi positivi,almeno uno dei tre casi sopra,0.5973344985798558,
+veri positivi,quota TP con 1 solo rilevamento,0.3150317227916057,
