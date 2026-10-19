@@ -17,7 +17,8 @@ import { generateRocCurve, generatePrCurve, generateProbabilityHistogram } from 
  */
 export async function getModels() {
   if (isMockMode) {
-    return withSimulatedLatency({ models: MODELS, recommendedSlug: RECOMMENDED_MODEL_SLUG });
+    const selectedModel = MODELS.filter((model) => model.slug === RECOMMENDED_MODEL_SLUG);
+    return withSimulatedLatency({ models: selectedModel, recommendedSlug: RECOMMENDED_MODEL_SLUG });
   }
   return fetchFromApi("/models");
 }
@@ -45,9 +46,8 @@ export async function getModelDetails(slug) {
       features: model.features || MODEL_FEATURES,
       methodologyNotes: model.methodologyNotes || MODEL_METHODOLOGY_NOTES[slug] || [],
       limitations: slug.startsWith("random-forest-italia") ? ITALY_MODEL_LIMITATIONS : MODEL_LIMITATIONS,
-      confusionMatrix: slug === RECOMMENDED_MODEL_SLUG
-        ? RANDOM_FOREST_CONFUSION_MATRIX
-        : ITALY_CONFUSION_MATRICES[slug] || null,
+      confusionMatrix: ITALY_CONFUSION_MATRICES[slug]
+        || (slug === RECOMMENDED_MODEL_SLUG ? RANDOM_FOREST_CONFUSION_MATRIX : null),
       rocCurve: generateRocCurve(model.rocAuc),
       prCurve: generatePrCurve(model.prAuc, model.precision),
       probabilityHistogram: generateProbabilityHistogram(model.threshold),

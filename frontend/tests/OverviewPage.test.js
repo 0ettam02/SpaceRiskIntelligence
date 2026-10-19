@@ -23,10 +23,9 @@ describe("OverviewPage", () => {
   it("renders the headline, the research prototype badge and the KPI cards once data resolves", async () => {
     render(<OverviewPage />);
 
-    expect(await screen.findByRole("heading", { name: /global fire risk intelligence/i })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /spacerisk italia/i })).toBeInTheDocument();
     expect(screen.getByText(/research prototype/i)).toBeInTheDocument();
     expect(await screen.findByText("Rilevamenti analizzati")).toBeInTheDocument();
-    expect(screen.getByText("16.255.053")).toBeInTheDocument();
   });
 
   it("renders the methodology warnings and the recommended model", async () => {

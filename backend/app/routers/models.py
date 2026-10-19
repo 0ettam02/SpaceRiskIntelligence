@@ -25,8 +25,8 @@ def _summary(key, result):
         "threshold": round(result["threshold"], 2),
         "specificity": round(metrics["specificity"], 3),
         "falsePositiveRate": round(metrics["falsePositiveRate"], 3),
-        "recommended": key == "random_forest",
-        "status": "Raccomandato" if key == "random_forest" else "Sperimentale" if key.startswith("random_forest_italia") else "Valutato",
+        "recommended": key == "random_forest_italia_era5",
+        "status": "In uso" if key == "random_forest_italia_era5" else "Sperimentale" if key.startswith("random_forest_italia") else "Valutato",
         "scope": MODEL_SCOPES.get(key, ""),
     }
 
@@ -52,8 +52,8 @@ def _probability_histogram(result, threshold, bins=20):
 
 @router.get("/models")
 def get_models():
-    models = [_summary(key, result) for key, result in store.model_results.items()]
-    models.sort(key=lambda m: not m["recommended"])
+    selected_key = "random_forest_italia_era5"
+    models = [_summary(selected_key, store.model_results[selected_key])] if selected_key in store.model_results else []
     return {"models": models, "recommendedSlug": RECOMMENDED_MODEL_SLUG}
 
 
@@ -67,11 +67,8 @@ def get_model_details(slug: str):
     metrics = result["metrics"]
 
     confusion_matrix = None
-    if key in {"random_forest", "random_forest_italia_firms", "random_forest_italia_era5"}:
-        if key.startswith("random_forest_italia"):
-            source = f"Test temporale italiano isolato (19 celle, N = {result['testRows']})"
-        else:
-            source = f"Test temporale isolato (segmento {store.training_segment_id}, N = {result['testRows']})"
+    if key == "random_forest_italia_era5":
+        source = f"Test temporale italiano isolato (19 celle, N = {result['testRows']})"
         confusion_matrix = {
             "testRows": result["testRows"],
             "positives": metrics["truePositive"] + metrics["falseNegative"],

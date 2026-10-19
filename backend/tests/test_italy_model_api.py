@@ -1,6 +1,7 @@
 import numpy as np
+import pandas as pd
 
-from app.data_store import store
+from app.data_store import Store, store
 from app.routers.models import get_model_details, get_models
 
 
@@ -23,15 +24,17 @@ def italy_era5_result():
     }
 
 
-def test_italy_era5_model_is_exposed_in_comparison(monkeypatch):
+def test_only_italy_era5_model_is_exposed_for_predictions(monkeypatch):
     monkeypatch.setattr(store, "model_results", {"random_forest_italia_era5": italy_era5_result()})
 
     response = get_models()
 
+    assert len(response["models"]) == 1
+    assert response["recommendedSlug"] == "random-forest-italia-era5"
     model = response["models"][0]
     assert model["slug"] == "random-forest-italia-era5"
     assert model["scope"] == "Italia · 19 celle · FIRMS + ERA5-Land"
-    assert model["status"] == "Sperimentale"
+    assert model["status"] == "In uso"
 
 
 def test_italy_era5_model_detail_returns_features_and_observed_curves(monkeypatch):
@@ -43,3 +46,28 @@ def test_italy_era5_model_detail_returns_features_and_observed_curves(monkeypatc
     assert response["curvesAreObserved"] is True
     assert response["confusionMatrix"]["testRows"] == 4
     assert response["limitations"]
+
+
+def test_map_cells_use_italy_era5_predictions_only():
+    subject = Store()
+    subject.italy_ml_df = pd.DataFrame([
+        {"lat_cell": 42.0, "lon_cell": 12.5, "date": pd.Timestamp("2026-07-10"),
+         "detection_sum_last_3d": 1, "detection_sum_last_7d": 2,
+         "detection_sum_last_14d": 3, "detection_sum_last_30d": 4,
+         "active_days_last_7d": 2, "active_days_last_30d": 6,
+         "frp_sum_last_7d": 8.0},
+    ])
+    subject.daily_panel_df = pd.DataFrame([
+        {"lat_cell": 42.0, "lon_cell": 12.5, "date": pd.Timestamp("2026-07-10"), "active_fire_day": 1},
+    ])
+    subject.model_results = {"random_forest_italia_era5": {
+        "threshold": 0.13,
+        "latestPredictions": [{"lat_cell": 42.0, "lon_cell": 12.5, "date": "2026-07-10", "probability": 0.31, "predictedClass": 1}],
+    }}
+
+    subject._build_cell_registry()
+
+    assert len(subject.cells) == 1
+    assert subject.cells[0]["probability"] == 0.31
+    assert subject.cells[0]["model"] == "Random Forest FIRMS + ERA5-Land"
+    assert subject.cells[0]["lat"] == 42.0

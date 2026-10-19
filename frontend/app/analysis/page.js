@@ -12,15 +12,12 @@ import { useAsyncData } from "@/hooks/useAsyncData";
 import { useRefreshListener } from "@/hooks/useRefreshSignal";
 import { getTimeSeries } from "@/services/analysis-service";
 import { getDataQuality } from "@/services/data-quality-service";
-import { CHART_SERIES, generateDemoForecast } from "@/lib/chart-utils";
+import { CHART_SERIES } from "@/lib/chart-utils";
 import { TIME_RANGE_OPTIONS } from "@/lib/constants";
 import { formatDate, formatDateShort, formatDays, formatNumber, formatPercent } from "@/lib/formatters";
 
 const SEGMENT_FILTERS = [
-  { value: "all", label: "Tutti" },
-  { value: 0, label: "Segmento 0" },
-  { value: 4, label: "Segmento 4" },
-  { value: 5, label: "Segmento 5" },
+  { value: "all", label: "Tutto il periodo italiano" },
 ];
 
 export default function AnalysisPage() {
@@ -36,15 +33,14 @@ export default function AnalysisPage() {
   const { data: quality } = useAsyncData(qualityFetcher, [qualityFetcher]);
 
   const series = useMemo(() => data?.series || [], [data]);
-  const forecastSeries = useMemo(() => generateDemoForecast(series), [series]);
   const missingInWindow = useMemo(() => series.filter((point) => point.missing), [series]);
   const usableSegments = useMemo(() => (data?.segments || []).filter((segment) => segment.usableForModel), [data]);
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Analisi temporale"
-        description="Andamento dei rilevamenti, dell'intensità FRP e delle celle attive nel tempo, con evidenza dei segmenti temporali e delle finestre di embargo."
+        title="Serie storica italiana"
+        description="Andamento storico FIRMS sulle celle italiane incluse nel dataset ERA5-Land, con segmenti e split temporale del modello."
       />
 
       <div className="flex flex-wrap items-center gap-3">
@@ -108,21 +104,6 @@ export default function AnalysisPage() {
                 missingDates={missingInWindow}
               />
             </ChartCard>
-            <ChartCard
-              title="Osservato vs previsione"
-              description="Confronto fra rilevamenti osservati e una previsione dimostrativa a media mobile"
-              demo
-              srSummary="Confronto fra la serie osservata e una previsione dimostrativa costruita con una media mobile."
-            >
-              <TimeSeriesChart
-                data={forecastSeries}
-                kind="line"
-                series={[
-                  { key: "detections", label: "Osservato", color: CHART_SERIES.blue.dark },
-                  { key: "previsto", label: "Previsione (dimostrativa)", color: CHART_SERIES.aqua.dark, dashed: true },
-                ]}
-              />
-            </ChartCard>
           </div>
 
           {data?.embargoWindows?.length ? (
@@ -143,7 +124,7 @@ export default function AnalysisPage() {
           <section className="rounded-2xl border bg-surface shadow-panel">
             <div className="border-b p-4">
               <h2 className="font-semibold">Segmenti temporali</h2>
-              <p className="mt-1 text-xs text-muted">Il segmento 5 non produce righe nel dataset ML: non dispone di storia e orizzonte futuro sufficienti.</p>
+              <p className="mt-1 text-xs text-muted">Il dataset italiano include solo le date con almeno 30 giorni di storico e orizzonte futuro completo.</p>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[640px] border-collapse text-sm">

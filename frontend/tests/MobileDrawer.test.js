@@ -23,7 +23,7 @@ describe("MobileDrawer", () => {
   it("closes when a navigation link is selected", async () => {
     const onClose = vi.fn();
     render(<MobileDrawer isOpen onClose={onClose} />);
-    await userEvent.click(screen.getByRole("link", { name: /mappa globale/i }));
+    await userEvent.click(screen.getByRole("link", { name: /mappa italia/i }));
     expect(onClose).toHaveBeenCalled();
   });
 });

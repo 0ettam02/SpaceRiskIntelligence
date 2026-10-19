@@ -1,29 +1,31 @@
 import { isMockMode, fetchFromApi, withSimulatedLatency } from "@/services/api-client";
-import { SEGMENT_SUMMARIES, EMBARGO_WINDOWS, getSegmentSeries } from "@/data/mock-analysis";
+import { ITALY_DAILY_SERIES } from "@/data/mock-italy-series";
 
 /**
  * Contratto JSON di getTimeSeries(filters):
  * filters: { segmentId?: number | "all", windowDays?: 7 | 14 | 30 | 90 }
  * → {
  *     series: Array<{ date, segmentId, detections, frpSum, activeCells, cellsSampled, missing }>,
- *     // Con segmentId "all" i giorni senza dati compaiono con i campi numerici a
- *     // null e missing:true, così i grafici mostrano l'interruzione reale invece
- *     // di collegare segmenti distanti mesi con una linea continua.
+ *     // Serie aggregata del dataset italiano FIRMS + ERA5-Land.
  *     segments: Array<SegmentSummary>,
  *     embargoWindows: Array<{ segmentId, description }>,
  *   }
  */
 export async function getTimeSeries(filters = {}) {
   if (isMockMode) {
-    const { segmentId = "all", windowDays } = filters;
-    let series = getSegmentSeries(segmentId);
+    const { windowDays } = filters;
+    let series = ITALY_DAILY_SERIES;
     if (windowDays) {
       series = series.slice(-windowDays);
     }
     return withSimulatedLatency({
       series,
-      segments: SEGMENT_SUMMARIES,
-      embargoWindows: EMBARGO_WINDOWS,
+      segments: [{
+        id: 0, label: "Campione italiano", start: "2025-05-26", end: "2026-07-10", days: 411,
+        usableForModel: true, reason: "Dataset FIRMS + ERA5-Land italiano",
+        rowsInSample: 7809, totalDetections: 75, totalFrp: 0, mlRows: 7809,
+      }],
+      embargoWindows: [{ segmentId: "italy-temporal-split", description: "Split temporale italiano con embargo di 7 giorni fra training, validation e test del modello FIRMS + ERA5-Land." }],
     });
   }
   const query = new URLSearchParams(filters).toString();

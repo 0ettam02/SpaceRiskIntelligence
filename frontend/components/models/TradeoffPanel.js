@@ -7,8 +7,8 @@ export function TradeoffPanel({ recall, specificity, falsePositiveRate }) {
         Compromesso fra recall e specificità
       </h3>
       <p className="mt-2 text-sm leading-6 text-muted">
-        La Random Forest privilegia il recall rispetto alla specificità: individua la maggior parte delle celle realmente attive, ma a
-        fronte di un numero rilevante di falsi positivi.
+        Questi valori descrivono il comportamento della soglia scelta sul set di test italiano. Il test contiene pochi casi
+        positivi e le stime possono variare sensibilmente su altri periodi o celle.
       </p>
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="rounded-xl border bg-elevated p-4">

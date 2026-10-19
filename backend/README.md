@@ -1,8 +1,8 @@
 # SpaceRiskIntelligence — Backend API
 
-API sperimentale che espone gli artefatti reali della pipeline di ricerca
-(`cambiamenti_climatici/claudia/output_definitivo/`) al frontend Next.js, con
-lo stesso contratto JSON già usato dai service in `frontend/services/*.js`.
+API sperimentale focalizzata sulle celle italiane con dati FIRMS + ERA5-Land.
+Il backend addestra e serve un solo algoritmo di previsione: Random Forest
+FIRMS + ERA5-Land.
 
 > **Non è un sistema operativo di allerta incendi.** Le predizioni servite da
 > questa API derivano da un modello riaddestrato in memoria ad ogni avvio, su
@@ -13,26 +13,19 @@ lo stesso contratto JSON già usato dai service in `frontend/services/*.js`.
 
 All'avvio del processo (una sola volta, non ad ogni richiesta) il backend:
 
-1. Carica i CSV reali già prodotti dalla pipeline (`segmenti_temporali_v3.csv`,
-   `campione_celle_v3.csv`, `incendi_daily_segmentato_sample_v3.csv.gz`,
-   `profilo_storico_segmentato_v3.csv`, `modelli/dati_ml_storico_v3.csv.gz`).
-2. Riaddestra i 5 classificatori globali di `fire_next_7d` **riproducendo esattamente**
-   iperparametri, split temporale con embargo di 7 giorni e selezione della
-   soglia del notebook `cambiamenti_climatici/claudia/analisi_modelli_incendi_definitivo.ipynb`.
-3. Calcola la probabilità "corrente" per ogni cella campionata applicando la
-   Random Forest addestrata all'ultima riga con feature complete disponibile
-   per quella cella (riportata come `referenceDate`: non è detto coincida con
-   oggi).
-4. Tiene tutto in memoria per la durata del processo. **Nessun modello viene
-   serializzato su disco**: un riavvio riaddestra tutto da capo sugli stessi
+1. Carica il dataset FIRMS + ERA5-Land italiano, con 19 celle e 25 feature.
+2. Addestra la Random Forest italiana con split cronologico, embargo di 7 giorni
+   e soglia scelta sulla validation.
+3. Calcola la probabilità per cella sull'ultima riga completa disponibile
+   (riportata come `referenceDate`, attualmente 10/07/2026).
+4. Tiene il modello in memoria per la durata del processo. **Nessun modello viene
+   serializzato su disco**: un riavvio riaddestra il modello sugli stessi
    dati, con le stesse metriche (a meno di piccole variazioni numeriche dovute
    al riaddestramento).
 
-Se è presente `dati/era5_italy/dati_ml_storico_italia_era5_v1.csv.gz`, addestra
-inoltre due modelli sperimentali italiani: Random Forest con le sole feature
-FIRMS e Random Forest con feature FIRMS + ERA5-Land. Sono disponibili in
-`GET /models` e `GET /models/random-forest-italia-firms` / `...-era5`.
-Il dataset è locale e ignorato da Git. Per ricostruirlo dopo aver scaricato e
+Il dataset `dati/era5_italy/dati_ml_storico_italia_era5_v1.csv.gz` è incluso nel
+repository. `GET /models` espone solo l'algoritmo usato per le previsioni.
+Per ricostruire il dataset dopo aver scaricato e
 preparato il pannello FIRMS + ERA5-Land:
 
 ```bash
@@ -42,19 +35,16 @@ space/bin/python cambiamenti_climatici/ingestion/build_ml_dataset.py \
   --output dati/era5_italy/dati_ml_storico_italia_era5_v1.csv.gz \
   --quality-report dati/era5_italy/qualita_dataset_ml_italia_era5_v1.json
 ```
-L'avvio resta possibile senza questo file; in quel caso i due modelli italiani
-non compaiono nell'API. Le metriche italiane sono esplorative e non sostituiscono
-il modello globale raccomandato.
+Le metriche italiane sono esplorative e non sono adatte a decisioni operative.
 
-Il caricamento + addestramento richiede **circa 40–90 secondi** la prima
-richiesta dopo l'avvio (dipende dalla macchina): è un costo una tantum, non per
-richiesta.
+Il caricamento + addestramento richiede circa 10–30 secondi, una sola volta per
+avvio, a seconda della macchina.
 
 ## Requisiti
 
 - Python ≥ 3.11
-- I CSV reali già presenti in `../cambiamenti_climatici/claudia/output_definitivo/`
-  (fanno parte del repository, non vanno rigenerati)
+- Il dataset `../dati/era5_italy/dati_ml_storico_italia_era5_v1.csv.gz`
+  incluso nel repository.
 
 ## Installazione
 
@@ -126,14 +116,10 @@ ad API reale (vedi `frontend/README.md`, sezione "Modalità dati").
 
 ## Limiti noti
 
-- Le celle del segmento 5 (20/06/2026–17/07/2026) non hanno una probabilità
-  del modello: il segmento è troppo corto per produrre righe nel dataset ML
-  (nessuna riga con orizzonte futuro completo). Per queste celle l'API
-  restituisce comunque rilevamenti/FRP/giorni attivi reali, ma
-  `hasPrediction: false`, `probability: null`; sono escluse quando si filtra
-  per `metric=probability`.
-- `/map/cells` restituisce tutte le ~15.000 celle campionate (payload di
-  alcuni MB): non è ottimizzato con paginazione o compressione.
+- Il dataset copre 19 celle italiane e ha come ultima data completa il
+  10/07/2026. Le previsioni non coprono altre celle o date più recenti.
+- `/map/cells` restituisce al massimo le 19 celle italiane attualmente coperte
+  dal dataset FIRMS + ERA5-Land.
 - Nessuna autenticazione: è un'API di sola lettura pensata per un ambiente di
   sviluppo locale, non per l'esposizione pubblica così com'è.
 - L'ambiente Python dei notebook originali (`cambiamenti_climatici/matteo/requirements.txt`)

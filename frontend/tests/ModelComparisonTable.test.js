@@ -1,20 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { ModelComparisonTable } from "@/components/models/ModelComparisonTable";
-import { MODELS } from "@/data/mock-models";
+import { MODELS, RECOMMENDED_MODEL_SLUG } from "@/data/mock-models";
+
+const SELECTED_MODEL = MODELS.filter((model) => model.slug === RECOMMENDED_MODEL_SLUG);
 
 describe("ModelComparisonTable", () => {
   it("renders one row per model with its Accuracy value", () => {
-    render(<ModelComparisonTable models={MODELS} />);
-    expect(screen.getAllByText("Random Forest").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("SVM RBF approssimata").length).toBeGreaterThan(0);
+    render(<ModelComparisonTable models={SELECTED_MODEL} />);
     expect(screen.getAllByText("Random Forest — FIRMS + ERA5 (Italia)").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Italia · FIRMS + ERA5-Land · 19 celle").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("73,1%").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("51,6%").length).toBeGreaterThan(0);
   });
 
   it("marks the recommended model", () => {
-    render(<ModelComparisonTable models={MODELS} />);
-    expect(screen.getAllByText("(modello raccomandato)").length).toBeGreaterThan(0);
+    render(<ModelComparisonTable models={SELECTED_MODEL} />);
+    expect(screen.getAllByText("(algoritmo usato per le previsioni)").length).toBeGreaterThan(0);
   });
 });

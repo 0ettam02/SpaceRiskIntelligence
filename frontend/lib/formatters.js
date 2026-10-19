@@ -1,7 +1,7 @@
 // Formattatori centralizzati: ogni numero, data o coordinata mostrata
 // nell'interfaccia passa da qui, per garantire coerenza in tutta l'app.
 
-const numberFormatter = new Intl.NumberFormat("it-IT");
+const numberFormatter = new Intl.NumberFormat("it-IT", { useGrouping: true });
 const compactNumberFormatter = new Intl.NumberFormat("it-IT", { notation: "compact", maximumFractionDigits: 1 });
 const dateFormatter = new Intl.DateTimeFormat("it-IT", { day: "2-digit", month: "long", year: "numeric" });
 const dateShortFormatter = new Intl.DateTimeFormat("it-IT", { day: "2-digit", month: "short", year: "numeric" });

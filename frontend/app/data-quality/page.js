@@ -20,7 +20,7 @@ export default function DataQualityPage() {
     <div className="space-y-6">
       <PageHeader
         title="Qualità dati"
-        description="Copertura temporale, continuità dei segmenti e controlli di qualità sul campione disponibile."
+        description="Copertura e controlli di qualità del campione FIRMS + ERA5-Land sulle celle italiane."
       />
 
       {loading ? (

@@ -19,7 +19,7 @@ export function ModelComparisonTable({ models }) {
       <div className="hidden overflow-x-auto lg:block">
         <table className="w-full min-w-[860px] border-collapse text-sm">
           <caption className="sr-only">
-            Tabella di confronto dei classificatori valutati su fire_next_7d, con Accuracy, Balanced Accuracy, Precision, Recall, F1,
+            Risultati del modello FIRMS + ERA5-Land italiano su fire_next_7d, con Accuracy, Balanced Accuracy, Precision, Recall, F1,
             ROC-AUC, PR-AUC e soglia di decisione.
           </caption>
           <thead>
@@ -47,7 +47,7 @@ export function ModelComparisonTable({ models }) {
                   <Link href={`/models/${model.slug}`} className="inline-flex items-center gap-2 hover:text-brand-300">
                     {model.recommended ? <Star aria-hidden="true" size={14} className="fill-brand-300 text-brand-300" /> : null}
                     <span>{model.model}{model.scope ? <span className="mt-0.5 block text-xs font-normal text-muted">{model.scope}</span> : null}</span>
-                    {model.recommended ? <span className="sr-only">(modello raccomandato)</span> : null}
+                    {model.recommended ? <span className="sr-only">(algoritmo usato per le previsioni)</span> : null}
                   </Link>
                 </th>
                 {COLUMNS.map((column) => (

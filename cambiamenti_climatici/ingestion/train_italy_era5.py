@@ -91,7 +91,7 @@ def classification_metrics(y_true, probabilities, threshold):
     }
 
 
-def train_and_evaluate(input_path=DEFAULT_INPUT, output_dir=DEFAULT_OUTPUT, include_runtime=False):
+def train_and_evaluate(input_path=DEFAULT_INPUT, output_dir=DEFAULT_OUTPUT, include_runtime=False, model_names=None):
     input_path = Path(input_path)
     output_dir = Path(output_dir) if output_dir is not None else None
     data = pd.read_csv(input_path, parse_dates=["date"])
@@ -114,6 +114,11 @@ def train_and_evaluate(input_path=DEFAULT_INPUT, output_dir=DEFAULT_OUTPUT, incl
         "random_forest_firms_only": firms_features,
         "random_forest_firms_era5": firms_features + weather_features,
     }
+    if model_names is not None:
+        unknown_models = set(model_names) - set(estimators)
+        if unknown_models:
+            raise ValueError(f"Unknown model names: {sorted(unknown_models)}")
+        estimators = {name: estimators[name] for name in model_names}
     if output_dir is not None:
         output_dir.mkdir(parents=True, exist_ok=True)
     results, predictions_out, importances_out = {}, [], []

@@ -10,6 +10,7 @@ import { TradeoffPanel } from "@/components/models/TradeoffPanel";
 import { RecommendedModelCard } from "@/components/dashboard/RecommendedModelCard";
 import { LoadingSkeleton } from "@/components/feedback/LoadingSkeleton";
 import { ErrorState } from "@/components/feedback/ErrorState";
+import { EmptyState } from "@/components/feedback/EmptyState";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { useRefreshListener } from "@/hooks/useRefreshSignal";
 import { getModels, getModelDetails } from "@/services/model-service";
@@ -36,8 +37,8 @@ export default function ModelsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Modelli ML"
-        description="Confronto dei modelli valutati su fire_next_7d. I due modelli italiani sono separati dal campione globale e usano le stesse 19 celle."
+        title="Modello di previsione"
+        description="Le previsioni mostrate nell'app usano Random Forest con feature FIRMS + ERA5-Land sulle celle italiane."
       />
 
       {loading ? (
@@ -49,6 +50,9 @@ export default function ModelsPage() {
       {error ? <ErrorState description="Impossibile caricare il confronto dei modelli." onRetry={reload} /> : null}
 
       {data ? (
+        data.models.length === 0 ? (
+          <EmptyState title="Modello italiano non disponibile" description="Il backend deve avere il dataset FIRMS + ERA5-Land italiano per addestrare l'algoritmo usato nelle previsioni." />
+        ) : (
         <>
           <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_20rem]">
             <ModelComparisonTable models={data.models} />
@@ -68,9 +72,9 @@ export default function ModelsPage() {
           </div>
 
           <ChartCard
-            title="Confronto metriche"
-            description="Seleziona la metrica da confrontare fra i modelli disponibili"
-            srSummary="Grafico a barre che confronta una metrica selezionata fra i modelli valutati."
+            title="Metriche del modello"
+            description="Metriche sul test temporale italiano"
+            srSummary="Metrica selezionata del modello FIRMS + ERA5-Land italiano."
             actions={
               <label className="flex items-center gap-2 text-xs text-muted">
                 Metrica
@@ -93,9 +97,9 @@ export default function ModelsPage() {
 
           <div className="grid gap-4 lg:grid-cols-2">
             <ChartCard
-              title="Matrice di confusione — Random Forest"
-              description="Ricostruita dai conteggi reali del test set isolato (segmento 0)"
-              srSummary="Matrice di confusione della Random Forest con veri positivi, falsi negativi, falsi positivi e veri negativi."
+              title="Matrice di confusione — FIRMS + ERA5-Land Italia"
+              description="Calcolata sulle predizioni del test temporale italiano."
+              srSummary="Matrice di confusione del modello italiano FIRMS + ERA5-Land."
             >
               {recommendedDetails?.confusionMatrix ? <ConfusionMatrix matrix={recommendedDetails.confusionMatrix} /> : <LoadingSkeleton variant="card" />}
             </ChartCard>
@@ -108,6 +112,7 @@ export default function ModelsPage() {
             ) : null}
           </div>
         </>
+        )
       ) : null}
     </div>
   );

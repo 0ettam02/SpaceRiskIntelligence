@@ -17,7 +17,8 @@ const BASE_STYLE = {
   sources: {},
   layers: [{ id: "background", type: "background", paint: { "background-color": "#0a1622" } }],
 };
-const DEFAULT_VIEW = { center: [12, 14], zoom: 1.5 };
+const DEFAULT_VIEW = { center: [12.5, 42.5], zoom: 4.6 };
+const ITALY_BOUNDS = [[6.0, 35.0], [19.8, 47.5]];
 const RISK_COLORS = RISK_LEVELS.map((level) => level.color);
 
 function buildGraticule() {
@@ -65,6 +66,8 @@ export function GlobalFireMap({ cells, metric, viewMode, intervalDays = 7, selec
       style: BASE_STYLE,
       center: DEFAULT_VIEW.center,
       zoom: DEFAULT_VIEW.zoom,
+      maxBounds: ITALY_BOUNDS,
+      minZoom: 4.2,
       attributionControl: !compact,
       interactive: true,
     });

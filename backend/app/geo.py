@@ -17,6 +17,8 @@ _REGIONS = [
 
 
 def label_for(lat, lon):
+    if 35 <= lat <= 47.5 and 6 <= lon <= 19:
+        return "Italia"
     for label, lon_min, lon_max, lat_min, lat_max in _REGIONS:
         if lon_min <= lon <= lon_max and lat_min <= lat <= lat_max:
             return label

@@ -6,6 +6,9 @@ describe("map-service filters", () => {
   it("returns every sampled cell without filters", async () => {
     const result = await getMapCells();
     expect(result.total).toBe(MOCK_MAP_CELLS.length);
+    expect(result.modelSlug).toBe("random-forest-italia-era5");
+    expect(result.cells.every((cell) => cell.lat >= 35 && cell.lat <= 48 && cell.lon >= 6 && cell.lon <= 20)).toBe(true);
+    expect(result.cells.every((cell) => cell.model === "Random Forest FIRMS + ERA5-Land")).toBe(true);
   });
 
   it("filters cells by qualitative risk level", async () => {

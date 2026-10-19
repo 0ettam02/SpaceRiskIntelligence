@@ -18,6 +18,7 @@ import { getMapCells, getCellDetails } from "@/services/map-service";
 import { findNearestCell } from "@/data/mock-map";
 import { MAP_METRICS } from "@/lib/constants";
 import { RISK_LEVELS } from "@/lib/risk-utils";
+import { isMockMode } from "@/services/api-client";
 
 const GlobalFireMap = dynamic(() => import("@/components/map/GlobalFireMap").then((mod) => mod.GlobalFireMap), {
   ssr: false,
@@ -87,8 +88,8 @@ export default function MapPage() {
       <div className="flex h-[calc(100vh-8rem)] min-h-[36rem] flex-col gap-4">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <PageHeader
-          title="Mappa globale"
-          description="Esplora le celle geografiche campionate: cluster di densità, probabilità stimata a 7 giorni, intensità FRP e giorni attivi recenti."
+          title="Rischio incendi in Italia"
+          description="Esplora le 19 celle italiane del dataset e le probabilità a 7 giorni del modello FIRMS + ERA5-Land."
         />
         <button
           type="button"
@@ -235,7 +236,10 @@ export default function MapPage() {
             </div>
           ) : cells.length === 0 ? (
             <div className="absolute inset-0 flex items-center justify-center p-6">
-              <EmptyState title="Nessuna cella corrisponde ai filtri" description="Prova ad ampliare i filtri selezionati." />
+              <EmptyState
+                title={cellsData?.modelAvailable === false ? "Previsioni italiane non disponibili" : "Nessuna cella corrisponde ai filtri"}
+                description={cellsData?.modelAvailable === false ? "Il backend non trova il dataset FIRMS + ERA5-Land necessario per il modello italiano." : "Prova ad ampliare i filtri selezionati."}
+              />
             </div>
           ) : (
             <GlobalFireMap
@@ -254,11 +258,16 @@ export default function MapPage() {
             </div>
           </div>
           <p className="sr-only" role="status">
-            {cells.length} celle mostrate sulla mappa con la metrica {MAP_METRICS.find((m) => m.value === metric)?.label}.
+            {cells.length} celle italiane mostrate con la metrica {MAP_METRICS.find((m) => m.value === metric)?.label}. Le previsioni usano Random Forest FIRMS + ERA5-Land.
           </p>
         </div>
       </div>
       </div>
+      {isMockMode ? (
+        <p className="rounded-xl border border-amber-400/25 bg-amber-400/[0.06] p-3 text-sm text-muted">
+          Modalità demo: la mappa usa valori sintetici sulle coordinate italiane. Per inferenze reali avvia il backend con il dataset FIRMS + ERA5-Land.
+        </p>
+      ) : null}
 
       <CellDetailsPanel
         cell={cellDetails}

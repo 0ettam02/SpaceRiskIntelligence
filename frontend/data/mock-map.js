@@ -1,20 +1,14 @@
 import { createSeededRandom } from "@/lib/chart-utils";
 import { getRiskLevel } from "@/lib/risk-utils";
 
-// Regioni storicamente associate ad attività di incendio ricorrente, usate
-// solo per distribuire in modo plausibile il campione dimostrativo di celle
-// sulla mappa (non derivano da coordinate reali del dataset).
-const FIRE_PRONE_REGIONS = [
-  { id: "amazzonia", label: "Bacino amazzonico", latRange: [-16, -2], lonRange: [-72, -48], weight: 1.15 },
-  { id: "africa-centrale", label: "Africa centro-meridionale", latRange: [-18, 8], lonRange: [12, 32], weight: 1.1 },
-  { id: "siberia", label: "Siberia", latRange: [54, 66], lonRange: [78, 138], weight: 0.9 },
-  { id: "sud-est-asiatico", label: "Sud-est asiatico", latRange: [-8, 6], lonRange: [96, 118], weight: 1.0 },
-  { id: "australia", label: "Australia settentrionale", latRange: [-22, -11], lonRange: [124, 146], weight: 0.85 },
-  { id: "nord-america", label: "Nord America occidentale", latRange: [33, 43], lonRange: [-124, -114], weight: 0.95 },
-  { id: "mediterraneo", label: "Bacino mediterraneo", latRange: [35, 42], lonRange: [-6, 22], weight: 0.8 },
+// Le coordinate riprendono le 19 celle del dataset italiano. Le metriche
+// sono sintetiche quando l'app gira in modalità mock.
+const ITALY_COORDINATES = [
+  [39.8, 15.8], [40.2, 18.3], [40.7, 15.8], [40.8, 17.3], [40.9, 14.3],
+  [40.9, 15.6], [40.9, 15.9], [41.1, 15.4], [41.4, 13.7], [42.0, 12.5],
+  [43.6, 10.3], [43.8, 10.5], [44.1, 12.2], [44.6, 10.6], [45.2, 7.6],
+  [45.2, 11.8], [45.5, 8.7], [45.5, 10.8], [45.6, 8.3],
 ];
-
-const CELLS_PER_REGION = 70;
 const GRID_SIZE = 0.1;
 const REFERENCE_DATE = new Date("2026-07-17T00:00:00Z");
 
@@ -39,15 +33,9 @@ function buildHistoricalSeries(random, dailyAverage) {
 function generateCells() {
   const random = createSeededRandom(20260717);
   const cells = [];
-  let sequence = 0;
-
-  FIRE_PRONE_REGIONS.forEach((region) => {
-    for (let i = 0; i < CELLS_PER_REGION; i += 1) {
-      sequence += 1;
-      const lat = roundToGrid(region.latRange[0] + random() * (region.latRange[1] - region.latRange[0]));
-      const lon = roundToGrid(region.lonRange[0] + random() * (region.lonRange[1] - region.lonRange[0]));
-
-      const activity = Math.min(1, Math.max(0, random() * region.weight * (0.55 + random() * 0.6)));
+  ITALY_COORDINATES.forEach(([lat, lon], index) => {
+      const sequence = index + 1;
+      const activity = Math.min(1, Math.max(0, random() * (0.55 + random() * 0.6)));
       const detections30d = Math.round(activity * 140 * (0.5 + random()));
       const detections14d = Math.round(detections30d * (0.35 + random() * 0.25));
       const detections7d = Math.round(detections14d * (0.4 + random() * 0.3));
@@ -61,13 +49,13 @@ function generateCells() {
 
       const probability = Math.min(0.98, Math.max(0.02, activity * 0.75 + random() * 0.25));
       const risk = getRiskLevel(probability);
-      const predictedClass = probability >= 0.38 ? 1 : 0;
+      const predictedClass = probability >= 0.13 ? 1 : 0;
 
       cells.push({
-        id: `cell-${region.id}-${sequence}`,
-        region: region.label,
-        lat: Number(lat.toFixed(1)),
-        lon: Number(lon.toFixed(1)),
+        id: `italy-cell-${sequence}`,
+        region: "Italia",
+        lat,
+        lon,
         probability: Number(probability.toFixed(3)),
         predictedClass,
         riskLevel: risk.id,
@@ -80,18 +68,16 @@ function generateCells() {
         frpSum,
         lastDetectionDate: lastDetectionDate.toISOString().slice(0, 10),
         referenceDate: REFERENCE_DATE.toISOString().slice(0, 10),
-        model: "Random Forest",
-        threshold: 0.38,
+        model: "Random Forest FIRMS + ERA5-Land",
+        threshold: 0.13,
         historicalSeries: buildHistoricalSeries(random, detections30d / 30),
       });
-    }
   });
 
   return cells;
 }
 
-// Campione dimostrativo di celle mostrato sulla mappa (visualizzazione, non
-// l'intero dataset di 15.000 celle campionate riportato nelle statistiche).
+// Campione dimostrativo delle 19 coordinate italiane; le probabilità sono sintetiche in modalità mock.
 export const MOCK_MAP_CELLS = generateCells();
 
 export function getMetricValue(cell, metric, intervalDays = 7) {

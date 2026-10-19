@@ -21,10 +21,10 @@ export const RESEARCH_DISCLAIMER =
   "SpaceRiskIntelligence è un prototipo di ricerca. Le stime mostrate non costituiscono un sistema operativo di allerta incendi e non devono essere utilizzate per decisioni di emergenza.";
 
 export const NAV_ITEMS = [
-  { label: "Overview", href: "/", icon: Gauge },
-  { label: "Mappa globale", href: "/map", icon: MapIcon },
-  { label: "Analisi temporale", href: "/analysis", icon: Activity },
-  { label: "Modelli ML", href: "/models", icon: BarChart3 },
+  { label: "Panoramica Italia", href: "/", icon: Gauge },
+  { label: "Mappa Italia", href: "/map", icon: MapIcon },
+  { label: "Serie storica Italia", href: "/analysis", icon: Activity },
+  { label: "Modello di previsione", href: "/models", icon: BarChart3 },
   { label: "Qualità dati", href: "/data-quality", icon: DatabaseZap },
   { label: "Pipeline", href: "/pipeline", icon: Workflow },
   { label: "Documentazione", href: "/documentation", icon: BookOpen },
@@ -32,10 +32,10 @@ export const NAV_ITEMS = [
 ];
 
 export const PAGE_META = {
-  "/": { title: "Panoramica globale", breadcrumb: ["SpaceRiskIntelligence", "Overview"] },
-  "/map": { title: "Mappa globale", breadcrumb: ["SpaceRiskIntelligence", "Mappa globale"] },
-  "/analysis": { title: "Analisi temporale", breadcrumb: ["SpaceRiskIntelligence", "Analisi temporale"] },
-  "/models": { title: "Modelli ML", breadcrumb: ["SpaceRiskIntelligence", "Modelli ML"] },
+  "/": { title: "Panoramica Italia", breadcrumb: ["SpaceRiskIntelligence", "Italia"] },
+  "/map": { title: "Mappa Italia", breadcrumb: ["SpaceRiskIntelligence", "Mappa Italia"] },
+  "/analysis": { title: "Serie storica Italia", breadcrumb: ["SpaceRiskIntelligence", "Serie storica Italia"] },
+  "/models": { title: "Modello di previsione", breadcrumb: ["SpaceRiskIntelligence", "Modello di previsione"] },
   "/data-quality": { title: "Qualità dati", breadcrumb: ["SpaceRiskIntelligence", "Qualità dati"] },
   "/pipeline": { title: "Pipeline", breadcrumb: ["SpaceRiskIntelligence", "Pipeline"] },
   "/documentation": { title: "Documentazione", breadcrumb: ["SpaceRiskIntelligence", "Documentazione"] },
@@ -59,37 +59,6 @@ export function resolvePageMeta(pathname) {
   }
   return PAGE_META["/"];
 }
-
-// Segmenti temporali reali individuati dalla segmentazione (config v3).
-export const TIME_SEGMENTS = [
-  {
-    id: 0,
-    label: "Segmento 0",
-    start: "2025-04-26",
-    end: "2025-09-28",
-    days: 156,
-    usableForModel: true,
-    reason: "Segmento continuo utilizzabile per il training",
-  },
-  {
-    id: 4,
-    label: "Segmento 4",
-    start: "2025-12-26",
-    end: "2026-04-24",
-    days: 120,
-    usableForModel: true,
-    reason: "Segmento continuo utilizzabile per il training",
-  },
-  {
-    id: 5,
-    label: "Segmento 5",
-    start: "2026-06-20",
-    end: "2026-07-17",
-    days: 28,
-    usableForModel: false,
-    reason: "Storia e orizzonte futuro insufficienti: nessuna riga ML prodotta",
-  },
-];
 
 export const TIME_RANGE_OPTIONS = [
   { value: 7, label: "7 giorni" },

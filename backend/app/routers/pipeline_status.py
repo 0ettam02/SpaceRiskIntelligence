@@ -1,115 +1,26 @@
 from fastapi import APIRouter
 
-from app.config import PATHS
 from app.data_store import store
 
 router = APIRouter(prefix="/pipeline", tags=["pipeline"])
 
 
-def _fmt(n):
-    return f"{n:,}".replace(",", ".")
-
-
 @router.get("/status")
 def get_pipeline_status():
-    profile = store.profile
-    segments = store.segments_df
-    usable = int(segments["usable_for_model"].sum())
-    total = len(segments)
-    rf = store.model_results["random_forest"]
-    raw_sources_present = PATHS["raw_source_a"].exists() or PATHS["raw_source_b"].exists()
-
+    panel = store.italy_daily_panel_df
+    ml = store.italy_ml_df
+    model = (store.model_results or {}).get("random_forest_italia_era5")
+    report = model["italyReport"] if model else None
+    split = report["temporal_split"] if report else None
+    metrics = model["metrics"] if model else {}
+    threshold = model["threshold"] if model else None
     steps = [
-        {
-            "id": 1,
-            "title": "Acquisizione NASA FIRMS API",
-            "status": "passed" if raw_sources_present else "warning",
-            "durationLabel": "≈ 6 min (dimostrativa)",
-            "records": f"{_fmt(int(profile['raw_rows_estimated']))} righe grezze stimate",
-            "input": "Endpoint NASA FIRMS (rilevamenti satellitari globali)",
-            "output": "CSV grezzi globali per fonte",
-            "warnings": [] if raw_sources_present else ["I CSV grezzi di origine non sono presenti in questo ambiente: la fase è ricostruita dagli artefatti derivati."],
-        },
-        {
-            "id": 2,
-            "title": "Consolidamento CSV grezzi globali",
-            "status": "passed" if raw_sources_present else "warning",
-            "durationLabel": "≈ 3 min (dimostrativa)",
-            "records": f"{_fmt(int(profile['raw_rows_estimated']))} righe valide stimate",
-            "input": "CSV grezzi per fonte/sensore",
-            "output": "dataset_incendi_FIRMS.csv consolidato",
-            "warnings": ["Possibili duplicati fra fonti diverse dello stesso sensore, non ancora deduplicati in questa fase."],
-        },
-        {
-            "id": 3,
-            "title": "Segmentazione temporale",
-            "status": "passed",
-            "durationLabel": "≈ 1 min (dimostrativa)",
-            "records": f"{total} segmenti individuati, {usable} utilizzabili (≥ 28 giorni continui)",
-            "input": "Dataset consolidato",
-            "output": "segmenti_temporali_v3.csv",
-            "warnings": [f"{total - usable} segmenti esclusi perché troppo corti."],
-        },
-        {
-            "id": 4,
-            "title": "Griglia geografica 0,1°",
-            "status": "passed",
-            "durationLabel": "≈ 2 min (dimostrativa)",
-            "records": f"{_fmt(len(store.cells))} celle campionate",
-            "input": "Dataset consolidato + segmenti utilizzabili",
-            "output": "campione_celle_v3.csv",
-            "warnings": ["Campione condizionato: celle mai attive nel periodo sono escluse dal campionamento."],
-        },
-        {
-            "id": 5,
-            "title": "Pannello giornaliero cella × data",
-            "status": "passed",
-            "durationLabel": "≈ 9 min (dimostrativa)",
-            "records": f"{_fmt(int(profile['panel_rows']))} righe",
-            "input": "campione_celle_v3.csv + dataset consolidato",
-            "output": "incendi_daily_segmentato_sample_v3.csv.gz",
-            "warnings": [],
-        },
-        {
-            "id": 6,
-            "title": "Feature engineering",
-            "status": "passed",
-            "durationLabel": "≈ 4 min (dimostrativa)",
-            "records": f"{_fmt(len(store.ml_df))} righe con 17 feature + target",
-            "input": "Pannello giornaliero cella × data",
-            "output": "dati_ml_storico_v3.csv.gz",
-            "warnings": ["Le finestre mobili escludono il giorno corrente tramite shift temporale."],
-        },
-        {
-            "id": 7,
-            "title": "Split temporale con embargo",
-            "status": "passed",
-            "durationLabel": "≈ 1 min (dimostrativa)",
-            "records": f"Segmento {store.training_segment_id} → {_fmt(rf['trainRows'])} train / {_fmt(rf['validationRows'])} validation / {_fmt(rf['testRows'])} test",
-            "input": "dati_ml_storico_v3.csv.gz",
-            "output": "split in memoria (train/validation/test)",
-            "warnings": ["7 giorni di embargo applicati fra train, validation e test per limitare la fuga di informazione temporale."],
-        },
-        {
-            "id": 8,
-            "title": "Training e validazione",
-            "status": "passed",
-            "durationLabel": f"≈ {sum(r['trainingSeconds'] for r in store.model_results.values()):.1f} s (reale, a questo avvio)",
-            "records": "5 classificatori addestrati su fire_next_7d",
-            "input": "Split train/validation/test",
-            "output": "Modelli addestrati in memoria (non serializzati su disco)",
-            "warnings": ["Il riavvio del processo backend riaddestra i modelli da capo sugli stessi dati."],
-        },
-        {
-            "id": 9,
-            "title": "Metriche e grafici",
-            "status": "passed",
-            "durationLabel": "≈ 2 min (dimostrativa)",
-            "records": "Metriche reali calcolate sul test set isolato di questo avvio",
-            "input": "Predizioni sul test set isolato",
-            "output": "Risposte JSON di /models e /models/{slug}",
-            "warnings": [],
-        },
+        {"id": 1, "title": "Selezione FIRMS Italia", "status": "passed" if len(store.cells) else "warning", "durationLabel": "dataset locale", "records": f"{len(store.cells)} celle con previsioni", "input": "Pannello di rilevamenti NASA FIRMS", "output": "Celle italiane campionate", "warnings": []},
+        {"id": 2, "title": "Merge ERA5-Land", "status": "passed" if len(store.cells) else "warning", "durationLabel": "dataset locale", "records": f"{len(panel)} righe giornaliere · {len(store.cells)} celle", "input": "Coordinate cella + data", "output": "Pannello FIRMS + ERA5-Land", "warnings": [] if len(store.cells) else ["Dataset italiano FIRMS + ERA5-Land non disponibile."]},
+        {"id": 3, "title": "Feature engineering", "status": "passed" if ml is not None else "warning", "durationLabel": "dataset locale", "records": f"{len(ml) if ml is not None else 0} righe con 25 feature e target", "input": "Pannello giornaliero italiano", "output": "Dataset ML italiano", "warnings": ["Le feature meteo usano i sette giorni precedenti alla data di previsione."]},
+        {"id": 4, "title": "Split temporale con embargo", "status": "passed" if split else "warning", "durationLabel": "riaddestrato all'avvio", "records": f"{model['trainRows']} train / {report['comparison']['random_forest_firms_era5']['validation_rows']} validation / {model['testRows']} test" if model else "Non disponibile", "input": "Dataset ML italiano", "output": "Split cronologico con embargo di 7 giorni", "warnings": []},
+        {"id": 5, "title": "Random Forest FIRMS + ERA5-Land", "status": "passed" if model else "warning", "durationLabel": "riaddestrato all'avvio", "records": "Algoritmo selezionato per tutte le previsioni", "input": "Split temporale italiano", "output": "Probabilità per cella", "warnings": [] if model else ["Le previsioni non usano fallback globali."]},
+        {"id": 6, "title": "Valutazione sul test", "status": "passed" if model else "warning", "durationLabel": "test temporale isolato", "records": f"ROC-AUC {metrics.get('rocAuc', 0):.3f} · PR-AUC {metrics.get('prAuc', 0):.3f} · F1 {metrics.get('f1', 0):.3f}" if model else "Non disponibile", "input": "Predizioni sui dati di test", "output": "Metriche, curve e matrice di confusione", "warnings": ["Risultati sperimentali su 19 celle; non sono una validazione geografica."]},
     ]
-
-    return {"steps": steps, "lastRun": store.daily_panel_df["date"].max().strftime("%Y-%m-%d")}
+    last_run = panel["date"].max().strftime("%Y-%m-%d") if len(panel) else None
+    return {"steps": steps, "lastRun": last_run}

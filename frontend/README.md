@@ -109,8 +109,8 @@ NEXT_PUBLIC_API_BASE_URL=
   ```
 
   Il backend impiega circa 40–90 secondi ad avviarsi (carica i CSV reali e
-  riaddestra i 5 modelli globali e, se disponibile il dataset locale, i 2
-  modelli sperimentali italiani): attendere `Application startup complete` nei suoi
+  riaddestra i classificatori interni e il modello italiano se è presente il
+  dataset locale FIRMS + ERA5-Land): attendere `Application startup complete` nei suoi
   log prima di navigare l'app. `.env.local` non è versionato (vedi `.gitignore`).
 
 Non sono presenti chiamate dirette a endpoint NASA né chiavi API nel codice
@@ -134,22 +134,16 @@ getPipelineStatus();
 Ogni informazione numerica dell'interfaccia rientra in una di queste categorie,
 esplicitata dove rilevante:
 
-- **Dato reale del run** — KPI della Overview, metriche dei 5 modelli globali e,
-  se il dataset locale ERA5-Land è disponibile, dei 2 modelli italiani, segmenti
-  temporali, righe del pannello giornaliero: estratti dagli output effettivi del
-  progetto (`cambiamenti_climatici/claudia/output_definitivo/`). In modalità
+- **Dato reale del run** — KPI della Overview, metriche del modello FIRMS + ERA5-Land italiano,
+  serie storica e righe del dataset italiano versionato nel repository. In modalità
   API, anche le celle della mappa e le curve ROC/Precision-Recall/istogramma
   sono reali (calcolate dal backend sul test set), non solo i KPI.
-- **Dato mock** (solo `NEXT_PUBLIC_DATA_SOURCE=mock`) — celle geografiche
-  mostrate sulla mappa: generate con un generatore pseudo-casuale deterministico,
-  distribuite su regioni storicamente soggette a incendi, per avere un campione
-  visivamente plausibile senza dover avviare il backend.
+- **Dato mock** (solo `NEXT_PUBLIC_DATA_SOURCE=mock`) — le probabilità della mappa
+  sono dimostrative; le coordinate italiane e la serie storica provengono dal
+  dataset FIRMS + ERA5-Land del progetto.
 - **Dato dimostrativo** (solo modalità mock) — curve ROC/Precision-Recall,
   istogramma delle probabilità, costruiti a partire dalle metriche reali ma non
-  da punti osservati direttamente; sempre etichettati "Dati dimostrativi". Il
-  confronto "osservato vs previsione" nella pagina Analisi temporale resta
-  dimostrativo in entrambe le modalità (nessun modello di forecasting reale
-  per l'aggregato giornaliero).
+  da punti osservati direttamente; sempre etichettati "Dati dimostrativi".
 - **Dato non disponibile** — es. modello serializzato su disco: il backend lo
   riaddestra in memoria ad ogni avvio, quindi resta segnalato come non
   disponibile anche in modalità API.
@@ -160,9 +154,9 @@ esplicitata dove rilevante:
   (nessuna sorgente di tile esterna): il riferimento geografico è un
   graticolo, non un basemap con confini reali, per evitare dipendenze di
   rete/CORS in ambienti isolati. Lo stesso stile è usato anche in modalità API.
-- In modalità API, le celle del segmento 5 (troppo corto per il dataset ML)
-  non hanno una probabilità del modello: restano con rilevamenti/FRP reali ma
-  `hasPrediction: false` (vedi `backend/README.md`).
+- In modalità API, la mappa mostra solo le celle coperte dal dataset italiano
+  e usa la Random Forest FIRMS + ERA5-Land. Se il dataset manca, non applica un
+  fallback globale e segnala che le previsioni non sono disponibili.
 - `NEXT_PUBLIC_DATA_SOURCE=api` richiede il backend in `../backend` avviato e
   raggiungibile: senza, le pagine mostrano lo stato di errore con pulsante
   "Riprova".
@@ -172,6 +166,5 @@ esplicitata dove rilevante:
 
 Il backend reale (FastAPI, Python) vive in `../backend`. Espone gli endpoint
 elencati sopra leggendo gli artefatti reali della pipeline di ricerca e
-riaddestrando i 5 modelli globali in memoria all'avvio e caricando anche i 2
-modelli italiani quando il dataset locale è presente — vedi `backend/README.md` per
+riaddestrando i modelli in memoria all'avvio — vedi `backend/README.md` per
 installazione, avvio, test e limiti.

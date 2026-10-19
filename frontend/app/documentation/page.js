@@ -1,13 +1,12 @@
 import { PageHeader } from "@/components/layout/PageHeader";
 import { MethodologyAlert } from "@/components/feedback/MethodologyAlert";
-import { FEATURE_GROUPS, TARGET_DEFINITIONS, TIME_SEGMENTS } from "@/lib/constants";
-import { formatDate } from "@/lib/formatters";
+import { ERA5_FEATURE_GROUP, FEATURE_GROUPS, TARGET_DEFINITIONS } from "@/lib/constants";
 
 const SECTIONS = [
   { id: "progetto", label: "Il progetto" },
   { id: "fonti", label: "Fonti NASA FIRMS" },
   { id: "rilevamento-vs-incendio", label: "Rilevamento vs incendio reale" },
-  { id: "target", label: "Target fire_next_7d e fire_count_next_7d" },
+  { id: "target", label: "Target fire_next_7d" },
   { id: "griglia", label: "Griglia geografica" },
   { id: "feature", label: "Lag, finestre mobili e feature" },
   { id: "frp", label: "Fire Radiative Power (FRP)" },
@@ -56,10 +55,9 @@ export default function DocumentationPage() {
 
         <Section id="progetto" title="Il progetto">
           <p>
-            SpaceRiskIntelligence è un prototipo di ricerca che analizza i rilevamenti satellitari NASA FIRMS su scala globale per
-            stimare la probabilità sperimentale di ulteriore attività rilevata nelle celle geografiche nei sette giorni successivi.
-            Il progetto affronta due problemi correlati: la classificazione binaria di <code>fire_next_7d</code> e la stima
-            sperimentale di <code>fire_count_next_7d</code>.
+            SpaceRiskIntelligence è un prototipo di ricerca focalizzato sull&apos;Italia. Analizza i rilevamenti NASA FIRMS e le
+            variabili meteo ERA5-Land per stimare la probabilità sperimentale di attività rilevata nei sette giorni successivi
+            (<code>fire_next_7d</code>).
           </p>
         </Section>
 
@@ -67,7 +65,8 @@ export default function DocumentationPage() {
           <p>
             I dati derivano dal Fire Information for Resource Management System (FIRMS) della NASA, che distribuisce i
             rilevamenti satellitari di anomalie termiche raccolti da più sensori. Il progetto consolida più estrazioni di questa
-            fonte in un unico dataset grezzo globale prima della segmentazione temporale e del campionamento.
+            fonte in un unico dataset grezzo. Per le previsioni italiane, FIRMS è unito a ERA5-Land usando cella e data;
+            l&apos;addestramento attuale copre 19 celle con dati meteo validi.
           </p>
         </Section>
 
@@ -81,9 +80,9 @@ export default function DocumentationPage() {
           </p>
         </Section>
 
-        <Section id="target" title="Target fire_next_7d e fire_count_next_7d">
+        <Section id="target" title="Target fire_next_7d">
           <div className="space-y-3">
-            {TARGET_DEFINITIONS.map((target) => (
+            {TARGET_DEFINITIONS.filter((target) => target.name === "fire_next_7d").map((target) => (
               <div key={target.name} className="rounded-xl border bg-elevated p-4">
                 <p className="font-mono text-sm font-semibold">{target.name}</p>
                 <p className="text-xs uppercase tracking-wide text-brand-300">{target.kind}</p>
@@ -95,16 +94,14 @@ export default function DocumentationPage() {
 
         <Section id="griglia" title="Griglia geografica">
           <p>
-            La superficie terrestre viene discretizzata in celle di 0,1° di lato (circa 11 km all&apos;equatore). Il campionamento
-            seleziona un sottoinsieme di celle storicamente associate ad attività, per un totale di 15.000 celle (5.000 per
-            segmento temporale utilizzabile). Questo rende il campione condizionato e non rappresentativo di una selezione
-            casuale della superficie terrestre.
+            La griglia usa celle di 0,1° di lato (circa 11 km all&apos;equatore). Il modello mostrato nell&apos;app è addestrato su
+            19 celle campionate in Italia; non copre tutte le celle italiane e non è una selezione casuale del territorio.
           </p>
         </Section>
 
         <Section id="feature" title="Lag, finestre mobili e feature">
           <p className="mb-4">
-            Le 17 feature del modello sono organizzate in cinque famiglie. Tutte le finestre mobili escludono il giorno corrente
+            Il modello di previsione usa 17 feature FIRMS e otto feature ERA5-Land. Le finestre mobili escludono il giorno corrente
             tramite uno shift temporale di un giorno, per evitare che il modello osservi informazioni non ancora disponibili al
             momento della previsione.
           </p>
@@ -123,6 +120,15 @@ export default function DocumentationPage() {
               </div>
             ))}
           </div>
+          <div className="mt-4 rounded-xl border bg-elevated p-4">
+            <p className="font-semibold text-brand-300">Meteo ERA5-Land</p>
+            <p className="mt-1 text-xs text-muted">Statistiche dei sette giorni precedenti, senza usare il giorno da prevedere.</p>
+            <ul className="mt-2 grid gap-1 text-sm sm:grid-cols-2">
+              {ERA5_FEATURE_GROUP.features.map((feature) => (
+                <li key={feature.name}><code className="text-xs">{feature.name}</code> — <span className="text-muted">{feature.description}</span></li>
+              ))}
+            </ul>
+          </div>
         </Section>
 
         <Section id="frp" title="Fire Radiative Power (FRP)">
@@ -134,51 +140,15 @@ export default function DocumentationPage() {
         </Section>
 
         <Section id="segmentazione" title="Segmentazione temporale">
-          <p className="mb-4">
-            Il periodo osservato non è continuo: la disponibilità dei dati grezzi presenta interruzioni. La pipeline individua
-            segmenti temporali continui e utilizza solo quelli di almeno 28 giorni per addestrare e valutare i modelli.
-          </p>
-          <div className="overflow-x-auto rounded-xl border">
-            <table className="w-full min-w-[480px] border-collapse text-sm">
-              <thead>
-                <tr className="border-b bg-elevated text-left text-xs uppercase tracking-wide text-muted">
-                  <th scope="col" className="px-3 py-2">
-                    Segmento
-                  </th>
-                  <th scope="col" className="px-3 py-2">
-                    Periodo
-                  </th>
-                  <th scope="col" className="px-3 py-2 text-right">
-                    Giorni
-                  </th>
-                  <th scope="col" className="px-3 py-2">
-                    Utilizzabile
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {TIME_SEGMENTS.map((segment) => (
-                  <tr key={segment.id} className="border-b last:border-0">
-                    <td className="px-3 py-2 font-medium">Segmento {segment.id}</td>
-                    <td className="px-3 py-2 text-muted">
-                      {formatDate(segment.start)} – {formatDate(segment.end)}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">{segment.days}</td>
-                    <td className="px-3 py-2">{segment.usableForModel ? "Sì" : "No"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="mt-3 text-xs text-muted">
-            Il segmento 5 è continuo ma troppo corto per produrre righe nel dataset ML: non dispone di storia sufficiente per le
-            feature né di un orizzonte futuro completo di 7 giorni.
+          <p>
+            Il pannello italiano copre il periodo 26/04/2025–17/07/2026. Il dataset ML mantiene 7.809 righe con almeno 30 giorni
+            di storico, tutte le feature meteo necessarie e un target futuro completo a sette giorni.
           </p>
         </Section>
 
         <Section id="split" title="Train, validation, embargo, test">
           <p>
-            All&apos;interno di ciascun segmento utilizzabile, i dati vengono divisi in ordine cronologico in train, validation e
+            Le date delle 19 celle italiane vengono divise in ordine cronologico in train, validation e
             test, con una finestra di <strong>embargo di 7 giorni</strong> fra ciascuna porzione. L&apos;embargo evita che
             informazioni sovrapposte alle finestre mobili delle feature attraversino il confine fra le porzioni, riducendo il
             rischio di ottimismo nella valutazione. La soglia di decisione è scelta esclusivamente sul set di validation, mai
@@ -188,11 +158,10 @@ export default function DocumentationPage() {
 
         <Section id="limiti" title="Limiti metodologici">
           <ul className="list-disc space-y-2 pl-5 text-sm leading-6 text-muted">
-            <li>Le metriche derivano da un singolo split temporale isolato (segmento 0), non da una validazione multi-segmento.</li>
-            <li>Il campione di celle è condizionato alla storicità di attività, non casuale.</li>
-            <li>La generalizzazione geografica a regioni non rappresentate nel campione non è stata verificata.</li>
-            <li>Nessun modello è stato serializzato al termine del run: le metriche derivano da un&apos;esecuzione singola.</li>
-            <li>La regressione di fire_count_next_7d è sperimentale e non è stata sottoposta allo stesso livello di validazione della classificazione.</li>
+            <li>Il test temporale contiene 399 righe e 24 positivi: le metriche hanno elevata incertezza.</li>
+            <li>Il campione di 19 celle è condizionato alla storicità di attività e non copre l&apos;intero territorio italiano.</li>
+            <li>La generalizzazione geografica verso celle italiane non incluse nel training non è stata verificata.</li>
+            <li>ERA5-Land fornisce stime su griglia e non misure puntuali di stazioni meteorologiche.</li>
           </ul>
         </Section>
 

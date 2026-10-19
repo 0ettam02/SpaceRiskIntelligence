@@ -6,7 +6,6 @@ import {
   QUALITY_CHECKS,
   DATA_QUALITY_WARNINGS,
 } from "@/data/mock-data-quality";
-import { TIME_SEGMENTS } from "@/lib/constants";
 
 /**
  * Contratto JSON di getDataQuality():
@@ -27,7 +26,7 @@ export async function getDataQuality() {
       artifactsStatus: ARTIFACTS_STATUS,
       checks: QUALITY_CHECKS,
       warnings: DATA_QUALITY_WARNINGS,
-      segments: TIME_SEGMENTS,
+      segments: [{ id: 0, label: "Campione italiano", start: "2025-05-26", end: "2026-07-10", days: 411, usableForModel: true, reason: "Dataset FIRMS + ERA5-Land italiano" }],
     });
   }
   return fetchFromApi("/data-quality");

@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.copy import DATA_QUALITY_WARNINGS
+from app.copy import ITALY_MODEL_LIMITATIONS
 from app.data_store import store
 
 router = APIRouter(tags=["data-quality"])
@@ -8,113 +8,37 @@ router = APIRouter(tags=["data-quality"])
 
 @router.get("/data-quality")
 def get_data_quality():
-    profile = store.profile
-    segments = store.segments_df
-    usable = int((segments["usable_for_model"]).sum())
-    total = len(segments)
-
-    coverage = {
-        "observedDays": int(profile["observed_days"]),
-        "totalDays": int(profile["calendar_days"]),
-        "missingDays": int(profile["missing_days"]),
-        "sampledCells": len(store.cells),
-        "usableSegments": usable,
-        "totalSegments": total,
-    }
-
-    raw_data_status = {
-        "status": "passed",
-        "label": "Dati grezzi consolidati",
-        "detail": (
-            f"{int(profile['raw_rows_estimated']):,}".replace(",", ".")
-            + " righe grezze valide stimate, consolidate da più fonti NASA FIRMS in un unico CSV globale."
-        ),
-    }
-    artifacts_status = {
-        "status": "warning",
-        "label": "Artefatti parzialmente disponibili",
-        "detail": "CSV intermedi e grafici diagnostici presenti; il backend riaddestra i modelli in memoria ad ogni avvio, nessun modello persistito su disco.",
-    }
-
+    panel = store.italy_daily_panel_df
+    ml = store.italy_ml_df
+    dates = panel["date"].drop_duplicates().sort_values() if len(panel) else []
+    observed_days = len(dates)
+    total_days = (dates.max() - dates.min()).days + 1 if observed_days else 0
+    segments = []
+    for _, segment in store.segments_df.iterrows():
+        segment_id = int(segment.segment_id)
+        rows = panel[panel.segment_id == segment_id]
+        segments.append({
+            "id": segment_id, "label": f"Segmento {segment_id}",
+            "start": rows.date.min().strftime("%Y-%m-%d") if len(rows) else segment.start,
+            "end": rows.date.max().strftime("%Y-%m-%d") if len(rows) else segment.end,
+            "days": int(rows.date.nunique()),
+            "usableForModel": bool(ml is not None and (ml.segment_id == segment_id).any()),
+            "reason": segment.reason.replace("_", " "),
+        })
+    usable = sum(segment["usableForModel"] for segment in segments)
     checks = [
-        {
-            "id": "temporal-coverage",
-            "label": "Copertura temporale complessiva",
-            "status": "warning",
-            "detail": f"{coverage['observedDays']} giorni osservati su {coverage['totalDays']}: {coverage['missingDays']} giorni mancanti, concentrati fuori dai segmenti continui.",
-        },
-        {
-            "id": "segment-continuity",
-            "label": "Continuità dei segmenti temporali",
-            "status": "passed",
-            "detail": f"{usable} segmenti continui utilizzabili (≥ 28 giorni) su {total} individuati.",
-        },
-        {
-            "id": "horizon-completeness",
-            "label": "Completezza orizzonte futuro a 7 giorni",
-            "status": "passed",
-            "detail": f"Le {len(store.ml_df):,} righe del dataset ML includono solo osservazioni con orizzonte futuro completo (target_horizon_complete_7d = 1).".replace(",", "."),
-        },
-        {
-            "id": "duplicate-detections",
-            "label": "Duplicati potenziali fra fonti",
-            "status": "warning",
-            "detail": "Possibile sovrapposizione fra rilevamenti provenienti da fonti/sensori diversi non ancora deduplicati in modo esplicito.",
-        },
-        {
-            "id": "inactive-cells-excluded",
-            "label": "Celle mai attive escluse dal campione",
-            "status": "warning",
-            "detail": "Il campionamento privilegia celle con storicità di attività: le celle sempre inattive sono sotto-rappresentate.",
-        },
-        {
-            "id": "sample-representativeness",
-            "label": "Rappresentatività del campione",
-            "status": "warning",
-            "detail": "Campione condizionato all'attività storica: non è un campione casuale della superficie terrestre e non supporta stime di prevalenza globale.",
-        },
-        {
-            "id": "geographic-generalization",
-            "label": "Generalizzazione geografica",
-            "status": "not_available",
-            "detail": "Non è stata verificata la capacità del modello di generalizzare a regioni non rappresentate nel campione.",
-        },
-        {
-            "id": "locked-dependencies",
-            "label": "Dipendenze bloccate",
-            "status": "warning",
-            "detail": "Le dipendenze del backend API sono fissate in requirements.txt; l'ambiente Python dei notebook di training non dispone invece di un lockfile.",
-        },
-        {
-            "id": "automated-tests",
-            "label": "Test automatici",
-            "status": "warning",
-            "detail": "Il backend API dispone di alcuni test minimi (pytest); il codice di feature engineering e training nei notebook non ha test automatici.",
-        },
-        {
-            "id": "serialized-model",
-            "label": "Modello serializzato disponibile",
-            "status": "not_available",
-            "detail": "Nessun modello viene esportato su disco: il backend riaddestra la Random Forest e gli altri classificatori in memoria ad ogni avvio.",
-        },
+        {"id": "temporal-coverage", "label": "Copertura temporale italiana", "status": "passed" if observed_days == total_days else "warning", "detail": f"{observed_days} giorni osservati su {total_days} nel periodo delle celle italiane."},
+        {"id": "italy-sample", "label": "Copertura geografica", "status": "warning", "detail": f"Il modello copre {len(store.cells)} celle campionate in Italia, non l'intero territorio."},
+        {"id": "horizon-completeness", "label": "Target a 7 giorni", "status": "passed" if ml is not None else "failed", "detail": f"{len(ml) if ml is not None else 0} righe con storico e orizzonte futuro completi."},
+        {"id": "geographic-generalization", "label": "Generalizzazione geografica", "status": "not_available", "detail": "Non è stata misurata su celle italiane mai viste in training."},
+        {"id": "era5-resolution", "label": "Risoluzione ERA5-Land", "status": "warning", "detail": "ERA5-Land fornisce stime su griglia, non misure locali di stazione."},
+        {"id": "serialized-model", "label": "Modello persistito", "status": "not_available", "detail": "Il backend riaddestra il modello in memoria ad ogni avvio."},
     ]
-
     return {
-        "coverage": coverage,
-        "rawDataStatus": raw_data_status,
-        "artifactsStatus": artifacts_status,
+        "coverage": {"observedDays": observed_days, "totalDays": total_days, "missingDays": max(total_days - observed_days, 0), "sampledCells": len(store.cells), "usableSegments": usable, "totalSegments": len(segments)},
+        "rawDataStatus": {"status": "passed" if len(panel) else "warning", "label": "Dataset FIRMS + ERA5-Land Italia", "detail": f"{len(panel)} righe giornaliere per {len(store.cells)} celle italiane."},
+        "artifactsStatus": {"status": "passed" if ml is not None else "warning", "label": "Dataset ML italiano", "detail": "Il modello FIRMS + ERA5-Land viene riaddestrato all'avvio; gli artefatti di training restano locali."},
         "checks": checks,
-        "warnings": DATA_QUALITY_WARNINGS,
-        "segments": [
-            {
-                "id": int(s.segment_id),
-                "label": f"Segmento {int(s.segment_id)}",
-                "start": s.start,
-                "end": s.end,
-                "days": int(s.days),
-                "usableForModel": bool(s.usable_for_model),
-                "reason": s.reason.replace("_", " "),
-            }
-            for _, s in segments.iterrows()
-        ],
+        "warnings": ITALY_MODEL_LIMITATIONS,
+        "segments": segments,
     }

@@ -1,95 +1,84 @@
-// Indicatori chiave del run disponibile. Fonte: file di output del progetto
-// (campione_celle_v3.csv, incendi_daily_segmentato_sample_v3.csv.gz,
-// dati_ml_storico_v3.csv.gz, segmenti_temporali_v3.csv) — dato reale del run.
+// Indicatori del campione italiano FIRMS + ERA5-Land (mock statico).
 export const OVERVIEW_KPIS = [
   {
     id: "raw-detections",
-    label: "Rilevamenti analizzati",
-    value: 16255053,
-    note: "Stima righe grezze valide",
+    label: "Rilevamenti FIRMS · Italia",
+    value: 75,
+    note: "Rilevamenti nel pannello delle 19 celle",
     kind: "real",
   },
   {
     id: "sampled-cells",
-    label: "Celle campionate",
-    value: 15000,
-    note: "Campione condizionato, 5.000 per segmento",
-    kind: "real",
-  },
-  {
-    id: "panel-rows",
-    label: "Righe pannello giornaliero",
-    value: 1520000,
-    note: "Cella × data",
+    label: "Celle italiane",
+    value: 19,
+    note: "Celle nel dataset FIRMS + ERA5-Land",
     kind: "real",
   },
   {
     id: "ml-rows",
     label: "Righe dataset ML",
-    value: 194833,
-    note: "Orizzonte a 7 giorni completo",
+    value: 7809,
+    note: "338 esempi positivi nel target a 7 giorni",
     kind: "real",
   },
   {
     id: "observed-days",
-    label: "Giorni osservati",
-    value: 310,
-    total: 448,
-    note: "138 giorni mancanti sul periodo",
+    label: "Giorni coperti",
+    value: 411,
+    total: 411,
+    note: "Copertura del periodo italiano",
     kind: "real",
   },
 ];
 
-// Distribuzione reale del target sul set di test temporale isolato
-// (segmento 0, N = 26.358, embargo 7 giorni). Ricostruita dai conteggi
-// derivati dalle metriche di recall/specificità del run (vedi mock-models.js).
+// Conteggi reali del test temporale italiano (399 righe, 24 positive).
 export const TARGET_CLASS_DISTRIBUTION = {
-  scope: "Test set isolato · Segmento 0 · N = 26.358",
+  scope: "Test temporale FIRMS + ERA5-Land · Italia · N = 399",
   classes: [
-    { id: "negative", label: "Nessuna attività (t+1..t+7)", value: 10821 },
-    { id: "positive", label: "Attività prevista (t+1..t+7)", value: 15537 },
+    { id: "negative", label: "Nessuna attività (t+1..t+7)", value: 375 },
+    { id: "positive", label: "Attività prevista (t+1..t+7)", value: 24 },
   ],
 };
 
 export const METHODOLOGY_WARNINGS = [
   "Un rilevamento satellitare non corrisponde necessariamente a un incendio fisico distinto: più rilevamenti possono derivare dallo stesso evento.",
-  "Il campione di celle è condizionato: comprende prevalentemente celle già attive in passato e non consente di stimare prevalenze globali senza pesi di inclusione.",
-  "Le metriche dei modelli derivano da un singolo split temporale isolato (segmento 0) e non da una validazione incrociata su più segmenti.",
-  "La generalizzazione geografica del modello a regioni non rappresentate nel campione non è stata verificata.",
+  "Il campione comprende 19 celle italiane: non rappresenta l'intero territorio nazionale.",
+  "Il test temporale contiene 399 righe e 24 positivi; le metriche hanno elevata incertezza.",
+  "La generalizzazione geografica verso celle italiane non incluse nel campione non è stata verificata.",
 ];
 
 export const PIPELINE_UPDATES = [
   {
     date: "2026-07-17",
-    title: "Ultimo giorno osservato nel segmento 5",
-    description: "Chiusura della finestra dati del segmento 5 (20/06/2026 – 17/07/2026), 28 giorni, insufficiente per produrre righe ML.",
+    title: "Ultima finestra FIRMS + ERA5-Land disponibile",
+    description: "Dataset italiano con 19 celle e target a 7 giorni.",
   },
   {
     date: "2026-04-24",
-    title: "Fine segmento 4",
-    description: "Completato il pannello giornaliero e le feature per il segmento 4 (26/12/2025 – 24/04/2026), 77.016 righe ML prodotte.",
+    title: "Dataset FIRMS + ERA5-Land",
+    description: "Feature meteo aggregate sui sette giorni precedenti e unite alle osservazioni FIRMS per data e cella.",
   },
   {
     date: "2025-09-28",
-    title: "Fine segmento 0 e valutazione modelli",
-    description: "Split temporale con embargo di 7 giorni, training e valutazione dei 5 classificatori su fire_next_7d. Random Forest raccomandata.",
+    title: "Valutazione del modello italiano",
+    description: "Split temporale con embargo di 7 giorni e valutazione di Random Forest FIRMS + ERA5-Land.",
   },
   {
     date: "2025-04-26",
-    title: "Avvio segmento 0",
-    description: "Inizio della finestra dati continua più lunga disponibile (156 giorni) per il campione di 5.000 celle.",
+    title: "Campione italiano",
+    description: "Il dataset di training contiene 19 celle campionate, non l'intera superficie italiana.",
   },
 ];
 
 export const RECOMMENDED_MODEL_SUMMARY = {
-  slug: "random-forest",
-  model: "Random Forest",
-  accuracy: 0.731,
-  recall: 0.903,
-  precision: 0.715,
-  rocAuc: 0.816,
-  threshold: 0.38,
-  note: "Miglior compromesso complessivo fra le metriche osservate; il recall elevato comporta una quota significativa di falsi positivi (specificità 0,484).",
+  slug: "random-forest-italia-era5",
+  model: "Random Forest FIRMS + ERA5-Land (Italia)",
+  accuracy: 0.516,
+  recall: 0.458,
+  precision: 0.058,
+  rocAuc: 0.496,
+  threshold: 0.13,
+  note: "Modello sperimentale sulle 19 celle italiane del dataset; metriche esplorative, non adatte a un uso operativo.",
 };
 
-export const LAST_RUN_DATE = "2026-07-17";
+export const LAST_RUN_DATE = "2026-07-10";

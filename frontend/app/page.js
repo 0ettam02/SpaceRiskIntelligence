@@ -47,8 +47,8 @@ export default function OverviewPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Global Fire Risk Intelligence"
-        description="Analisi globale dei rilevamenti satellitari NASA FIRMS e della probabilità sperimentale di attività rilevata nelle celle geografiche nei successivi sette giorni."
+        title="SpaceRisk Italia"
+        description="Analisi dei rilevamenti NASA FIRMS e del rischio sperimentale di incendi in Italia, con Random Forest FIRMS + ERA5-Land."
         badge={
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full border border-brand-400/30 bg-brand-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-brand-300">
@@ -80,7 +80,7 @@ export default function OverviewPage() {
               <div className="flex shrink-0 items-center justify-between border-b px-5 py-4">
                 <div>
                   <h2 className="font-semibold">Panoramica geospaziale</h2>
-                  <p className="mt-1 text-xs text-muted">Anteprima del campione · livello: probabilità a 7 giorni</p>
+                  <p className="mt-1 text-xs text-muted">Campione italiano · previsione a 7 giorni FIRMS + ERA5-Land</p>
                 </div>
                 <Link href="/map" className="min-h-10 rounded-lg border bg-elevated px-3 text-xs font-semibold leading-10 text-brand-300">
                   Apri mappa
@@ -121,7 +121,12 @@ export default function OverviewPage() {
                 <PipelineUpdatesList updates={data.pipelineUpdates} />
               </div>
             </article>
-            <RecommendedModelCard model={data.recommendedModel} />
+            {data.recommendedModel ? <RecommendedModelCard model={data.recommendedModel} /> : (
+              <article className="rounded-2xl border bg-surface p-5 shadow-panel">
+                <h2 className="font-semibold">Previsioni italiane non disponibili</h2>
+                <p className="mt-2 text-sm text-muted">Per mostrare il rischio serve il dataset FIRMS + ERA5-Land italiano e il modello Random Forest associato.</p>
+              </article>
+            )}
           </section>
         </>
       ) : null}

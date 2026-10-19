@@ -61,7 +61,7 @@ FEATURES = [
     "cos_doy",
 ]
 
-RECOMMENDED_MODEL_SLUG = "random-forest"
+RECOMMENDED_MODEL_SLUG = "random-forest-italia-era5"
 
 MODEL_SLUGS = {
     "random_forest": "random-forest",

@@ -39,7 +39,7 @@ export default function ModelDetailPage({ params }) {
     <div className="space-y-6">
       <Link href="/models" className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-300 hover:underline">
         <ArrowLeft aria-hidden="true" size={16} />
-        Torna al confronto dei modelli
+        Torna al modello di previsione
       </Link>
 
       {loading ? <LoadingSkeleton variant="card" rows={5} /> : null}
@@ -54,14 +54,14 @@ export default function ModelDetailPage({ params }) {
             badge={
               model.recommended ? (
                 <span className="rounded-full border border-brand-400/30 bg-brand-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-brand-300">
-                  Modello raccomandato
+                  Algoritmo in uso
                 </span>
               ) : null
             }
             actions={
               <Link href="/models" className="inline-flex min-h-11 items-center gap-2 rounded-xl border bg-surface px-3 text-sm font-semibold text-brand-300 hover:bg-elevated">
                 <GitCompareArrows aria-hidden="true" size={16} />
-                Confronta con altri modelli
+                Valutazione del modello
               </Link>
             }
           />

@@ -26,9 +26,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="SpaceRiskIntelligence API",
     description=(
-        "API sperimentale che espone gli artefatti reali della pipeline di ricerca "
-        "(cambiamenti_climatici/claudia/output_definitivo) e i classificatori globali; "
-        "se è presente il dataset locale Italia/ERA5, espone anche i due modelli di confronto italiani. "
+        "API sperimentale focalizzata sulle celle italiane del dataset NASA FIRMS + ERA5-Land. "
+        "Le previsioni usano esclusivamente Random Forest FIRMS + ERA5-Land. "
         "Non è un sistema operativo di allerta incendi."
     ),
     version="0.1.0",

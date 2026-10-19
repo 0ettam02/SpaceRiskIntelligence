@@ -24,7 +24,12 @@ def get_map_cells(
     if metric == "probability":
         cells = [c for c in cells if c["hasPrediction"]]
 
-    return {"cells": cells, "total": len(cells)}
+    return {
+        "cells": cells,
+        "total": len(cells),
+        "modelAvailable": "random_forest_italia_era5" in (store.model_results or {}),
+        "modelSlug": "random-forest-italia-era5",
+    }
 
 
 @router.get("/cells/{cell_id}")

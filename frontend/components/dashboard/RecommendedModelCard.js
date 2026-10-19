@@ -10,7 +10,7 @@ export function RecommendedModelCard({ model }) {
           <Star aria-hidden="true" size={16} className="fill-brand-300" />
         </span>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand-300">Modello raccomandato</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand-300">Algoritmo usato per le previsioni</p>
           <h2 id="recommended-model-title" className="font-semibold">
             {model.model}
           </h2>

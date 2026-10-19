@@ -119,8 +119,8 @@ export const MODELS = [
     threshold: 0.13,
     specificity: 0.520,
     falsePositiveRate: 0.480,
-    recommended: false,
-    status: "Sperimentale",
+    recommended: true,
+    status: "In uso",
     scope: "Italia · FIRMS + ERA5-Land · 19 celle",
     features: [
       ...BASE_FEATURES,
@@ -141,7 +141,7 @@ export const MODELS = [
   },
 ];
 
-export const RECOMMENDED_MODEL_SLUG = "random-forest";
+export const RECOMMENDED_MODEL_SLUG = "random-forest-italia-era5";
 
 // Matrice di confusione della Random Forest ricostruita dai conteggi reali
 // del test set isolato (segmento 0, N = 26.358 righe, embargo 7 giorni):

@@ -7,7 +7,7 @@ import {
   RECOMMENDED_MODEL_SUMMARY,
   LAST_RUN_DATE,
 } from "@/data/mock-overview";
-import { CALENDAR_SERIES } from "@/data/mock-analysis";
+import { ITALY_DAILY_SERIES } from "@/data/mock-italy-series";
 
 /**
  * Contratto JSON di getOverview():
@@ -26,7 +26,7 @@ export async function getOverview() {
     return withSimulatedLatency({
       kpis: OVERVIEW_KPIS,
       lastRunDate: LAST_RUN_DATE,
-      dailySeries: CALENDAR_SERIES,
+      dailySeries: ITALY_DAILY_SERIES,
       classDistribution: TARGET_CLASS_DISTRIBUTION,
       methodologyWarnings: METHODOLOGY_WARNINGS,
       pipelineUpdates: PIPELINE_UPDATES,

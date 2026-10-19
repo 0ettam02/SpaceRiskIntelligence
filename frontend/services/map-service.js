@@ -24,7 +24,7 @@ function matchesFilters(cell, filters) {
 export async function getMapCells(filters = {}) {
   if (isMockMode) {
     const cells = MOCK_MAP_CELLS.filter((cell) => matchesFilters(cell, filters));
-    return withSimulatedLatency({ cells, total: cells.length });
+    return withSimulatedLatency({ cells, total: cells.length, modelAvailable: true, modelSlug: "random-forest-italia-era5" });
   }
   const query = new URLSearchParams(filters).toString();
   return fetchFromApi(`/map/cells?${query}`);
