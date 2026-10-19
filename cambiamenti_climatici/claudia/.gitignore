@@ -1,0 +1,5 @@
+# modello serializzato (rigenerabile)
+*.joblib
+
+# metriche v7 da versionare, nonostante il *.csv della root
+!output_definitivo/modelli_v7/*.csv
