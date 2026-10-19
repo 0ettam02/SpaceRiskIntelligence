@@ -26,7 +26,7 @@ export async function getDataQuality() {
       artifactsStatus: ARTIFACTS_STATUS,
       checks: QUALITY_CHECKS,
       warnings: DATA_QUALITY_WARNINGS,
-      segments: [{ id: 0, label: "Campione italiano", start: "2025-05-26", end: "2026-07-10", days: 411, usableForModel: true, reason: "Dataset FIRMS + ERA5-Land italiano" }],
+      segments: [{ id: 0, label: "FIRMS clean3 + ERA5-Land", start: "2026-06-18", end: "2026-07-15", days: 28, usableForModel: true, reason: "Dataset FIRMS clean3 filtrato sulla griglia italiana e unito al meteo giornaliero" }],
     });
   }
   return fetchFromApi("/data-quality");

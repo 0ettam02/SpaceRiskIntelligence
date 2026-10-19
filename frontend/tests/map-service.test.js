@@ -8,18 +8,22 @@ describe("map-service filters", () => {
     expect(result.total).toBe(MOCK_MAP_CELLS.length);
     expect(result.modelSlug).toBe("random-forest-italia-era5");
     expect(result.cells.every((cell) => cell.lat >= 35 && cell.lat <= 48 && cell.lon >= 6 && cell.lon <= 20)).toBe(true);
-    expect(result.cells.every((cell) => cell.model === "Random Forest FIRMS + ERA5-Land")).toBe(true);
+    expect(result.cells.length).toBe(331);
+    expect(result.cells.every((cell) => cell.model === "Random Forest FIRMS clean3 + ERA5-Land")).toBe(true);
+    expect(result.forecast.forecastStart).toBe("2026-07-16");
   });
 
   it("filters cells by qualitative risk level", async () => {
-    const result = await getMapCells({ riskLevel: "molto-elevata" });
+    const result = await getMapCells({ riskLevel: "bassa" });
     expect(result.cells.length).toBeGreaterThan(0);
-    expect(result.cells.every((cell) => cell.riskLevel === "molto-elevata")).toBe(true);
+    expect(result.cells.every((cell) => cell.riskLevel === "bassa")).toBe(true);
+    expect(result.cells.length).toBeLessThan(331);
   });
 
   it("filters out cells whose last detection predates the requested date", async () => {
-    const result = await getMapCells({ minLastDetectionDate: "2026-07-15" });
-    expect(result.cells.every((cell) => cell.lastDetectionDate >= "2026-07-15")).toBe(true);
+    const result = await getMapCells({ minLastDetectionDate: "2026-07-10" });
+    expect(result.cells.every((cell) => cell.lastDetectionDate && cell.lastDetectionDate >= "2026-07-10")).toBe(true);
+    expect(result.cells.length).toBeGreaterThan(0);
   });
 
   it("resolves cell details for a known id and null for an unknown one", async () => {

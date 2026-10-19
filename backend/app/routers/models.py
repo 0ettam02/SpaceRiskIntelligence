@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException
 from app.config import FEATURES, MODEL_LABELS, MODEL_SCOPES, MODEL_SLUGS, RECOMMENDED_MODEL_SLUG
 from app.copy import ITALY_MODEL_LIMITATIONS, MODEL_LIMITATIONS, MODEL_METHODOLOGY_NOTES
 from app.data_store import store
+from app.research_results import load_research_results
 
 router = APIRouter(tags=["models"])
 
@@ -22,12 +23,16 @@ def _summary(key, result):
         "f1": round(metrics["f1"], 3),
         "rocAuc": round(metrics["rocAuc"], 3),
         "prAuc": round(metrics["prAuc"], 3),
-        "threshold": round(result["threshold"], 2),
+        "threshold": round(result["threshold"], 3),
         "specificity": round(metrics["specificity"], 3),
         "falsePositiveRate": round(metrics["falsePositiveRate"], 3),
         "recommended": key == "random_forest_italia_era5",
-        "status": "In uso" if key == "random_forest_italia_era5" else "Sperimentale" if key.startswith("random_forest_italia") else "Valutato",
+        "status": ("In uso · finestra storica" if result.get("forecastMetadata") else "In uso")
+        if key == "random_forest_italia_era5" else "Sperimentale" if key.startswith("random_forest_italia") else "Valutato",
         "scope": MODEL_SCOPES.get(key, ""),
+        "referenceDate": result.get("forecastMetadata", {}).get("referenceDate"),
+        "forecastStart": result.get("forecastMetadata", {}).get("forecastStart"),
+        "forecastEnd": result.get("forecastMetadata", {}).get("forecastEnd"),
     }
 
 
@@ -47,14 +52,16 @@ def _probability_histogram(result, threshold, bins=20):
     histogram = [
         {"bin": round(float(edges[i]), 2), "negativi": int(negatives[i]), "positivi": int(positives[i])} for i in range(bins)
     ]
-    return {"histogram": histogram, "threshold": round(float(threshold), 2)}
+    return {"histogram": histogram, "threshold": round(float(threshold), 3)}
 
 
 @router.get("/models")
 def get_models():
     selected_key = "random_forest_italia_era5"
     models = [_summary(selected_key, store.model_results[selected_key])] if selected_key in store.model_results else []
-    return {"models": models, "recommendedSlug": RECOMMENDED_MODEL_SLUG}
+    comparison = store.model_results.get(selected_key, {}).get("comparison") if store.model_results else None
+    return {"models": models, "recommendedSlug": RECOMMENDED_MODEL_SLUG, "comparison": comparison,
+            "research": load_research_results()}
 
 
 @router.get("/models/{slug}")
@@ -68,7 +75,10 @@ def get_model_details(slug: str):
 
     confusion_matrix = None
     if key == "random_forest_italia_era5":
-        source = f"Test temporale italiano isolato (19 celle, N = {result['testRows']})"
+        metadata = result.get("forecastMetadata", {})
+        source = (f"Finestra storica {metadata.get('forecastStart')}–{metadata.get('forecastEnd')} "
+                  f"({metadata.get('cells', result['testRows'])} celle)" if metadata else
+                  f"Test temporale italiano isolato (N = {result['testRows']})")
         confusion_matrix = {
             "testRows": result["testRows"],
             "positives": metrics["truePositive"] + metrics["falseNegative"],

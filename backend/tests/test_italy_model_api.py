@@ -33,7 +33,7 @@ def test_only_italy_era5_model_is_exposed_for_predictions(monkeypatch):
     assert response["recommendedSlug"] == "random-forest-italia-era5"
     model = response["models"][0]
     assert model["slug"] == "random-forest-italia-era5"
-    assert model["scope"] == "Italia · 19 celle · FIRMS + ERA5-Land"
+    assert "331 celle" in model["scope"]
     assert model["status"] == "In uso"
 
 
@@ -69,5 +69,5 @@ def test_map_cells_use_italy_era5_predictions_only():
 
     assert len(subject.cells) == 1
     assert subject.cells[0]["probability"] == 0.31
-    assert subject.cells[0]["model"] == "Random Forest FIRMS + ERA5-Land"
+    assert subject.cells[0]["model"] == "Random Forest FIRMS clean3 + ERA5-Land"
     assert subject.cells[0]["lat"] == 42.0

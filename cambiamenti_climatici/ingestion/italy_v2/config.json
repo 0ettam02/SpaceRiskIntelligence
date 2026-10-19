@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "start": "2025-04-26",
+  "end": "2026-07-17",
+  "source": "MODIS_SP",
+  "grid_degrees": 0.1,
+  "vegetation_type": 0,
+  "confidence_min": 0,
+  "horizon_days": 7,
+  "history_days": 30,
+  "random_state": 42,
+  "evaluation": {
+    "minimum_train_days": 180,
+    "calibration_days": 28,
+    "validation_days": 28,
+    "test_days": 28,
+    "step_days": 56,
+    "embargo_days": 7,
+    "spatial_block_degrees": 1.0,
+    "spatial_holdout_fraction": 0.2,
+    "false_alert_budget_per_cell_week": 0.1,
+    "rf_trees": 300,
+    "rf_regularized_depth": 12,
+    "rf_regularized_leaf": 20
+  }
+}

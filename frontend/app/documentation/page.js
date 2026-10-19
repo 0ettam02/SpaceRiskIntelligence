@@ -11,7 +11,7 @@ const SECTIONS = [
   { id: "feature", label: "Lag, finestre mobili e feature" },
   { id: "frp", label: "Fire Radiative Power (FRP)" },
   { id: "segmentazione", label: "Segmentazione temporale" },
-  { id: "split", label: "Train, validation, embargo, test" },
+  { id: "split", label: "Holdout e validazione"},
   { id: "limiti", label: "Limiti metodologici" },
   { id: "glossario", label: "Glossario" },
 ];
@@ -66,7 +66,7 @@ export default function DocumentationPage() {
             I dati derivano dal Fire Information for Resource Management System (FIRMS) della NASA, che distribuisce i
             rilevamenti satellitari di anomalie termiche raccolti da più sensori. Il progetto consolida più estrazioni di questa
             fonte in un unico dataset grezzo. Per le previsioni italiane, FIRMS è unito a ERA5-Land usando cella e data;
-            l&apos;addestramento attuale copre 19 celle con dati meteo validi.
+            il modello usa il dataset clean3 filtrato alle celle italiane e aggiunge ERA5-Land per data e cella. Sono presenti 331 delle 3.475 celle nazionali.
           </p>
         </Section>
 
@@ -94,14 +94,14 @@ export default function DocumentationPage() {
 
         <Section id="griglia" title="Griglia geografica">
           <p>
-            La griglia usa celle di 0,1° di lato (circa 11 km all&apos;equatore). Il modello mostrato nell&apos;app è addestrato su
-            19 celle campionate in Italia; non copre tutte le celle italiane e non è una selezione casuale del territorio.
+            La griglia usa celle di 0,1° di lato (circa 11 km all&apos;equatore). Il dataset mostrato nell&apos;app copre 331 celle su 3.475 nella griglia FIRMS nazionale, nel periodo presente nel clean3. La griglia non equivale a una copertura di ogni
+            località del territorio; 21 celle costiere sono associate al punto ERA5-Land terrestre più vicino, entro 11,2 km; tutte le righe risultano abbinate.
           </p>
         </Section>
 
         <Section id="feature" title="Lag, finestre mobili e feature">
           <p className="mb-4">
-            Il modello di previsione usa 17 feature FIRMS e otto feature ERA5-Land. Le finestre mobili escludono il giorno corrente
+            Il modello di previsione usa 15 feature FIRMS e otto feature ERA5-Land. Le finestre mobili escludono il giorno corrente
             tramite uno shift temporale di un giorno, per evitare che il modello osservi informazioni non ancora disponibili al
             momento della previsione.
           </p>
@@ -122,7 +122,7 @@ export default function DocumentationPage() {
           </div>
           <div className="mt-4 rounded-xl border bg-elevated p-4">
             <p className="font-semibold text-brand-300">Meteo ERA5-Land</p>
-            <p className="mt-1 text-xs text-muted">Statistiche dei sette giorni precedenti, senza usare il giorno da prevedere.</p>
+            <p className="mt-1 text-xs text-muted">Valori ERA5-Land giornalieri associati alla data e alla cella di riferimento; il target riguarda i sette giorni successivi.</p>
             <ul className="mt-2 grid gap-1 text-sm sm:grid-cols-2">
               {ERA5_FEATURE_GROUP.features.map((feature) => (
                 <li key={feature.name}><code className="text-xs">{feature.name}</code> — <span className="text-muted">{feature.description}</span></li>
@@ -141,26 +141,21 @@ export default function DocumentationPage() {
 
         <Section id="segmentazione" title="Segmentazione temporale">
           <p>
-            Il pannello italiano copre il periodo 26/04/2025–17/07/2026. Il dataset ML mantiene 7.809 righe con almeno 30 giorni
-            di storico, tutte le feature meteo necessarie e un target futuro completo a sette giorni.
+            Il dataset clean3 disponibile copre il periodo 18/06/2026–15/07/2026. Dopo filtro nazionale e merge risultano 9.268 righe cella-giorno; 6.951 hanno target futuro a sette giorni osservabile.
           </p>
         </Section>
 
-        <Section id="split" title="Train, validation, embargo, test">
+        <Section id="split" title="Holdout e validazione">
           <p>
-            Le date delle 19 celle italiane vengono divise in ordine cronologico in train, validation e
-            test, con una finestra di <strong>embargo di 7 giorni</strong> fra ciascuna porzione. L&apos;embargo evita che
-            informazioni sovrapposte alle finestre mobili delle feature attraversino il confine fra le porzioni, riducendo il
-            rischio di ottimismo nella valutazione. La soglia di decisione è scelta esclusivamente sul set di validation, mai
-            osservando il test.
+            La valutazione corrente usa un holdout casuale 80/20 con random_state=42, comune al confronto FIRMS-only e FIRMS + ERA5-Land. Il test contiene 1.391 righe e usa soglia 0,5. Non isola date o celle e può produrre metriche ottimistiche; occorre una validazione temporale e geografica.
           </p>
         </Section>
 
         <Section id="limiti" title="Limiti metodologici">
           <ul className="list-disc space-y-2 pl-5 text-sm leading-6 text-muted">
-            <li>Il test temporale contiene 399 righe e 24 positivi: le metriche hanno elevata incertezza.</li>
-            <li>Il campione di 19 celle è condizionato alla storicità di attività e non copre l&apos;intero territorio italiano.</li>
-            <li>La generalizzazione geografica verso celle italiane non incluse nel training non è stata verificata.</li>
+            <li>Il clean3 copre 331 delle 3.475 celle nazionali nel periodo disponibile di 28 giorni.</li>
+            <li>La previsione storica visualizzata riguarda il 16–22/07/2026 e non rappresenta il rischio attuale.</li>
+            <li>Lo split casuale non dimostra generalizzazione futura o geografica e richiede test indipendenti.</li>
             <li>ERA5-Land fornisce stime su griglia e non misure puntuali di stazioni meteorologiche.</li>
           </ul>
         </Section>

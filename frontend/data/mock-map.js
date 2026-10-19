@@ -1,84 +1,8 @@
-import { createSeededRandom } from "@/lib/chart-utils";
-import { getRiskLevel } from "@/lib/risk-utils";
+import snapshot from "@/data/clean3-map-predictions.json";
 
-// Le coordinate riprendono le 19 celle del dataset italiano. Le metriche
-// sono sintetiche quando l'app gira in modalità mock.
-const ITALY_COORDINATES = [
-  [39.8, 15.8], [40.2, 18.3], [40.7, 15.8], [40.8, 17.3], [40.9, 14.3],
-  [40.9, 15.6], [40.9, 15.9], [41.1, 15.4], [41.4, 13.7], [42.0, 12.5],
-  [43.6, 10.3], [43.8, 10.5], [44.1, 12.2], [44.6, 10.6], [45.2, 7.6],
-  [45.2, 11.8], [45.5, 8.7], [45.5, 10.8], [45.6, 8.3],
-];
 const GRID_SIZE = 0.1;
-const REFERENCE_DATE = new Date("2026-07-17T00:00:00Z");
-
-function roundToGrid(value) {
-  return Math.round(value / GRID_SIZE) * GRID_SIZE;
-}
-
-function buildHistoricalSeries(random, dailyAverage) {
-  const series = [];
-  for (let day = 29; day >= 0; day -= 1) {
-    const noise = 0.4 + random() * 1.3;
-    const date = new Date(REFERENCE_DATE);
-    date.setUTCDate(date.getUTCDate() - day);
-    series.push({
-      date: date.toISOString().slice(0, 10),
-      detections: Math.max(0, Math.round(dailyAverage * noise)),
-    });
-  }
-  return series;
-}
-
-function generateCells() {
-  const random = createSeededRandom(20260717);
-  const cells = [];
-  ITALY_COORDINATES.forEach(([lat, lon], index) => {
-      const sequence = index + 1;
-      const activity = Math.min(1, Math.max(0, random() * (0.55 + random() * 0.6)));
-      const detections30d = Math.round(activity * 140 * (0.5 + random()));
-      const detections14d = Math.round(detections30d * (0.35 + random() * 0.25));
-      const detections7d = Math.round(detections14d * (0.4 + random() * 0.3));
-      const detections3d = Math.round(detections7d * (0.25 + random() * 0.35));
-      const activeDaysLast7 = Math.min(7, Math.round(activity * 7 * (0.5 + random() * 0.6)));
-      const activeDaysLast30 = Math.min(30, Math.max(activeDaysLast7, Math.round(activity * 30 * (0.4 + random() * 0.6))));
-      const frpSum = Number((detections7d * (2 + random() * 22)).toFixed(1));
-      const daysSinceLastDetection = detections7d > 0 ? Math.floor(random() * 3) : Math.floor(3 + random() * 25);
-      const lastDetectionDate = new Date(REFERENCE_DATE);
-      lastDetectionDate.setUTCDate(lastDetectionDate.getUTCDate() - daysSinceLastDetection);
-
-      const probability = Math.min(0.98, Math.max(0.02, activity * 0.75 + random() * 0.25));
-      const risk = getRiskLevel(probability);
-      const predictedClass = probability >= 0.13 ? 1 : 0;
-
-      cells.push({
-        id: `italy-cell-${sequence}`,
-        region: "Italia",
-        lat,
-        lon,
-        probability: Number(probability.toFixed(3)),
-        predictedClass,
-        riskLevel: risk.id,
-        detections3d,
-        detections7d,
-        detections14d,
-        detections30d,
-        activeDaysLast7,
-        activeDaysLast30,
-        frpSum,
-        lastDetectionDate: lastDetectionDate.toISOString().slice(0, 10),
-        referenceDate: REFERENCE_DATE.toISOString().slice(0, 10),
-        model: "Random Forest FIRMS + ERA5-Land",
-        threshold: 0.13,
-        historicalSeries: buildHistoricalSeries(random, detections30d / 30),
-      });
-  });
-
-  return cells;
-}
-
-// Campione dimostrativo delle 19 coordinate italiane; le probabilità sono sintetiche in modalità mock.
-export const MOCK_MAP_CELLS = generateCells();
+export const MOCK_MAP_CELLS = snapshot.cells;
+export const MOCK_FORECAST = snapshot.forecast;
 
 export function getMetricValue(cell, metric, intervalDays = 7) {
   switch (metric) {
@@ -87,14 +11,10 @@ export function getMetricValue(cell, metric, intervalDays = 7) {
       if (intervalDays <= 7) return cell.detections7d;
       if (intervalDays <= 14) return cell.detections14d;
       return cell.detections30d;
-    case "probability":
-      return cell.probability;
-    case "frp":
-      return cell.frpSum;
-    case "activeDays":
-      return intervalDays > 14 ? cell.activeDaysLast30 : cell.activeDaysLast7;
-    default:
-      return cell.probability;
+    case "probability": return cell.probability;
+    case "frp": return cell.frpSum;
+    case "activeDays": return intervalDays > 14 ? cell.activeDaysLast30 : cell.activeDaysLast7;
+    default: return cell.probability;
   }
 }
 
@@ -103,50 +23,30 @@ export function findNearestCell(cells, lat, lon, maxDistanceDegrees = 6) {
   let nearestDistance = Infinity;
   cells.forEach((cell) => {
     const distance = Math.hypot(cell.lat - lat, cell.lon - lon);
-    if (distance < nearestDistance) {
-      nearestDistance = distance;
-      nearest = cell;
-    }
+    if (distance < nearestDistance) { nearestDistance = distance; nearest = cell; }
   });
   return nearestDistance <= maxDistanceDegrees ? nearest : null;
 }
 
 export function cellsToPointFeatureCollection(cells, metric, intervalDays = 7) {
-  return {
-    type: "FeatureCollection",
-    features: cells.map((cell) => ({
-      type: "Feature",
-      id: cell.id,
-      geometry: { type: "Point", coordinates: [cell.lon, cell.lat] },
-      properties: { ...cell, metricValue: getMetricValue(cell, metric, intervalDays) },
-    })),
-  };
+  return { type: "FeatureCollection", features: cells.map((cell) => ({
+    type: "Feature", id: cell.id,
+    geometry: { type: "Point", coordinates: [cell.lon, cell.lat] },
+    properties: { ...cell, metricValue: getMetricValue(cell, metric, intervalDays) },
+  })) };
 }
 
 export function cellsToPolygonFeatureCollection(cells, metric, intervalDays = 7) {
   const half = GRID_SIZE / 2;
-  return {
-    type: "FeatureCollection",
-    features: cells.map((cell) => ({
-      type: "Feature",
-      id: cell.id,
-      geometry: {
-        type: "Polygon",
-        coordinates: [
-          [
-            [cell.lon - half, cell.lat - half],
-            [cell.lon + half, cell.lat - half],
-            [cell.lon + half, cell.lat + half],
-            [cell.lon - half, cell.lat + half],
-            [cell.lon - half, cell.lat - half],
-          ],
-        ],
-      },
-      properties: { ...cell, metricValue: getMetricValue(cell, metric, intervalDays) },
-    })),
-  };
+  return { type: "FeatureCollection", features: cells.map((cell) => ({
+    type: "Feature", id: cell.id,
+    geometry: { type: "Polygon", coordinates: [[
+      [cell.lon - half, cell.lat - half], [cell.lon + half, cell.lat - half],
+      [cell.lon + half, cell.lat + half], [cell.lon - half, cell.lat + half],
+      [cell.lon - half, cell.lat - half],
+    ]] },
+    properties: { ...cell, metricValue: getMetricValue(cell, metric, intervalDays) },
+  })) };
 }
 
-export function findCellById(cellId) {
-  return MOCK_MAP_CELLS.find((cell) => cell.id === cellId) || null;
-}
+export function findCellById(cellId) { return MOCK_MAP_CELLS.find((cell) => cell.id === cellId) || null; }

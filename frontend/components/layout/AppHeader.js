@@ -12,7 +12,7 @@ export function AppHeader({ onOpenMobileNav }) {
   const pathname = usePathname();
   const meta = resolvePageMeta(pathname);
   const { theme, toggleTheme } = useTheme();
-  const [lastUpdated, setLastUpdated] = useState(() => new Date("2026-07-17T09:00:00Z"));
+  const [lastUpdated, setLastUpdated] = useState(() => new Date("2026-07-15T09:00:00Z"));
   const [refreshing, setRefreshing] = useState(false);
 
   const handleRefresh = () => {

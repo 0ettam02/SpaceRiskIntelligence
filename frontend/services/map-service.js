@@ -1,5 +1,5 @@
 import { isMockMode, fetchFromApi, withSimulatedLatency } from "@/services/api-client";
-import { MOCK_MAP_CELLS, findCellById } from "@/data/mock-map";
+import { MOCK_MAP_CELLS, MOCK_FORECAST, findCellById } from "@/data/mock-map";
 import { getRiskLevel } from "@/lib/risk-utils";
 
 function matchesFilters(cell, filters) {
@@ -7,7 +7,7 @@ function matchesFilters(cell, filters) {
   if (filters.riskLevel && filters.riskLevel !== "all" && cell.riskLevel !== filters.riskLevel) {
     return false;
   }
-  if (filters.minLastDetectionDate && cell.lastDetectionDate < filters.minLastDetectionDate) {
+  if (filters.minLastDetectionDate && (!cell.lastDetectionDate || cell.lastDetectionDate < filters.minLastDetectionDate)) {
     return false;
   }
   if (filters.metric === "probability" && typeof filters.minProbability === "number") {
@@ -24,7 +24,7 @@ function matchesFilters(cell, filters) {
 export async function getMapCells(filters = {}) {
   if (isMockMode) {
     const cells = MOCK_MAP_CELLS.filter((cell) => matchesFilters(cell, filters));
-    return withSimulatedLatency({ cells, total: cells.length, modelAvailable: true, modelSlug: "random-forest-italia-era5" });
+    return withSimulatedLatency({ cells, total: cells.length, modelAvailable: true, modelSlug: "random-forest-italia-era5", forecast: MOCK_FORECAST });
   }
   const query = new URLSearchParams(filters).toString();
   return fetchFromApi(`/map/cells?${query}`);

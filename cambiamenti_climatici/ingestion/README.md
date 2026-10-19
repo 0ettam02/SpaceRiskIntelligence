@@ -1,5 +1,10 @@
 # Recupero dei buchi temporali FIRMS
 
+La nuova [pipeline sperimentale Italia v2](italy_v2/README.md) costruisce una
+griglia nazionale indipendente dagli eventi, conserva qualità e provenienza,
+censura le etichette ambigue e introduce valutazione temporale/spaziale separata.
+Gli artefatti v1 e il modello del backend rimangono il riferimento precedente.
+
 Acquisizione riprendibile, con sola libreria standard Python. La data della
 richiesta FIRMS è l'inizio dell'intervallo (massimo cinque giorni), non la fine.
 La fonte è scelta esplicitamente: non si concatenano automaticamente sensori,

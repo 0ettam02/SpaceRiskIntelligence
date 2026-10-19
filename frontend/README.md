@@ -108,9 +108,8 @@ NEXT_PUBLIC_API_BASE_URL=
   npm run dev
   ```
 
-  Il backend impiega circa 40–90 secondi ad avviarsi (carica i CSV reali e
-  riaddestra i classificatori interni e il modello italiano se è presente il
-  dataset locale FIRMS + ERA5-Land): attendere `Application startup complete` nei suoi
+  Il backend carica il bundle clean3 + ERA5-Land verificato e calcola le predizioni sulle celle coperte:
+  attendere `Application startup complete` nei suoi
   log prima di navigare l'app. `.env.local` non è versionato (vedi `.gitignore`).
 
 Non sono presenti chiamate dirette a endpoint NASA né chiavi API nel codice
@@ -138,15 +137,14 @@ esplicitata dove rilevante:
   serie storica e righe del dataset italiano versionato nel repository. In modalità
   API, anche le celle della mappa e le curve ROC/Precision-Recall/istogramma
   sono reali (calcolate dal backend sul test set), non solo i KPI.
-- **Dato mock** (solo `NEXT_PUBLIC_DATA_SOURCE=mock`) — le probabilità della mappa
-  sono dimostrative; le coordinate italiane e la serie storica provengono dal
-  dataset FIRMS + ERA5-Land del progetto.
+- **Snapshot statico** (solo `NEXT_PUBLIC_DATA_SOURCE=mock`) — le probabilità
+  della mappa sono quelle del bundle clean3 + ERA5-Land applicato ai dati storici; sono datate
+  e non si aggiornano in tempo reale.
 - **Dato dimostrativo** (solo modalità mock) — curve ROC/Precision-Recall,
   istogramma delle probabilità, costruiti a partire dalle metriche reali ma non
   da punti osservati direttamente; sempre etichettati "Dati dimostrativi".
-- **Dato non disponibile** — es. modello serializzato su disco: il backend lo
-  riaddestra in memoria ad ogni avvio, quindi resta segnalato come non
-  disponibile anche in modalità API.
+- **Dato non disponibile** — se il bundle clean3 manca o non supera i controlli, le previsioni italiane
+  non vengono pubblicate; non viene caricato un modello precedente.
 
 ## Limiti noti
 
@@ -165,6 +163,16 @@ esplicitata dove rilevante:
 ## Backend
 
 Il backend reale (FastAPI, Python) vive in `../backend`. Espone gli endpoint
-elencati sopra leggendo gli artefatti reali della pipeline di ricerca e
-riaddestrando i modelli in memoria all'avvio — vedi `backend/README.md` per
-installazione, avvio, test e limiti.
+elencati sopra e carica il bundle Random Forest clean3 + ERA5-Land verificato all'avvio;
+vedi `backend/README.md` per installazione, avvio, test e limiti.
+
+### Pagina modelli: Random Forest clean3 + ERA5-Land
+
+`/models` mostra il confronto appaiato FIRMS-only vs FIRMS + ERA5-Land sulle stesse righe e sullo stesso holdout casuale 80/20. Il dataset sorgente clean3 disponibile copre 331 celle italiane e 28 giorni; 6.951 righe hanno il target a sette giorni osservabile.
+
+Il confronto usa soglia 0,5 e random_state=42. Le metriche API provengono da `GET /models`; la modalità demo legge `data/clean3-forecast.json`, esportato dagli artefatti del run. Questi valori sono esplorativi: lo split casuale non isola date o celle. Per rigenerare gli artefatti dalla root:
+
+```bash
+space/bin/python cambiamenti_climatici/ingestion/merge_clean3_era5.py
+space/bin/python backend/export_clean3_frontend.py
+```

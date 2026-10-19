@@ -108,10 +108,9 @@ export default function AnalysisPage() {
 
           {data?.embargoWindows?.length ? (
             <section className="rounded-2xl border bg-surface p-5 shadow-panel">
-              <h2 className="font-semibold">Finestre di embargo (7 giorni)</h2>
+              <h2 className="font-semibold">Protocollo di valutazione</h2>
               <p className="mt-1 text-sm text-muted">
-                Ai confini di ciascun segmento utilizzabile viene applicata una finestra di embargo di 7 giorni per separare
-                temporalmente training, validation e test ed evitare fughe di informazione.
+                La valutazione corrente usa un holdout casuale; i dettagli sotto descrivono il protocollo applicato.
               </p>
               <ul className="mt-3 space-y-1 text-sm text-muted">
                 {data.embargoWindows.map((window) => (
@@ -124,7 +123,7 @@ export default function AnalysisPage() {
           <section className="rounded-2xl border bg-surface shadow-panel">
             <div className="border-b p-4">
               <h2 className="font-semibold">Segmenti temporali</h2>
-              <p className="mt-1 text-xs text-muted">Il dataset italiano include solo le date con almeno 30 giorni di storico e orizzonte futuro completo.</p>
+              <p className="mt-1 text-xs text-muted">Il dataset clean3 copre 28 giorni; il target a 7 giorni è utilizzabile solo dove l’intero orizzonte è osservato.</p>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[640px] border-collapse text-sm">

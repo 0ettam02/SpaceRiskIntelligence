@@ -10,6 +10,8 @@ import {
   MODEL_LIMITATIONS,
 } from "@/data/mock-models";
 import { generateRocCurve, generatePrCurve, generateProbabilityHistogram } from "@/lib/chart-utils";
+import researchSnapshot from "@/data/research-results.json";
+import clean3Snapshot from "@/data/clean3-forecast.json";
 
 /**
  * Contratto JSON di getModels():
@@ -18,7 +20,7 @@ import { generateRocCurve, generatePrCurve, generateProbabilityHistogram } from 
 export async function getModels() {
   if (isMockMode) {
     const selectedModel = MODELS.filter((model) => model.slug === RECOMMENDED_MODEL_SLUG);
-    return withSimulatedLatency({ models: selectedModel, recommendedSlug: RECOMMENDED_MODEL_SLUG });
+    return withSimulatedLatency({ models: selectedModel, recommendedSlug: RECOMMENDED_MODEL_SLUG, comparison: clean3Snapshot.comparison, research: researchSnapshot });
   }
   return fetchFromApi("/models");
 }

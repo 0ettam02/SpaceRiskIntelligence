@@ -9,8 +9,8 @@ describe("ModelComparisonTable", () => {
   it("renders one row per model with its Accuracy value", () => {
     render(<ModelComparisonTable models={SELECTED_MODEL} />);
     expect(screen.getAllByText("Random Forest — FIRMS + ERA5 (Italia)").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Italia · FIRMS + ERA5-Land · 19 celle").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("51,6%").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Italia · clean3 FIRMS + ERA5-Land · 331 celle").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("78,2%").length).toBeGreaterThan(0);
   });
 
   it("marks the recommended model", () => {

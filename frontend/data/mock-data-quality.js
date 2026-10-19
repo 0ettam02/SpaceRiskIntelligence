@@ -1,8 +1,8 @@
 export const COVERAGE_SUMMARY = {
-  observedDays: 411,
-  totalDays: 411,
+  observedDays: 28,
+  totalDays: 28,
   missingDays: 0,
-  sampledCells: 19,
+  sampledCells: 331,
   usableSegments: 1,
   totalSegments: 1,
 };
@@ -10,13 +10,13 @@ export const COVERAGE_SUMMARY = {
 export const RAW_DATA_STATUS = {
   status: "passed",
   label: "Dati grezzi consolidati",
-  detail: "Pannello NASA FIRMS unito ai valori ERA5-Land per 19 celle italiane.",
+  detail: "Dataset FIRMS globale clean3 filtrato sulla griglia italiana; ERA5-Land associato per 331 celle.",
 };
 
 export const ARTIFACTS_STATUS = {
-  status: "warning",
+  status: "passed",
   label: "Dataset italiano disponibile",
-  detail: "Il dataset FIRMS + ERA5-Land è incluso nel repository; il modello viene addestrato all'avvio.",
+  detail: "Dataset FIRMS clean3 + ERA5-Land e Random Forest rifittata inclusi nel repository.",
 };
 
 export const QUALITY_CHECKS = [
@@ -24,25 +24,25 @@ export const QUALITY_CHECKS = [
     id: "temporal-coverage",
     label: "Copertura temporale italiana",
     status: "passed",
-    detail: "411 giorni coperti nel dataset ML italiano FIRMS + ERA5-Land.",
+    detail: "28 giorni dal 18 giugno al 15 luglio 2026; target a 7 giorni osservabile fino all’8 luglio.",
   },
   {
     id: "segment-continuity",
     label: "Continuità dei segmenti temporali",
     status: "passed",
-    detail: "Un periodo continuo di 411 giorni copre le 19 celle italiane selezionate.",
+    detail: "Un periodo continuo di 28 giorni copre 331 celle presenti nel clean3 e nella griglia italiana.",
   },
   {
     id: "horizon-completeness",
     label: "Completezza orizzonte futuro a 7 giorni",
     status: "passed",
-    detail: "Le 7.809 righe del dataset italiano hanno storico completo e target a 7 giorni disponibile.",
+    detail: "6.951 righe hanno target a 7 giorni osservabile; il test casuale contiene 1.391 righe.",
   },
   {
     id: "duplicate-detections",
     label: "Deduplicazione e campionamento FIRMS",
     status: "warning",
-    detail: "Il campione FIRMS selezionato è condizionato all'attività storica e non copre tutte le celle italiane.",
+    detail: "La griglia nazionale comprende 3.475 celle, ma il clean3 ne copre 331 nel periodo osservato.",
   },
   {
     id: "inactive-cells-excluded",
@@ -54,7 +54,7 @@ export const QUALITY_CHECKS = [
     id: "sample-representativeness",
     label: "Rappresentatività del campione",
     status: "warning",
-    detail: "Le stesse 19 celle compaiono in training e test; non è verificata la generalizzazione verso località nuove.",
+    detail: "Lo split casuale può essere ottimistico: celle e date vicine compaiono sia in train sia in test.",
   },
   {
     id: "geographic-generalization",
@@ -77,16 +77,14 @@ export const QUALITY_CHECKS = [
   {
     id: "serialized-model",
     label: "Modello serializzato disponibile",
-    status: "not_available",
-    detail: "Nessun modello è stato esportato (.pkl/.joblib) al termine del run: le metriche derivano da un'esecuzione singola.",
+    status: "passed",
+    detail: "Artefatto .joblib clean3 + ERA5 verificato con checksum di input e feature.",
   },
 ];
 
 export const DATA_QUALITY_WARNINGS = [
-  "Il campione è condizionato alla storicità di attività e non copre tutte le celle italiane.",
-  "La generalizzazione geografica del modello verso celle nuove non è stata verificata.",
+  "Il dataset clean3 copre 331 delle 3.475 celle della griglia italiana nel periodo disponibile.",
+  "La generalizzazione geografica richiede ulteriori test indipendenti.",
   "Le feature ERA5-Land sono stime di griglia, non misure locali di stazione.",
-  "Le dipendenze dell'ambiente di training non sono bloccate a versioni specifiche.",
-  "Assenza di test automatici sulla pipeline di feature engineering e training.",
-  "Assenza di un modello serializzato pronto per l'inferenza.",
+  "Lo snapshot (16–22 luglio 2026) è storico e non rappresenta il rischio attuale.",
 ];

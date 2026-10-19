@@ -1,0 +1,1494 @@
+{
+  "source": "snapshot",
+  "studies": [
+    {
+      "id": "firms",
+      "title": "FIRMS \u00b7 griglia nazionale",
+      "scope": "national_grid",
+      "cells": 3475,
+      "rows": 1428225,
+      "positiveRows": 17395,
+      "results": [
+        {
+          "fold": 0,
+          "model": "constant",
+          "periods": {
+            "train": [
+              "2025-05-26",
+              "2025-11-21"
+            ],
+            "calibration": [
+              "2025-11-29",
+              "2025-12-26"
+            ],
+            "validation": [
+              "2026-01-03",
+              "2026-01-30"
+            ],
+            "test": [
+              "2026-02-07",
+              "2026-03-06"
+            ]
+          },
+          "threshold": 1.0000000000000002,
+          "thresholdPolicy": "budget_requires_no_alert",
+          "calibrationStatus": "constant_training_prevalence",
+          "featureCount": 17,
+          "test": {
+            "seen_cells": {
+              "metrics": {
+                "rows": 77028,
+                "positive_rows": 114,
+                "prevalence": 0.001479981305499299,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "balanced_accuracy": 0.5,
+                "roc_auc": 0.5,
+                "average_precision": 0.001479981305499299,
+                "brier": 0.0019367273858405891,
+                "false_alerts_per_cell_week": 0.0,
+                "true_positive": 0,
+                "false_positive": 0,
+                "false_negative": 114,
+                "true_negative": 76914
+              },
+              "episodes": {
+                "eligible_episodes": 15,
+                "hit_episodes": 0,
+                "recall": 0.0,
+                "median_lead_days": null,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            },
+            "unseen_spatial_blocks": {
+              "metrics": {
+                "rows": 20272,
+                "positive_rows": 22,
+                "prevalence": 0.001085240726124704,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "balanced_accuracy": 0.5,
+                "roc_auc": 0.5,
+                "average_precision": 0.001085240726124704,
+                "brier": 0.0015600681219903984,
+                "false_alerts_per_cell_week": 0.0,
+                "true_positive": 0,
+                "false_positive": 0,
+                "false_negative": 22,
+                "true_negative": 20250
+              },
+              "episodes": {
+                "eligible_episodes": 2,
+                "hit_episodes": 0,
+                "recall": 0.0,
+                "median_lead_days": null,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            }
+          }
+        },
+        {
+          "fold": 0,
+          "model": "logistic",
+          "periods": {
+            "train": [
+              "2025-05-26",
+              "2025-11-21"
+            ],
+            "calibration": [
+              "2025-11-29",
+              "2025-12-26"
+            ],
+            "validation": [
+              "2026-01-03",
+              "2026-01-30"
+            ],
+            "test": [
+              "2026-02-07",
+              "2026-03-06"
+            ]
+          },
+          "threshold": 0.00966873299330473,
+          "thresholdPolicy": "validation_recall_under_false_alert_budget",
+          "calibrationStatus": "skipped: fewer than 20 examples of either class in calibration",
+          "featureCount": 17,
+          "test": {
+            "seen_cells": {
+              "metrics": {
+                "rows": 77028,
+                "positive_rows": 114,
+                "prevalence": 0.001479981305499299,
+                "precision": 0.05333333333333334,
+                "recall": 0.03508771929824561,
+                "f1": 0.042328042328042326,
+                "balanced_accuracy": 0.5170823051856961,
+                "roc_auc": 0.5277007379853278,
+                "average_precision": 0.0037487475587167094,
+                "brier": 0.00147851764857189,
+                "false_alerts_per_cell_week": 0.0064521992002908035,
+                "true_positive": 4,
+                "false_positive": 71,
+                "false_negative": 110,
+                "true_negative": 76843
+              },
+              "episodes": {
+                "eligible_episodes": 15,
+                "hit_episodes": 0,
+                "recall": 0.0,
+                "median_lead_days": null,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            },
+            "unseen_spatial_blocks": {
+              "metrics": {
+                "rows": 20272,
+                "positive_rows": 22,
+                "prevalence": 0.001085240726124704,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "balanced_accuracy": 0.49982716049382714,
+                "roc_auc": 0.7696026936026936,
+                "average_precision": 0.0026496394060410767,
+                "brier": 0.0010857281219096879,
+                "false_alerts_per_cell_week": 0.0024171270718232043,
+                "true_positive": 0,
+                "false_positive": 7,
+                "false_negative": 22,
+                "true_negative": 20243
+              },
+              "episodes": {
+                "eligible_episodes": 2,
+                "hit_episodes": 0,
+                "recall": 0.0,
+                "median_lead_days": null,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            }
+          }
+        },
+        {
+          "fold": 0,
+          "model": "random_forest_baseline",
+          "periods": {
+            "train": [
+              "2025-05-26",
+              "2025-11-21"
+            ],
+            "calibration": [
+              "2025-11-29",
+              "2025-12-26"
+            ],
+            "validation": [
+              "2026-01-03",
+              "2026-01-30"
+            ],
+            "test": [
+              "2026-02-07",
+              "2026-03-06"
+            ]
+          },
+          "threshold": 0.44205787215900727,
+          "thresholdPolicy": "validation_recall_under_false_alert_budget",
+          "calibrationStatus": "skipped: fewer than 20 examples of either class in calibration",
+          "featureCount": 17,
+          "test": {
+            "seen_cells": {
+              "metrics": {
+                "rows": 77028,
+                "positive_rows": 114,
+                "prevalence": 0.001479981305499299,
+                "precision": 0.2,
+                "recall": 0.008771929824561403,
+                "f1": 0.01680672268907563,
+                "balanced_accuracy": 0.5043599618439186,
+                "roc_auc": 0.4801680984321062,
+                "average_precision": 0.010135659882065069,
+                "brier": 0.037307522963724755,
+                "false_alerts_per_cell_week": 0.0003635041802980734,
+                "true_positive": 1,
+                "false_positive": 4,
+                "false_negative": 113,
+                "true_negative": 76910
+              },
+              "episodes": {
+                "eligible_episodes": 15,
+                "hit_episodes": 0,
+                "recall": 0.0,
+                "median_lead_days": null,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            },
+            "unseen_spatial_blocks": {
+              "metrics": {
+                "rows": 20272,
+                "positive_rows": 22,
+                "prevalence": 0.001085240726124704,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "balanced_accuracy": 0.5,
+                "roc_auc": 0.7700516273849607,
+                "average_precision": 0.0026590431680739244,
+                "brier": 0.0369900910673149,
+                "false_alerts_per_cell_week": 0.0,
+                "true_positive": 0,
+                "false_positive": 0,
+                "false_negative": 22,
+                "true_negative": 20250
+              },
+              "episodes": {
+                "eligible_episodes": 2,
+                "hit_episodes": 0,
+                "recall": 0.0,
+                "median_lead_days": null,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            }
+          }
+        },
+        {
+          "fold": 0,
+          "model": "random_forest_regularized",
+          "periods": {
+            "train": [
+              "2025-05-26",
+              "2025-11-21"
+            ],
+            "calibration": [
+              "2025-11-29",
+              "2025-12-26"
+            ],
+            "validation": [
+              "2026-01-03",
+              "2026-01-30"
+            ],
+            "test": [
+              "2026-02-07",
+              "2026-03-06"
+            ]
+          },
+          "threshold": 0.11546240665051999,
+          "thresholdPolicy": "validation_recall_under_false_alert_budget",
+          "calibrationStatus": "skipped: fewer than 20 examples of either class in calibration",
+          "featureCount": 17,
+          "test": {
+            "seen_cells": {
+              "metrics": {
+                "rows": 77028,
+                "positive_rows": 114,
+                "prevalence": 0.001479981305499299,
+                "precision": 0.05714285714285714,
+                "recall": 0.017543859649122806,
+                "f1": 0.026845637583892617,
+                "balanced_accuracy": 0.5085574045105744,
+                "roc_auc": 0.5092605137932592,
+                "average_precision": 0.012436579912627794,
+                "brier": 0.0015123743584480546,
+                "false_alerts_per_cell_week": 0.0029989094874591058,
+                "true_positive": 2,
+                "false_positive": 33,
+                "false_negative": 112,
+                "true_negative": 76881
+              },
+              "episodes": {
+                "eligible_episodes": 15,
+                "hit_episodes": 0,
+                "recall": 0.0,
+                "median_lead_days": null,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            },
+            "unseen_spatial_blocks": {
+              "metrics": {
+                "rows": 20272,
+                "positive_rows": 22,
+                "prevalence": 0.001085240726124704,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "balanced_accuracy": 0.4999753086419753,
+                "roc_auc": 0.7695982042648709,
+                "average_precision": 0.0026492329899739453,
+                "brier": 0.0011147115989631575,
+                "false_alerts_per_cell_week": 0.0003453038674033149,
+                "true_positive": 0,
+                "false_positive": 1,
+                "false_negative": 22,
+                "true_negative": 20249
+              },
+              "episodes": {
+                "eligible_episodes": 2,
+                "hit_episodes": 0,
+                "recall": 0.0,
+                "median_lead_days": null,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            }
+          }
+        },
+        {
+          "fold": 1,
+          "model": "constant",
+          "periods": {
+            "train": [
+              "2025-05-26",
+              "2026-01-16"
+            ],
+            "calibration": [
+              "2026-01-24",
+              "2026-02-20"
+            ],
+            "validation": [
+              "2026-02-28",
+              "2026-03-27"
+            ],
+            "test": [
+              "2026-04-04",
+              "2026-05-01"
+            ]
+          },
+          "threshold": 1.0000000000000002,
+          "thresholdPolicy": "budget_requires_no_alert",
+          "calibrationStatus": "constant_training_prevalence",
+          "featureCount": 17,
+          "test": {
+            "seen_cells": {
+              "metrics": {
+                "rows": 77028,
+                "positive_rows": 476,
+                "prevalence": 0.0061795710650672485,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "balanced_accuracy": 0.5,
+                "roc_auc": 0.5,
+                "average_precision": 0.0061795710650672485,
+                "brier": 0.006270597361364993,
+                "false_alerts_per_cell_week": 0.0,
+                "true_positive": 0,
+                "false_positive": 0,
+                "false_negative": 476,
+                "true_negative": 76552
+              },
+              "episodes": {
+                "eligible_episodes": 45,
+                "hit_episodes": 0,
+                "recall": 0.0,
+                "median_lead_days": null,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            },
+            "unseen_spatial_blocks": {
+              "metrics": {
+                "rows": 20272,
+                "positive_rows": 101,
+                "prevalence": 0.004982241515390687,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "balanced_accuracy": 0.5,
+                "roc_auc": 0.5,
+                "average_precision": 0.004982241515390687,
+                "brier": 0.005115286363432068,
+                "false_alerts_per_cell_week": 0.0,
+                "true_positive": 0,
+                "false_positive": 0,
+                "false_negative": 101,
+                "true_negative": 20171
+              },
+              "episodes": {
+                "eligible_episodes": 13,
+                "hit_episodes": 0,
+                "recall": 0.0,
+                "median_lead_days": null,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            }
+          }
+        },
+        {
+          "fold": 1,
+          "model": "logistic",
+          "periods": {
+            "train": [
+              "2025-05-26",
+              "2026-01-16"
+            ],
+            "calibration": [
+              "2026-01-24",
+              "2026-02-20"
+            ],
+            "validation": [
+              "2026-02-28",
+              "2026-03-27"
+            ],
+            "test": [
+              "2026-04-04",
+              "2026-05-01"
+            ]
+          },
+          "threshold": 0.003582007484510541,
+          "thresholdPolicy": "validation_recall_under_false_alert_budget",
+          "calibrationStatus": "sigmoid fitted on separate chronological calibration period",
+          "featureCount": 17,
+          "test": {
+            "seen_cells": {
+              "metrics": {
+                "rows": 77028,
+                "positive_rows": 476,
+                "prevalence": 0.0061795710650672485,
+                "precision": 0.0076987977219995785,
+                "recall": 0.46008403361344535,
+                "f1": 0.015144180900352673,
+                "balanced_accuracy": 0.5456771406441142,
+                "roc_auc": 0.5851138644923952,
+                "average_precision": 0.08153998721556528,
+                "brier": 0.00600740355196234,
+                "false_alerts_per_cell_week": 2.5651581243184296,
+                "true_positive": 219,
+                "false_positive": 28227,
+                "false_negative": 257,
+                "true_negative": 48325
+              },
+              "episodes": {
+                "eligible_episodes": 45,
+                "hit_episodes": 24,
+                "recall": 0.5333333333333333,
+                "median_lead_days": 6.0,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            },
+            "unseen_spatial_blocks": {
+              "metrics": {
+                "rows": 20272,
+                "positive_rows": 101,
+                "prevalence": 0.004982241515390687,
+                "precision": 0.005409791723018664,
+                "recall": 0.39603960396039606,
+                "f1": 0.01067378252168112,
+                "balanced_accuracy": 0.5157283935225112,
+                "roc_auc": 0.5705384801531068,
+                "average_precision": 0.008640747925107798,
+                "brier": 0.004959389509596581,
+                "false_alerts_per_cell_week": 2.539364640883978,
+                "true_positive": 40,
+                "false_positive": 7354,
+                "false_negative": 61,
+                "true_negative": 12817
+              },
+              "episodes": {
+                "eligible_episodes": 13,
+                "hit_episodes": 9,
+                "recall": 0.6923076923076923,
+                "median_lead_days": 4.0,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            }
+          }
+        },
+        {
+          "fold": 1,
+          "model": "random_forest_baseline",
+          "periods": {
+            "train": [
+              "2025-05-26",
+              "2026-01-16"
+            ],
+            "calibration": [
+              "2026-01-24",
+              "2026-02-20"
+            ],
+            "validation": [
+              "2026-02-28",
+              "2026-03-27"
+            ],
+            "test": [
+              "2026-04-04",
+              "2026-05-01"
+            ]
+          },
+          "threshold": 0.13096968812200846,
+          "thresholdPolicy": "validation_recall_under_false_alert_budget",
+          "calibrationStatus": "sigmoid fitted on separate chronological calibration period",
+          "featureCount": 17,
+          "test": {
+            "seen_cells": {
+              "metrics": {
+                "rows": 77028,
+                "positive_rows": 476,
+                "prevalence": 0.0061795710650672485,
+                "precision": 0.045508982035928146,
+                "recall": 0.07983193277310924,
+                "f1": 0.057971014492753624,
+                "balanced_accuracy": 0.5347103545148857,
+                "roc_auc": 0.5286261999313259,
+                "average_precision": 0.05390206061447326,
+                "brier": 0.008652004736214658,
+                "false_alerts_per_cell_week": 0.07242820792439113,
+                "true_positive": 38,
+                "false_positive": 797,
+                "false_negative": 438,
+                "true_negative": 75755
+              },
+              "episodes": {
+                "eligible_episodes": 45,
+                "hit_episodes": 1,
+                "recall": 0.022222222222222223,
+                "median_lead_days": 7.0,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            },
+            "unseen_spatial_blocks": {
+              "metrics": {
+                "rows": 20272,
+                "positive_rows": 101,
+                "prevalence": 0.004982241515390687,
+                "precision": 0.1015625,
+                "recall": 0.12871287128712872,
+                "f1": 0.11353711790393013,
+                "balanced_accuracy": 0.561505808505594,
+                "roc_auc": 0.6200731272373681,
+                "average_precision": 0.022725416259007838,
+                "brier": 0.006848142572031343,
+                "false_alerts_per_cell_week": 0.03970994475138122,
+                "true_positive": 13,
+                "false_positive": 115,
+                "false_negative": 88,
+                "true_negative": 20056
+              },
+              "episodes": {
+                "eligible_episodes": 13,
+                "hit_episodes": 2,
+                "recall": 0.15384615384615385,
+                "median_lead_days": 6.5,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            }
+          }
+        },
+        {
+          "fold": 1,
+          "model": "random_forest_regularized",
+          "periods": {
+            "train": [
+              "2025-05-26",
+              "2026-01-16"
+            ],
+            "calibration": [
+              "2026-01-24",
+              "2026-02-20"
+            ],
+            "validation": [
+              "2026-02-28",
+              "2026-03-27"
+            ],
+            "test": [
+              "2026-04-04",
+              "2026-05-01"
+            ]
+          },
+          "threshold": 0.007690148297264606,
+          "thresholdPolicy": "validation_recall_under_false_alert_budget",
+          "calibrationStatus": "sigmoid fitted on separate chronological calibration period",
+          "featureCount": 17,
+          "test": {
+            "seen_cells": {
+              "metrics": {
+                "rows": 77028,
+                "positive_rows": 476,
+                "prevalence": 0.0061795710650672485,
+                "precision": 0.060797973400886635,
+                "recall": 0.20168067226890757,
+                "f1": 0.09343065693430656,
+                "balanced_accuracy": 0.5911541097785127,
+                "roc_auc": 0.6197967070881022,
+                "average_precision": 0.08181246470473122,
+                "brier": 0.005909056602015978,
+                "false_alerts_per_cell_week": 0.13476917484551074,
+                "true_positive": 96,
+                "false_positive": 1483,
+                "false_negative": 380,
+                "true_negative": 75069
+              },
+              "episodes": {
+                "eligible_episodes": 45,
+                "hit_episodes": 5,
+                "recall": 0.1111111111111111,
+                "median_lead_days": 7.0,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            },
+            "unseen_spatial_blocks": {
+              "metrics": {
+                "rows": 20272,
+                "positive_rows": 101,
+                "prevalence": 0.004982241515390687,
+                "precision": 0.04501607717041801,
+                "recall": 0.13861386138613863,
+                "f1": 0.06796116504854369,
+                "balanced_accuracy": 0.561944876258485,
+                "roc_auc": 0.6133401005560869,
+                "average_precision": 0.011989040831629733,
+                "brier": 0.004992125454806372,
+                "false_alerts_per_cell_week": 0.10255524861878453,
+                "true_positive": 14,
+                "false_positive": 297,
+                "false_negative": 87,
+                "true_negative": 19874
+              },
+              "episodes": {
+                "eligible_episodes": 13,
+                "hit_episodes": 2,
+                "recall": 0.15384615384615385,
+                "median_lead_days": 7.0,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            }
+          }
+        },
+        {
+          "fold": 2,
+          "model": "constant",
+          "periods": {
+            "train": [
+              "2025-05-26",
+              "2026-03-13"
+            ],
+            "calibration": [
+              "2026-03-21",
+              "2026-04-17"
+            ],
+            "validation": [
+              "2026-04-25",
+              "2026-05-22"
+            ],
+            "test": [
+              "2026-05-30",
+              "2026-06-26"
+            ]
+          },
+          "threshold": 1.0000000000000002,
+          "thresholdPolicy": "budget_requires_no_alert",
+          "calibrationStatus": "constant_training_prevalence",
+          "featureCount": 17,
+          "test": {
+            "seen_cells": {
+              "metrics": {
+                "rows": 77028,
+                "positive_rows": 1580,
+                "prevalence": 0.020512021602534142,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "balanced_accuracy": 0.5,
+                "roc_auc": 0.5,
+                "average_precision": 0.020512021602534142,
+                "brier": 0.02012934487954929,
+                "false_alerts_per_cell_week": 0.0,
+                "true_positive": 0,
+                "false_positive": 0,
+                "false_negative": 1580,
+                "true_negative": 75448
+              },
+              "episodes": {
+                "eligible_episodes": 166,
+                "hit_episodes": 0,
+                "recall": 0.0,
+                "median_lead_days": null,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            },
+            "unseen_spatial_blocks": {
+              "metrics": {
+                "rows": 20272,
+                "positive_rows": 135,
+                "prevalence": 0.006659431728492502,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "balanced_accuracy": 0.5,
+                "roc_auc": 0.5,
+                "average_precision": 0.006659431728492502,
+                "brier": 0.0066741091132015715,
+                "false_alerts_per_cell_week": 0.0,
+                "true_positive": 0,
+                "false_positive": 0,
+                "false_negative": 135,
+                "true_negative": 20137
+              },
+              "episodes": {
+                "eligible_episodes": 16,
+                "hit_episodes": 0,
+                "recall": 0.0,
+                "median_lead_days": null,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            }
+          }
+        },
+        {
+          "fold": 2,
+          "model": "logistic",
+          "periods": {
+            "train": [
+              "2025-05-26",
+              "2026-03-13"
+            ],
+            "calibration": [
+              "2026-03-21",
+              "2026-04-17"
+            ],
+            "validation": [
+              "2026-04-25",
+              "2026-05-22"
+            ],
+            "test": [
+              "2026-05-30",
+              "2026-06-26"
+            ]
+          },
+          "threshold": 0.028174281120300293,
+          "thresholdPolicy": "validation_recall_under_false_alert_budget",
+          "calibrationStatus": "sigmoid fitted on separate chronological calibration period",
+          "featureCount": 17,
+          "test": {
+            "seen_cells": {
+              "metrics": {
+                "rows": 77028,
+                "positive_rows": 1580,
+                "prevalence": 0.020512021602534142,
+                "precision": 0.02715079325359091,
+                "recall": 0.6867088607594937,
+                "f1": 0.05223629098262,
+                "balanced_accuracy": 0.5857134060981224,
+                "roc_auc": 0.6621726683412769,
+                "average_precision": 0.11985225487028603,
+                "brier": 0.01931381799727994,
+                "false_alerts_per_cell_week": 3.5329880043620503,
+                "true_positive": 1085,
+                "false_positive": 38877,
+                "false_negative": 495,
+                "true_negative": 36571
+              },
+              "episodes": {
+                "eligible_episodes": 166,
+                "hit_episodes": 122,
+                "recall": 0.7349397590361446,
+                "median_lead_days": 7.0,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            },
+            "unseen_spatial_blocks": {
+              "metrics": {
+                "rows": 20272,
+                "positive_rows": 135,
+                "prevalence": 0.006659431728492502,
+                "precision": 0.0073543642345655115,
+                "recall": 0.562962962962963,
+                "f1": 0.014519056261343012,
+                "balanced_accuracy": 0.5267762125735012,
+                "roc_auc": 0.6229684071517513,
+                "average_precision": 0.06021658003833936,
+                "brier": 0.006984504071957201,
+                "false_alerts_per_cell_week": 3.5421270718232045,
+                "true_positive": 76,
+                "false_positive": 10258,
+                "false_negative": 59,
+                "true_negative": 9879
+              },
+              "episodes": {
+                "eligible_episodes": 16,
+                "hit_episodes": 11,
+                "recall": 0.6875,
+                "median_lead_days": 7.0,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            }
+          }
+        },
+        {
+          "fold": 2,
+          "model": "random_forest_baseline",
+          "periods": {
+            "train": [
+              "2025-05-26",
+              "2026-03-13"
+            ],
+            "calibration": [
+              "2026-03-21",
+              "2026-04-17"
+            ],
+            "validation": [
+              "2026-04-25",
+              "2026-05-22"
+            ],
+            "test": [
+              "2026-05-30",
+              "2026-06-26"
+            ]
+          },
+          "threshold": 0.00546830030841995,
+          "thresholdPolicy": "validation_recall_under_false_alert_budget",
+          "calibrationStatus": "sigmoid fitted on separate chronological calibration period",
+          "featureCount": 17,
+          "test": {
+            "seen_cells": {
+              "metrics": {
+                "rows": 77028,
+                "positive_rows": 1580,
+                "prevalence": 0.020512021602534142,
+                "precision": 0.14076576576576577,
+                "recall": 0.07911392405063292,
+                "f1": 0.1012965964343598,
+                "balanced_accuracy": 0.5345004992960195,
+                "roc_auc": 0.5151221261957266,
+                "average_precision": 0.036968162583772606,
+                "brier": 0.020421659470581215,
+                "false_alerts_per_cell_week": 0.0693384223918575,
+                "true_positive": 125,
+                "false_positive": 763,
+                "false_negative": 1455,
+                "true_negative": 74685
+              },
+              "episodes": {
+                "eligible_episodes": 166,
+                "hit_episodes": 22,
+                "recall": 0.13253012048192772,
+                "median_lead_days": 7.0,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            },
+            "unseen_spatial_blocks": {
+              "metrics": {
+                "rows": 20272,
+                "positive_rows": 135,
+                "prevalence": 0.006659431728492502,
+                "precision": 0.07142857142857142,
+                "recall": 0.05185185185185185,
+                "f1": 0.060085836909871244,
+                "balanced_accuracy": 0.5236664036534922,
+                "roc_auc": 0.50088799133344,
+                "average_precision": 0.013216173947162952,
+                "brier": 0.006707943365692973,
+                "false_alerts_per_cell_week": 0.03142265193370166,
+                "true_positive": 7,
+                "false_positive": 91,
+                "false_negative": 128,
+                "true_negative": 20046
+              },
+              "episodes": {
+                "eligible_episodes": 16,
+                "hit_episodes": 1,
+                "recall": 0.0625,
+                "median_lead_days": 7.0,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            }
+          }
+        },
+        {
+          "fold": 2,
+          "model": "random_forest_regularized",
+          "periods": {
+            "train": [
+              "2025-05-26",
+              "2026-03-13"
+            ],
+            "calibration": [
+              "2026-03-21",
+              "2026-04-17"
+            ],
+            "validation": [
+              "2026-04-25",
+              "2026-05-22"
+            ],
+            "test": [
+              "2026-05-30",
+              "2026-06-26"
+            ]
+          },
+          "threshold": 0.026700779231345558,
+          "thresholdPolicy": "validation_recall_under_false_alert_budget",
+          "calibrationStatus": "sigmoid fitted on separate chronological calibration period",
+          "featureCount": 17,
+          "test": {
+            "seen_cells": {
+              "metrics": {
+                "rows": 77028,
+                "positive_rows": 1580,
+                "prevalence": 0.020512021602534142,
+                "precision": 0.15845886442641946,
+                "recall": 0.34620253164556963,
+                "f1": 0.21740858505564387,
+                "balanced_accuracy": 0.6538495957983972,
+                "roc_auc": 0.6432134790798995,
+                "average_precision": 0.11519136110188608,
+                "brier": 0.01913012951916954,
+                "false_alerts_per_cell_week": 0.2639949109414758,
+                "true_positive": 547,
+                "false_positive": 2905,
+                "false_negative": 1033,
+                "true_negative": 72543
+              },
+              "episodes": {
+                "eligible_episodes": 166,
+                "hit_episodes": 44,
+                "recall": 0.26506024096385544,
+                "median_lead_days": 7.0,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            },
+            "unseen_spatial_blocks": {
+              "metrics": {
+                "rows": 20272,
+                "positive_rows": 135,
+                "prevalence": 0.006659431728492502,
+                "precision": 0.0824295010845987,
+                "recall": 0.2814814814814815,
+                "f1": 0.12751677852348994,
+                "balanced_accuracy": 0.6302376866611857,
+                "roc_auc": 0.6915795320572595,
+                "average_precision": 0.05875077903395469,
+                "brier": 0.006482055097241987,
+                "false_alerts_per_cell_week": 0.1460635359116022,
+                "true_positive": 38,
+                "false_positive": 423,
+                "false_negative": 97,
+                "true_negative": 19714
+              },
+              "episodes": {
+                "eligible_episodes": 16,
+                "hit_episodes": 4,
+                "recall": 0.25,
+                "median_lead_days": 7.0,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            }
+          }
+        }
+      ],
+      "target": "At least one accepted presumed vegetation-fire detection in t+1..t+7; not verified wildfire occurrence",
+      "thresholdObjective": "false_alert_budget",
+      "start": "2025-04-26",
+      "end": "2026-07-17",
+      "falseAlertBudget": 0.1
+    },
+    {
+      "id": "era5",
+      "title": "FIRMS + ERA5-Land \u00b7 Italia (copertura parziale)",
+      "scope": "partial_diagnostic",
+      "cells": 3185,
+      "rows": 1309035,
+      "positiveRows": 15870,
+      "results": [
+        {
+          "fold": 0,
+          "model": "random_forest_regularized",
+          "periods": {
+            "train": [
+              "2025-05-26",
+              "2025-11-21"
+            ],
+            "calibration": [
+              "2025-11-29",
+              "2025-12-26"
+            ],
+            "validation": [
+              "2026-01-03",
+              "2026-01-30"
+            ],
+            "test": [
+              "2026-02-07",
+              "2026-03-06"
+            ]
+          },
+          "threshold": 0.0013624958002242354,
+          "thresholdPolicy": "validation_max_f1",
+          "calibrationStatus": "skipped: fewer than 20 examples of either class in calibration",
+          "featureCount": 25,
+          "test": {
+            "seen_cells": {
+              "metrics": {
+                "rows": 71036,
+                "positive_rows": 93,
+                "prevalence": 0.001309195337575314,
+                "precision": 0.0014366877816234572,
+                "recall": 0.946236559139785,
+                "f1": 0.0028690194799902194,
+                "balanced_accuracy": 0.5420398081209828,
+                "roc_auc": 0.6125944060194319,
+                "average_precision": 0.004410861689505715,
+                "brier": 0.0013961207850402143,
+                "false_alerts_per_cell_week": 6.027197477335435,
+                "true_positive": 88,
+                "false_positive": 61164,
+                "false_negative": 5,
+                "true_negative": 9779
+              },
+              "episodes": {
+                "eligible_episodes": 12,
+                "hit_episodes": 12,
+                "recall": 1.0,
+                "median_lead_days": 7.0,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            },
+            "unseen_spatial_blocks": {
+              "metrics": {
+                "rows": 18144,
+                "positive_rows": 22,
+                "prevalence": 0.0012125220458553791,
+                "precision": 0.0013749140678707581,
+                "recall": 1.0,
+                "f1": 0.002746052549460151,
+                "balanced_accuracy": 0.559127027921863,
+                "roc_auc": 0.5684401681532241,
+                "average_precision": 0.001441534350718568,
+                "brier": 0.0012798744873146817,
+                "false_alerts_per_cell_week": 6.164737654320987,
+                "true_positive": 22,
+                "false_positive": 15979,
+                "false_negative": 0,
+                "true_negative": 2143
+              },
+              "episodes": {
+                "eligible_episodes": 2,
+                "hit_episodes": 2,
+                "recall": 1.0,
+                "median_lead_days": 7.0,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            }
+          }
+        },
+        {
+          "fold": 0,
+          "model": "random_forest_firms_only",
+          "periods": {
+            "train": [
+              "2025-05-26",
+              "2025-11-21"
+            ],
+            "calibration": [
+              "2025-11-29",
+              "2025-12-26"
+            ],
+            "validation": [
+              "2026-01-03",
+              "2026-01-30"
+            ],
+            "test": [
+              "2026-02-07",
+              "2026-03-06"
+            ]
+          },
+          "threshold": 0.23307512869460623,
+          "thresholdPolicy": "validation_max_f1",
+          "calibrationStatus": "skipped: fewer than 20 examples of either class in calibration",
+          "featureCount": 17,
+          "test": {
+            "seen_cells": {
+              "metrics": {
+                "rows": 71036,
+                "positive_rows": 93,
+                "prevalence": 0.001309195337575314,
+                "precision": 0.022222222222222223,
+                "recall": 0.010752688172043012,
+                "f1": 0.014492753623188406,
+                "balanced_accuracy": 0.505066235971056,
+                "roc_auc": 0.48053753285804646,
+                "average_precision": 0.011977370790039282,
+                "brier": 0.03406754119491184,
+                "false_alerts_per_cell_week": 0.0043358297201418995,
+                "true_positive": 1,
+                "false_positive": 44,
+                "false_negative": 92,
+                "true_negative": 70899
+              },
+              "episodes": {
+                "eligible_episodes": 12,
+                "hit_episodes": 0,
+                "recall": 0.0,
+                "median_lead_days": null,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            },
+            "unseen_spatial_blocks": {
+              "metrics": {
+                "rows": 18144,
+                "positive_rows": 22,
+                "prevalence": 0.0012125220458553791,
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "balanced_accuracy": 0.5,
+                "roc_auc": 0.7701262152481666,
+                "average_precision": 0.002971510779385938,
+                "brier": 0.033900797999612695,
+                "false_alerts_per_cell_week": 0.0,
+                "true_positive": 0,
+                "false_positive": 0,
+                "false_negative": 22,
+                "true_negative": 18122
+              },
+              "episodes": {
+                "eligible_episodes": 2,
+                "hit_episodes": 0,
+                "recall": 0.0,
+                "median_lead_days": null,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            }
+          }
+        },
+        {
+          "fold": 1,
+          "model": "random_forest_regularized",
+          "periods": {
+            "train": [
+              "2025-05-26",
+              "2026-01-16"
+            ],
+            "calibration": [
+              "2026-01-24",
+              "2026-02-20"
+            ],
+            "validation": [
+              "2026-02-28",
+              "2026-03-27"
+            ],
+            "test": [
+              "2026-04-04",
+              "2026-05-01"
+            ]
+          },
+          "threshold": 0.017203031055834567,
+          "thresholdPolicy": "validation_max_f1",
+          "calibrationStatus": "sigmoid fitted on separate chronological calibration period",
+          "featureCount": 25,
+          "test": {
+            "seen_cells": {
+              "metrics": {
+                "rows": 71036,
+                "positive_rows": 448,
+                "prevalence": 0.0063066614111154905,
+                "precision": 0.07433489827856025,
+                "recall": 0.21205357142857142,
+                "f1": 0.1100811123986095,
+                "balanced_accuracy": 0.5976471744489148,
+                "roc_auc": 0.5992770422329978,
+                "average_precision": 0.08076707606843879,
+                "brier": 0.006015055411341576,
+                "false_alerts_per_cell_week": 0.1165746945210879,
+                "true_positive": 95,
+                "false_positive": 1183,
+                "false_negative": 353,
+                "true_negative": 69405
+              },
+              "episodes": {
+                "eligible_episodes": 41,
+                "hit_episodes": 5,
+                "recall": 0.12195121951219512,
+                "median_lead_days": 7.0,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            },
+            "unseen_spatial_blocks": {
+              "metrics": {
+                "rows": 18144,
+                "positive_rows": 87,
+                "prevalence": 0.004794973544973545,
+                "precision": 0.01171875,
+                "recall": 0.034482758620689655,
+                "f1": 0.01749271137026239,
+                "balanced_accuracy": 0.5102357859116629,
+                "roc_auc": 0.5837065130280293,
+                "average_precision": 0.01021572261590813,
+                "brier": 0.004793159010157871,
+                "false_alerts_per_cell_week": 0.09760802469135803,
+                "true_positive": 3,
+                "false_positive": 253,
+                "false_negative": 84,
+                "true_negative": 17804
+              },
+              "episodes": {
+                "eligible_episodes": 11,
+                "hit_episodes": 1,
+                "recall": 0.09090909090909091,
+                "median_lead_days": 7.0,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            }
+          }
+        },
+        {
+          "fold": 1,
+          "model": "random_forest_firms_only",
+          "periods": {
+            "train": [
+              "2025-05-26",
+              "2026-01-16"
+            ],
+            "calibration": [
+              "2026-01-24",
+              "2026-02-20"
+            ],
+            "validation": [
+              "2026-02-28",
+              "2026-03-27"
+            ],
+            "test": [
+              "2026-04-04",
+              "2026-05-01"
+            ]
+          },
+          "threshold": 0.09350342855080263,
+          "thresholdPolicy": "validation_max_f1",
+          "calibrationStatus": "sigmoid fitted on separate chronological calibration period",
+          "featureCount": 17,
+          "test": {
+            "seen_cells": {
+              "metrics": {
+                "rows": 71036,
+                "positive_rows": 448,
+                "prevalence": 0.0063066614111154905,
+                "precision": 0.04918032786885246,
+                "recall": 0.10044642857142858,
+                "f1": 0.06603081438004402,
+                "balanced_accuracy": 0.5440606937439791,
+                "roc_auc": 0.5353877397969302,
+                "average_precision": 0.06671922386783424,
+                "brier": 0.008413440171611589,
+                "false_alerts_per_cell_week": 0.0857311785573512,
+                "true_positive": 45,
+                "false_positive": 870,
+                "false_negative": 403,
+                "true_negative": 69718
+              },
+              "episodes": {
+                "eligible_episodes": 41,
+                "hit_episodes": 2,
+                "recall": 0.04878048780487805,
+                "median_lead_days": 7.0,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            },
+            "unseen_spatial_blocks": {
+              "metrics": {
+                "rows": 18144,
+                "positive_rows": 87,
+                "prevalence": 0.004794973544973545,
+                "precision": 0.08609271523178808,
+                "recall": 0.14942528735632185,
+                "f1": 0.1092436974789916,
+                "balanced_accuracy": 0.5708914109152435,
+                "roc_auc": 0.6458758630874517,
+                "average_precision": 0.02456097630096559,
+                "brier": 0.006376717539001934,
+                "false_alerts_per_cell_week": 0.05324074074074074,
+                "true_positive": 13,
+                "false_positive": 138,
+                "false_negative": 74,
+                "true_negative": 17919
+              },
+              "episodes": {
+                "eligible_episodes": 11,
+                "hit_episodes": 2,
+                "recall": 0.18181818181818182,
+                "median_lead_days": 6.5,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            }
+          }
+        },
+        {
+          "fold": 2,
+          "model": "random_forest_regularized",
+          "periods": {
+            "train": [
+              "2025-05-26",
+              "2026-03-13"
+            ],
+            "calibration": [
+              "2026-03-21",
+              "2026-04-17"
+            ],
+            "validation": [
+              "2026-04-25",
+              "2026-05-22"
+            ],
+            "test": [
+              "2026-05-30",
+              "2026-06-26"
+            ]
+          },
+          "threshold": 0.03287899232052691,
+          "thresholdPolicy": "validation_max_f1",
+          "calibrationStatus": "sigmoid fitted on separate chronological calibration period",
+          "featureCount": 25,
+          "test": {
+            "seen_cells": {
+              "metrics": {
+                "rows": 71036,
+                "positive_rows": 1399,
+                "prevalence": 0.01969423954051467,
+                "precision": 0.16365899191039204,
+                "recall": 0.3759828448892066,
+                "f1": 0.22805115976587903,
+                "balanced_accuracy": 0.6686913377195289,
+                "roc_auc": 0.8009158501233441,
+                "average_precision": 0.16099175819563846,
+                "brier": 0.018531016033615587,
+                "false_alerts_per_cell_week": 0.26487977926685063,
+                "true_positive": 526,
+                "false_positive": 2688,
+                "false_negative": 873,
+                "true_negative": 66949
+              },
+              "episodes": {
+                "eligible_episodes": 147,
+                "hit_episodes": 46,
+                "recall": 0.3129251700680272,
+                "median_lead_days": 7.0,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            },
+            "unseen_spatial_blocks": {
+              "metrics": {
+                "rows": 18144,
+                "positive_rows": 114,
+                "prevalence": 0.006283068783068783,
+                "precision": 0.08857142857142856,
+                "recall": 0.2719298245614035,
+                "f1": 0.1336206896551724,
+                "balanced_accuracy": 0.6271185451148671,
+                "roc_auc": 0.7669417929182356,
+                "average_precision": 0.07422903252333772,
+                "brier": 0.006119529983978157,
+                "false_alerts_per_cell_week": 0.12307098765432099,
+                "true_positive": 31,
+                "false_positive": 319,
+                "false_negative": 83,
+                "true_negative": 17711
+              },
+              "episodes": {
+                "eligible_episodes": 13,
+                "hit_episodes": 3,
+                "recall": 0.23076923076923078,
+                "median_lead_days": 7.0,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            }
+          }
+        },
+        {
+          "fold": 2,
+          "model": "random_forest_firms_only",
+          "periods": {
+            "train": [
+              "2025-05-26",
+              "2026-03-13"
+            ],
+            "calibration": [
+              "2026-03-21",
+              "2026-04-17"
+            ],
+            "validation": [
+              "2026-04-25",
+              "2026-05-22"
+            ],
+            "test": [
+              "2026-05-30",
+              "2026-06-26"
+            ]
+          },
+          "threshold": 0.005513805468553208,
+          "thresholdPolicy": "validation_max_f1",
+          "calibrationStatus": "sigmoid fitted on separate chronological calibration period",
+          "featureCount": 17,
+          "test": {
+            "seen_cells": {
+              "metrics": {
+                "rows": 71036,
+                "positive_rows": 1399,
+                "prevalence": 0.01969423954051467,
+                "precision": 0.126775956284153,
+                "recall": 0.08291636883488206,
+                "f1": 0.10025929127052723,
+                "balanced_accuracy": 0.535721291673641,
+                "roc_auc": 0.4985144294117141,
+                "average_precision": 0.036355465319206325,
+                "brier": 0.019684645886095822,
+                "false_alerts_per_cell_week": 0.07873472605439495,
+                "true_positive": 116,
+                "false_positive": 799,
+                "false_negative": 1283,
+                "true_negative": 68838
+              },
+              "episodes": {
+                "eligible_episodes": 147,
+                "hit_episodes": 20,
+                "recall": 0.1360544217687075,
+                "median_lead_days": 7.0,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            },
+            "unseen_spatial_blocks": {
+              "metrics": {
+                "rows": 18144,
+                "positive_rows": 114,
+                "prevalence": 0.006283068783068783,
+                "precision": 0.07476635514018691,
+                "recall": 0.07017543859649122,
+                "f1": 0.07239819004524888,
+                "balanced_accuracy": 0.5323422950054004,
+                "roc_auc": 0.4584571523095037,
+                "average_precision": 0.012396564128373892,
+                "brier": 0.00637700329260315,
+                "false_alerts_per_cell_week": 0.03819444444444445,
+                "true_positive": 8,
+                "false_positive": 99,
+                "false_negative": 106,
+                "true_negative": 17931
+              },
+              "episodes": {
+                "eligible_episodes": 13,
+                "hit_episodes": 1,
+                "recall": 0.07692307692307693,
+                "median_lead_days": 7.0,
+                "definition": "Within-cell detection clusters separated by >7 days; not independently verified wildfire incidents."
+              }
+            }
+          }
+        }
+      ],
+      "target": "At least one accepted presumed vegetation-fire detection in t+1..t+7; not verified wildfire occurrence",
+      "thresholdObjective": "f1",
+      "start": "2025-04-26",
+      "end": "2026-07-17",
+      "falseAlertBudget": 0.1
+    }
+  ],
+  "unavailable": [],
+  "weatherCoverage": {
+    "availableCells": 3185,
+    "requiredCells": 3475,
+    "missingCells": 290,
+    "complete": false,
+    "uniquePoints": 3419
+  },
+  "productionPromoted": false,
+  "exportedAt": "2026-10-19T15:13:07.429519+00:00",
+  "artifactSha256": {
+    "evaluation_firms_verified/report.json": "579170789345656605464b20a45442c92efb4724fc3ff146886a460dbd47a7d3",
+    "evaluation_arco_paired_f1/report.json": "38e7effdde5c42baafc9315da134a80338cb1f2d186bbf6b641124a95d47e3c7",
+    "firms_features/manifest.json": "4f13b66b3cd58c23412bbd61916efa10c8856624ab0ad90db41790aa91151e03",
+    "weather_arco_features_diagnostic/manifest.json": "104558c502a1d77956b52c6ed8093fa7dffd89f4ebf5844a8f161d56b736890e",
+    "weather/availability_arco.json": "1ab640a1af96af69f04b61540b77609106f595ec79895d12b083b099a3c707b9",
+    "weather/plan.json": "b7dd4601c119b69f381378fb57a0bb9b1af3a8de739aad6f928b5748e37a8a28",
+    "weather/daily_arco.csv.gz": "5b69241e4585cd7b15f97b53aa48e9c7a4c7fdb943637a0e2292fb9bd4121f56"
+  }
+}

@@ -1,0 +1,12 @@
+# Tested research environment; separate from backend dependencies.
+numpy==2.5.1
+pandas==3.0.5
+scikit-learn==1.9.0
+shapely==2.1.2
+xarray==2026.9.0
+netCDF4==1.7.5
+cdsapi==0.7.7
+zarr==3.4.1
+dask[array]==2026.8.0
+aiohttp==3.14.5
+joblib==1.5.3

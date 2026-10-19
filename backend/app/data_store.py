@@ -15,6 +15,14 @@ from app.risk import risk_level_for
 logger = logging.getLogger("spaceriskintelligence.data_store")
 
 
+def _row_value(row, *names, default=0):
+    for name in names:
+        value = getattr(row, name, None)
+        if value is not None and pd.notna(value):
+            return value
+    return default
+
+
 class Store:
     def __init__(self):
         self.segments_df = None
@@ -28,25 +36,60 @@ class Store:
         self.ml_rows_per_segment = None
         self.cells = []
         self.cells_by_id = {}
+        self.forecast_metadata = None
+        self.use_national_panel = False
 
     def load(self):
-        logger.info("Caricamento dataset FIRMS + ERA5-Land Italia da %s", PATHS["italy_era5_ml_dataset"])
-        self.segments_df = pd.read_csv(PATHS["segments"])
         self.model_results = {}
-        logger.info("Addestramento del modello FIRMS + ERA5-Land Italia...")
-        self._load_italy_era5_models()
+        self.segments_df = pd.DataFrame(columns=['segment_id', 'start', 'end', 'reason', 'usable_for_model'])
+        if PATHS['clean3_era5_model'].is_file():
+            logger.info('Caricamento Random Forest FIRMS clean3 + ERA5-Land da %s', PATHS['clean3_era5_model'])
+            self._load_clean3_era5_model()
+        else:
+            logger.error('Bundle Random Forest clean3 + ERA5-Land assente: nessun modello precedente verrà caricato')
         if self.italy_ml_df is None:
             self.italy_ml_df = pd.DataFrame(columns=[
                 "segment_id", "lat_cell", "lon_cell", "date", "detection_count",
                 "daily_frp_sum", "active_fire_day",
             ])
+        if self.italy_daily_panel_df is None:
+            self.italy_daily_panel_df = self.italy_ml_df.copy()
         self.ml_df = self.italy_ml_df
-        self.daily_panel_df = self.ml_df
-        self.ml_rows_per_segment = self.ml_df.groupby("segment_id").size().to_dict() if len(self.ml_df) else {}
+        if not self.use_national_panel:
+            self.daily_panel_df = self.ml_df
+        self.ml_rows_per_segment = self.ml_df.groupby("segment_id").size().to_dict() if len(self.ml_df) and "segment_id" in self.ml_df else {}
 
         self._build_cell_registry()
         self._build_calendar_series()
         logger.info("Store pronto: %d celle, %d giorni in serie calendariale", len(self.cells), len(self.calendar_series))
+
+    def _load_italy_v2_model(self):
+        try:
+            from app.ml.italy_v2 import load_italy_v2_model
+
+            result, self.italy_ml_df, self.italy_daily_panel_df, self.segments_df, self.forecast_metadata = load_italy_v2_model()
+            self.daily_panel_df = self.italy_daily_panel_df
+            self.model_results['random_forest_italia_era5'] = result
+            self.use_national_panel = True
+            logger.info('Modello v2 pronto: %d celle, previsione storica %s → %s',
+                        self.forecast_metadata['cells'], self.forecast_metadata['forecastStart'],
+                        self.forecast_metadata['forecastEnd'])
+        except Exception:
+            logger.exception('Caricamento modello Italia v2 FIRMS + ERA5-Land non riuscito')
+
+    def _load_clean3_era5_model(self):
+        try:
+            from app.ml.clean3_era5 import load_clean3_era5_model
+
+            result, self.italy_ml_df, self.italy_daily_panel_df, self.segments_df, self.forecast_metadata = load_clean3_era5_model()
+            self.daily_panel_df = self.italy_daily_panel_df
+            self.model_results['random_forest_italia_era5'] = result
+            self.use_national_panel = True
+            logger.info('Random Forest clean3+ERA5 pronta: %d celle, finestra %s → %s',
+                        self.forecast_metadata['cells'], self.forecast_metadata['forecastStart'],
+                        self.forecast_metadata['forecastEnd'])
+        except Exception:
+            logger.exception('Caricamento modello clean3 + ERA5-Land non riuscito')
 
     def _load_italy_era5_models(self):
         dataset_path = PATHS["italy_era5_ml_dataset"]
@@ -95,12 +138,15 @@ class Store:
             logger.exception("Addestramento FIRMS + ERA5-Land non riuscito; previsioni italiane non disponibili")
 
     def _build_calendar_series(self):
-        if not getattr(self, "italy_cell_coords", set()):
+        if self.use_national_panel:
+            self.italy_daily_panel_df = self.daily_panel_df.copy()
+        elif not getattr(self, "italy_cell_coords", set()):
             self.calendar_series = []
             self.italy_daily_panel_df = self.daily_panel_df.iloc[0:0].copy()
             return
-        coords = pd.MultiIndex.from_frame(self.daily_panel_df[["lat_cell", "lon_cell"]].round(1))
-        self.italy_daily_panel_df = self.daily_panel_df.loc[coords.isin(self.italy_cell_coords)].copy()
+        else:
+            coords = pd.MultiIndex.from_frame(self.daily_panel_df[["lat_cell", "lon_cell"]].round(1))
+            self.italy_daily_panel_df = self.daily_panel_df.loc[coords.isin(self.italy_cell_coords)].copy()
         daily = (
             self.italy_daily_panel_df.groupby("date")
             .agg(detections=("detection_count", "sum"), frpSum=("daily_frp_sum", "sum"), activeCells=("active_fire_day", "sum"))
@@ -123,7 +169,7 @@ class Store:
                     "detections": None if missing else int(row["detections"]),
                     "frpSum": None if missing else round(float(row["frpSum"]), 1),
                     "activeCells": None if missing else int(row["activeCells"]),
-                    "cellsSampled": None if missing else 5000,
+                    "cellsSampled": None if missing else int(self.italy_daily_panel_df.cell_id.nunique()) if 'cell_id' in self.italy_daily_panel_df else 5000,
                     "missing": missing,
                 }
             )
@@ -164,18 +210,22 @@ class Store:
                 "predictedClass": int(prediction["predictedClass"]),
                 "riskLevel": risk_level_for(probability),
                 "hasPrediction": True,
-                "model": "Random Forest FIRMS + ERA5-Land",
-                "threshold": round(float(italy_model["threshold"]), 2),
+                "model": "Random Forest FIRMS clean3 + ERA5-Land" if self.forecast_metadata else "Random Forest FIRMS clean3 + ERA5-Land",
+                "threshold": round(float(italy_model["threshold"]), 3),
                 "lastDetectionDate": last_detection.strftime("%Y-%m-%d") if pd.notna(last_detection) else None,
                 "referenceDate": prediction["date"],
-                "detections3d": int(row.detection_sum_last_3d),
-                "detections7d": int(row.detection_sum_last_7d),
-                "detections14d": int(row.detection_sum_last_14d),
-                "detections30d": int(row.detection_sum_last_30d),
-                "activeDaysLast7": int(row.active_days_last_7d),
-                "activeDaysLast30": int(row.active_days_last_30d),
-                "frpSum": round(float(row.frp_sum_last_7d), 1),
+                "detections3d": int(_row_value(row, 'detection_sum_last_3d', 'fire_count_last_3d')),
+                "detections7d": int(_row_value(row, 'detection_sum_last_7d', 'fire_count_last_7d')),
+                "detections14d": int(_row_value(row, 'detection_sum_last_14d', 'fire_count_last_14d')),
+                "detections30d": int(_row_value(row, 'detection_sum_last_30d', 'fire_count_last_30d')),
+                "activeDaysLast7": int(_row_value(row, 'active_days_last_7d')),
+                "activeDaysLast30": int(_row_value(row, 'active_days_last_30d')),
+                "frpSum": round(float(_row_value(row, 'frp_sum_last_7d')), 1),
             }
+            if self.forecast_metadata:
+                cell.update({'forecastStart': self.forecast_metadata['forecastStart'],
+                             'forecastEnd': self.forecast_metadata['forecastEnd'],
+                             'modelVersion': self.forecast_metadata['modelVersion']})
             cells.append(cell)
 
         self.cells = cells

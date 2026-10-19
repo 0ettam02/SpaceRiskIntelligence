@@ -21,11 +21,11 @@ export async function getTimeSeries(filters = {}) {
     return withSimulatedLatency({
       series,
       segments: [{
-        id: 0, label: "Campione italiano", start: "2025-05-26", end: "2026-07-10", days: 411,
+        id: 0, label: "FIRMS clean3 + ERA5-Land", start: "2026-06-18", end: "2026-07-15", days: 28,
         usableForModel: true, reason: "Dataset FIRMS + ERA5-Land italiano",
-        rowsInSample: 7809, totalDetections: 75, totalFrp: 0, mlRows: 7809,
+        rowsInSample: 331, totalDetections: 733, totalFrp: 0, mlRows: 6951,
       }],
-      embargoWindows: [{ segmentId: "italy-temporal-split", description: "Split temporale italiano con embargo di 7 giorni fra training, validation e test del modello FIRMS + ERA5-Land." }],
+      embargoWindows: [{ segmentId: "italy-temporal-split", description: "Holdout casuale riproducibile 80/20; non isola celle o date." }],
     });
   }
   const query = new URLSearchParams(filters).toString();

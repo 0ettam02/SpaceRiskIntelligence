@@ -1,0 +1,187 @@
+{
+  "verified_at_utc": "2026-10-19T09:40:55.452586+00:00",
+  "unit_tests": {
+    "command": "space/bin/python -m unittest discover -s cambiamenti_climatici/ingestion/tests -v",
+    "passed": 23
+  },
+  "v1_unchanged": true,
+  "national_panel": {
+    "grid_cells": 3475,
+    "rows": 1556800,
+    "retained_raw_records": 6656,
+    "accepted_vegetation_records": 4287,
+    "active_cell_days": 2968
+  },
+  "national_features": {
+    "cells": 3475,
+    "rows": 1428225,
+    "positive_rows": 17395,
+    "scope": "national_grid"
+  },
+  "weather": {
+    "unique_points": 3419,
+    "cached_points": 19,
+    "missing_points": 3400,
+    "covered_cells": 75,
+    "national_complete": false,
+    "network_requests_executed": 0
+  },
+  "evaluations": {
+    "evaluation_firms_verified": {
+      "report": "dati/italy_v2/evaluation_firms_verified/report.json",
+      "sha256": "579170789345656605464b20a45442c92efb4724fc3ff146886a460dbd47a7d3",
+      "scope": "national_grid",
+      "folds": 3,
+      "models": [
+        "constant",
+        "logistic",
+        "random_forest_baseline",
+        "random_forest_regularized"
+      ],
+      "status": "exploratory_not_production",
+      "periods": [
+        {
+          "train": [
+            "2025-05-26",
+            "2025-11-21"
+          ],
+          "calibration": [
+            "2025-11-29",
+            "2025-12-26"
+          ],
+          "validation": [
+            "2026-01-03",
+            "2026-01-30"
+          ],
+          "test": [
+            "2026-02-07",
+            "2026-03-06"
+          ]
+        },
+        {
+          "train": [
+            "2025-05-26",
+            "2026-01-16"
+          ],
+          "calibration": [
+            "2026-01-24",
+            "2026-02-20"
+          ],
+          "validation": [
+            "2026-02-28",
+            "2026-03-27"
+          ],
+          "test": [
+            "2026-04-04",
+            "2026-05-01"
+          ]
+        },
+        {
+          "train": [
+            "2025-05-26",
+            "2026-03-13"
+          ],
+          "calibration": [
+            "2026-03-21",
+            "2026-04-17"
+          ],
+          "validation": [
+            "2026-04-25",
+            "2026-05-22"
+          ],
+          "test": [
+            "2026-05-30",
+            "2026-06-26"
+          ]
+        }
+      ]
+    },
+    "evaluation_weather_diagnostic": {
+      "report": "dati/italy_v2/evaluation_weather_diagnostic/report.json",
+      "sha256": "041c9b0413e16e8ea9fbbc3fa9657a9a099e3ddc24b6834ecd55c8e16d77321c",
+      "scope": "partial_diagnostic",
+      "folds": 3,
+      "models": [
+        "constant",
+        "logistic",
+        "random_forest_baseline",
+        "random_forest_regularized",
+        "random_forest_firms_only"
+      ],
+      "status": "exploratory_not_production",
+      "periods": [
+        {
+          "train": [
+            "2025-05-26",
+            "2025-11-21"
+          ],
+          "calibration": [
+            "2025-11-29",
+            "2025-12-26"
+          ],
+          "validation": [
+            "2026-01-03",
+            "2026-01-30"
+          ],
+          "test": [
+            "2026-02-07",
+            "2026-03-06"
+          ]
+        },
+        {
+          "train": [
+            "2025-05-26",
+            "2026-01-16"
+          ],
+          "calibration": [
+            "2026-01-24",
+            "2026-02-20"
+          ],
+          "validation": [
+            "2026-02-28",
+            "2026-03-27"
+          ],
+          "test": [
+            "2026-04-04",
+            "2026-05-01"
+          ]
+        },
+        {
+          "train": [
+            "2025-05-26",
+            "2026-03-13"
+          ],
+          "calibration": [
+            "2026-03-21",
+            "2026-04-17"
+          ],
+          "validation": [
+            "2026-04-25",
+            "2026-05-22"
+          ],
+          "test": [
+            "2026-05-30",
+            "2026-06-26"
+          ]
+        }
+      ]
+    }
+  },
+  "code_sha256": {
+    "cambiamenti_climatici/ingestion/italy_v2/__init__.py": "4afc2a472ea3e5259a4b824c15fd65218ff5e7ce5f83dcdd27af3c31f298264b",
+    "cambiamenti_climatici/ingestion/italy_v2/__main__.py": "81b2116ddc46b036d17091d913a0d0a2aca0f8388f2c2b3365dca4d8e97065db",
+    "cambiamenti_climatici/ingestion/italy_v2/build.py": "3f0404cf1fc13c42b1547996cbcdabbef3e61bd123f5fc535b4cac897301c743",
+    "cambiamenti_climatici/ingestion/italy_v2/common.py": "2c643e41e9c2a4c64f80384e9577980dcd27192257fccf23d1773ac07c350fbc",
+    "cambiamenti_climatici/ingestion/italy_v2/evaluate.py": "24623c9f8919f1fe1406d2e7a6237f6157fc30597df906bd5b07cf0df295282e",
+    "cambiamenti_climatici/ingestion/italy_v2/features.py": "c4d02198f4310393e8986ba65f32ae3e4271786a5fbcf901cb883ae6a36542bb",
+    "cambiamenti_climatici/ingestion/italy_v2/weather.py": "5aaf2e8484e578beded7b82d47b8433ab2b9204346c461fd03ee7d3f4d6f5c56",
+    "cambiamenti_climatici/ingestion/build_ml_dataset.py": "aa57035ee7af6e776d978af4c0a94b0b1aae05ecc9978f7a2c6571654cab5224",
+    "ERA5-land/era5_italy_pipeline.py": "bd97e9e4fad48debec61bb3404054af367a174411bb0ba20b7bbeb5194eddb52"
+  },
+  "remaining_data_work": [
+    "Acquire 3400 planned ERA5 points and resolve coastal missing-land cases before national FIRMS+ERA5 training.",
+    "Acquire and verify additional historical years; current data span 448 days.",
+    "Obtain independent event/observability information before interpreting absence of satellite detections as absence of wildfire."
+  ],
+  "production_promotion": false
+}

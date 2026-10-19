@@ -28,16 +28,16 @@ def get_data_quality():
     usable = sum(segment["usableForModel"] for segment in segments)
     checks = [
         {"id": "temporal-coverage", "label": "Copertura temporale italiana", "status": "passed" if observed_days == total_days else "warning", "detail": f"{observed_days} giorni osservati su {total_days} nel periodo delle celle italiane."},
-        {"id": "italy-sample", "label": "Copertura geografica", "status": "warning", "detail": f"Il modello copre {len(store.cells)} celle campionate in Italia, non l'intero territorio."},
+        {"id": "italy-sample", "label": "Copertura geografica", "status": "warning", "detail": f"Il modello copre {len(store.cells)} celle con feature ERA5-Land complete su {store.forecast_metadata.get('nationalCells', len(store.cells)) if store.forecast_metadata else len(store.cells)} celle FIRMS."},
         {"id": "horizon-completeness", "label": "Target a 7 giorni", "status": "passed" if ml is not None else "failed", "detail": f"{len(ml) if ml is not None else 0} righe con storico e orizzonte futuro completi."},
         {"id": "geographic-generalization", "label": "Generalizzazione geografica", "status": "not_available", "detail": "Non è stata misurata su celle italiane mai viste in training."},
         {"id": "era5-resolution", "label": "Risoluzione ERA5-Land", "status": "warning", "detail": "ERA5-Land fornisce stime su griglia, non misure locali di stazione."},
-        {"id": "serialized-model", "label": "Modello persistito", "status": "not_available", "detail": "Il backend riaddestra il modello in memoria ad ogni avvio."},
+        {"id": "serialized-model", "label": "Modello persistito", "status": "passed" if store.forecast_metadata else "not_available", "detail": "Bundle Random Forest clean3 + ERA5-Land caricato e verificato." if store.forecast_metadata else "Il percorso legacy addestra il modello in memoria ad ogni avvio."},
     ]
     return {
         "coverage": {"observedDays": observed_days, "totalDays": total_days, "missingDays": max(total_days - observed_days, 0), "sampledCells": len(store.cells), "usableSegments": usable, "totalSegments": len(segments)},
         "rawDataStatus": {"status": "passed" if len(panel) else "warning", "label": "Dataset FIRMS + ERA5-Land Italia", "detail": f"{len(panel)} righe giornaliere per {len(store.cells)} celle italiane."},
-        "artifactsStatus": {"status": "passed" if ml is not None else "warning", "label": "Dataset ML italiano", "detail": "Il modello FIRMS + ERA5-Land viene riaddestrato all'avvio; gli artefatti di training restano locali."},
+        "artifactsStatus": {"status": "passed" if ml is not None else "warning", "label": "Dataset clean3 + ERA5-Land Italia", "detail": "Artefatti FIRMS + ERA5-Land e bundle serializzato verificati al caricamento." if store.forecast_metadata else "Percorso legacy FIRMS + ERA5-Land caricato."},
         "checks": checks,
         "warnings": ITALY_MODEL_LIMITATIONS,
         "segments": segments,

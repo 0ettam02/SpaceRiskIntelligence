@@ -5,7 +5,7 @@ passando da NEXT_PUBLIC_DATA_SOURCE=mock a =api."""
 METHODOLOGY_WARNINGS = [
     "Un rilevamento satellitare non corrisponde necessariamente a un incendio fisico distinto: più rilevamenti possono derivare dallo stesso evento.",
     "Il campione di celle è condizionato: comprende prevalentemente celle già attive in passato e non consente di stimare prevalenze globali senza pesi di inclusione.",
-    "Le metriche dei modelli derivano da un singolo split temporale isolato e non da una validazione incrociata su più segmenti.",
+    "Le metriche del modello clean3 + ERA5-Land derivano da un holdout casuale 80/20 e non da una validazione temporale o geografica indipendente.",
     "La generalizzazione geografica del modello a regioni non rappresentate nel campione non è stata verificata.",
 ]
 
@@ -33,9 +33,11 @@ MODEL_METHODOLOGY_NOTES = {
         "Usa le stesse 17 feature FIRMS della baseline globale; non è un modello di copertura nazionale completa.",
     ],
     "random_forest_italia_era5": [
-        "Modello italiano sperimentale addestrato su 19 celle, con 17 feature FIRMS e otto feature ERA5-Land dei sette giorni precedenti.",
-        "Metriche e curve sono calcolate sulle predizioni osservate del test temporale; la soglia è scelta sulla validazione.",
-        "Il modello usa le stesse celle in training e test: la generalizzazione verso celle o regioni nuove non è stata valutata.",
+        "RandomForestClassifier(n_estimators=100, random_state=42) sui lag e target del dataset dataset_pulito3_lag_target_final.csv, filtrato alla griglia italiana.",
+        "Il confronto FIRMS-only / FIRMS + ERA5-Land usa le stesse righe e lo stesso split casuale 80/20; ERA5 aggiunge otto feature meteo.",
+        "Le metriche del random split non misurano generalizzazione su date o celle nuove e possono essere ottimistiche.",
+        "Il forecast usa feature FIRMS fino al 15/07/2026 per la settimana 16–22/07/2026; non descrive il rischio attuale.",
+        "Per 21 celle costiere è stata associata la serie del più vicino punto ERA5 terrestre, entro 11,2 km.",
     ],
 }
 
@@ -48,11 +50,12 @@ MODEL_LIMITATIONS = [
 ]
 
 ITALY_MODEL_LIMITATIONS = [
-    "Il modello riguarda 19 celle campionate in Italia, non l'intero territorio nazionale.",
-    "Il test temporale contiene 399 righe e 24 positivi: le metriche hanno elevata incertezza.",
-    "Le stesse celle compaiono in training e test; la generalizzazione geografica non è stata verificata.",
+    "Il clean3 globale contiene 55.255 celle; la griglia FIRMS italiana seleziona 331 celle nel periodo 18/06–15/07/2026.",
+    "Lo snapshot meteo copre le date del FIRMS; 310 celle hanno un match ERA5 esatto e 21 usano il punto terrestre vicino (massimo 11,2 km).",
+    "Le probabilità mostrate si riferiscono alla finestra 16–22/07/2026 e non sono aggiornate al giorno corrente.",
+    "Il target misura rilevamenti FIRMS presunti incendi di vegetazione, non incendi verificati indipendentemente.",
     "Le feature ERA5-Land sono stime su griglia 0,1° e non misure locali di stazione.",
-    "Il modello è sperimentale e non è un sistema operativo di allerta incendi.",
+    "Il test casuale non è una valutazione temporale o geografica indipendente; il modello non è validato per allerta operativa.",
 ]
 
 DATA_QUALITY_WARNINGS = [

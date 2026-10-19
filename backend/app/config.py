@@ -26,6 +26,21 @@ PATHS = {
     "profile_summary": DATA_DIR / "profilo_storico_segmentato_v3.csv",
     "ml_dataset": MODELS_DIR / "dati_ml_storico_v3.csv.gz",
     "italy_era5_ml_dataset": REPO_ROOT / "dati" / "era5_italy" / "dati_ml_storico_italia_era5_v1.csv.gz",
+    "italy_v2_ml_dataset": REPO_ROOT / "dati" / "italy_v2" / "weather_arco_features_diagnostic" / "ml.csv.gz",
+    "italy_v2_feature_manifest": REPO_ROOT / "dati" / "italy_v2" / "weather_arco_features_diagnostic" / "manifest.json",
+    "italy_v2_evaluation": REPO_ROOT / "dati" / "italy_v2" / "evaluation_arco_paired_f1" / "report.json",
+    "italy_v2_model_bundle": REPO_ROOT / "dati" / "italy_v2" / "evaluation_arco_paired_f1" / "fold_2_random_forest_regularized" / "model.joblib",
+    "italy_v2_panel": REPO_ROOT / "dati" / "italy_v2" / "national_panel" / "panel.csv.gz",
+    "italy_v2_panel_manifest": REPO_ROOT / "dati" / "italy_v2" / "national_panel" / "manifest.json",
+    "clean3_era5_dir": REPO_ROOT / "dati" / "italy_v2" / "clean3_era5_baseline",
+    "clean3_era5_dataset": REPO_ROOT / "dati" / "italy_v2" / "clean3_era5_baseline" / "clean3_italy_firms_era5.csv.gz",
+    "clean3_era5_mapping": REPO_ROOT / "dati" / "italy_v2" / "clean3_era5_baseline" / "firms_to_era5_mapping.csv",
+    "clean3_era5_predictions": REPO_ROOT / "dati" / "italy_v2" / "clean3_era5_baseline" / "latest_predictions.csv.gz",
+    "clean3_era5_report": REPO_ROOT / "dati" / "italy_v2" / "clean3_era5_baseline" / "report.json",
+    "clean3_era5_model": REPO_ROOT / "dati" / "italy_v2" / "clean3_era5_baseline" / "model.joblib",
+    "clean3_source": REPO_ROOT / "cambiamenti_climatici" / "dataset_pulito3_lag_target_final.csv",
+    "clean3_weather": REPO_ROOT / "dati" / "italy_v2" / "weather" / "daily_arco.csv.gz",
+    "clean3_grid": REPO_ROOT / "dati" / "italy_v2" / "national_panel" / "grid.csv",
     "models_config": MODELS_DIR / "configurazione_modelli_v3.json",
     "split_summary": MODELS_DIR / "split_temporale_storico_v3.csv",
     "historical_comparison": MODELS_DIR / "confronto_modelli_storico_v3.csv",
@@ -89,7 +104,7 @@ MODEL_SLUGS.update({
 MODEL_SCOPES = {
     "random_forest": "Globale · 5.000 celle campionate",
     "random_forest_italia_firms": "Italia · 19 celle · FIRMS",
-    "random_forest_italia_era5": "Italia · 19 celle · FIRMS + ERA5-Land",
+    "random_forest_italia_era5": "Italia · clean3 FIRMS + ERA5-Land · 331 celle",
 }
 
 CORS_ORIGINS = [

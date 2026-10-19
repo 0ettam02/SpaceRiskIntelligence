@@ -1,50 +1,34 @@
 # SpaceRiskIntelligence — Backend API
 
-API sperimentale focalizzata sulle celle italiane con dati FIRMS + ERA5-Land.
-Il backend addestra e serve un solo algoritmo di previsione: Random Forest
-FIRMS + ERA5-Land.
+API sperimentale che usa il dataset FIRMS globale clean3, filtrato sulla griglia nazionale italiana e unito a ERA5-Land per data e cella. Il backend serve il bundle serializzato della Random Forest rifittata sul dataset combinato e le relative predizioni storiche.
 
 > **Non è un sistema operativo di allerta incendi.** Le predizioni servite da
-> questa API derivano da un modello riaddestrato in memoria ad ogni avvio, su
-> un campione condizionato e con le limitazioni già descritte nella pagina
-> "Qualità dati" del frontend.
+> questa API derivano da uno snapshot storico, su copertura limitata del dataset clean3,
+> e non rappresentano il rischio attuale. Restano valide le limitazioni
+> descritte nella pagina "Qualità dati" del frontend.
 
 ## Cosa fa all'avvio
 
 All'avvio del processo (una sola volta, non ad ogni richiesta) il backend:
 
-1. Carica il dataset FIRMS + ERA5-Land italiano, con 19 celle e 25 feature.
-2. Addestra la Random Forest italiana con split cronologico, embargo di 7 giorni
-   e soglia scelta sulla validation.
-3. Calcola la probabilità per cella sull'ultima riga completa disponibile
-   (riportata come `referenceDate`, attualmente 10/07/2026).
-4. Tiene il modello in memoria per la durata del processo. **Nessun modello viene
-   serializzato su disco**: un riavvio riaddestra il modello sugli stessi
-   dati, con le stesse metriche (a meno di piccole variazioni numeriche dovute
-   al riaddestramento).
+1. Verifica checksum di clean3, ERA5-Land, griglia nazionale e artefatti derivati.
+2. Carica il bundle RF addestrato sul dataset combinato e verifica le feature.
+3. Calcola probabilità per le 331 celle osservate; riferimento 15/07/2026,
+   finestra storica prevista 16–22/07/2026.
+4. Tiene modello, predizioni e serie in memoria. Il join meteo usa data e cella;
+   21 celle costiere usano il punto ERA5-Land terrestre più vicino.
 
-Il dataset `dati/era5_italy/dati_ml_storico_italia_era5_v1.csv.gz` è incluso nel
-repository. `GET /models` espone solo l'algoritmo usato per le previsioni.
-Per ricostruire il dataset dopo aver scaricato e
-preparato il pannello FIRMS + ERA5-Land:
+Il dataset usato dal modello è generato a partire da `cambiamenti_climatici/dataset_pulito3_lag_target_final.csv`, unito per data e cella ai dati ERA5-Land già presenti in `dati/italy_v2/weather/daily_arco.csv.gz`. Per ricostruire dataset e modello: `space/bin/python cambiamenti_climatici/ingestion/merge_clean3_era5.py`.
 
-```bash
-space/bin/python cambiamenti_climatici/ingestion/build_ml_dataset.py \
-  --input cambiamenti_climatici/claudia/output_definitivo/incendi_daily_segmentato_sample_v3.csv.gz \
-  --weather-input dati/era5_italy/pannello_firms_era5_italia.csv \
-  --output dati/era5_italy/dati_ml_storico_italia_era5_v1.csv.gz \
-  --quality-report dati/era5_italy/qualita_dataset_ml_italia_era5_v1.json
-```
 Le metriche italiane sono esplorative e non sono adatte a decisioni operative.
 
-Il caricamento + addestramento richiede circa 10–30 secondi, una sola volta per
-avvio, a seconda della macchina.
+Il caricamento degli artefatti e il calcolo delle predizioni richiedono alcuni
+secondi, una sola volta per avvio, a seconda della macchina.
 
 ## Requisiti
 
 - Python ≥ 3.11
-- Il dataset `../dati/era5_italy/dati_ml_storico_italia_era5_v1.csv.gz`
-  incluso nel repository.
+- Gli artefatti `clean3_era5_baseline` e dataset clean3/ERA5 sotto `../dati/italy_v2/`.
 
 ## Installazione
 
@@ -93,7 +77,7 @@ python -m pytest -q
 
 I test avviano l'app una sola volta per l'intera sessione (fixture
 session-scoped): anche qui il primo test paga il costo di caricamento e
-addestramento.
+inferenza.
 
 ## Endpoint esposti
 
@@ -116,11 +100,20 @@ ad API reale (vedi `frontend/README.md`, sezione "Modalità dati").
 
 ## Limiti noti
 
-- Il dataset copre 19 celle italiane e ha come ultima data completa il
-  10/07/2026. Le previsioni non coprono altre celle o date più recenti.
-- `/map/cells` restituisce al massimo le 19 celle italiane attualmente coperte
-  dal dataset FIRMS + ERA5-Land.
+- Il dataset clean3 copre 331 delle 3.475 celle nazionali nel periodo 18/06–15/07/2026. Lo snapshot prevede storicamente il 16–22/07/2026 e non è aggiornato al giorno corrente.
+- `/map/cells` restituisce le 331 celle, indicando gli abbinamenti ERA5 esatti o nearest-land.
 - Nessuna autenticazione: è un'API di sola lettura pensata per un ambiente di
   sviluppo locale, non per l'esposizione pubblica così com'è.
 - L'ambiente Python dei notebook originali (`cambiamenti_climatici/matteo/requirements.txt`)
   non ha versioni bloccate; questo backend sì (`requirements.txt`).
+
+## Dataset clean3 + ERA5-Land
+
+Il dataset sorgente `cambiamenti_climatici/dataset_pulito3_lag_target_final.csv` è filtrato sulla griglia FIRMS italiana e unito al meteo per data e coordinate di cella. Lo script riproducibile è `cambiamenti_climatici/ingestion/merge_clean3_era5.py`; produce dataset unito, mapping spaziale, report, bundle Random Forest e snapshot delle previsioni. Il periodo disponibile è di 28 giorni e contiene 9.268 righe cella-giorno, con 6.951 target a sette giorni osservabili.
+
+Il report confronta FIRMS-only e FIRMS + ERA5 sulle stesse righe con holdout casuale 80/20 (`random_state=42`), soglia 0,5. I risultati sono esplorativi e non misurano la generalizzazione futura o geografica. Per rigenerare gli artefatti:
+
+```bash
+space/bin/python cambiamenti_climatici/ingestion/merge_clean3_era5.py
+space/bin/python backend/export_clean3_frontend.py
+```

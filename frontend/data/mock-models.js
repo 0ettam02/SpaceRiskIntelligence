@@ -1,6 +1,4 @@
-// Metriche reali del run definitivo (valutazione fire_next_7d, test temporale
-// isolato del segmento 0, embargo di 7 giorni fra train/validation/test).
-// Fonte: cambiamenti_climatici/claudia/output_definitivo/modelli/confronto_modelli_storico_v3.csv
+// Metriche storiche dei modelli. Il modello raccomandato usa il run clean3 + ERA5-Land sotto cambiamenti_climatici/ingestion/.
 const BASE_FEATURES = [
   "detection_lag_1d", "detection_lag_3d", "detection_lag_7d", "detection_lag_14d",
   "detection_sum_last_3d", "detection_sum_last_7d", "detection_sum_last_14d", "detection_sum_last_30d",
@@ -109,19 +107,19 @@ export const MODELS = [
   {
     slug: "random-forest-italia-era5",
     model: "Random Forest — FIRMS + ERA5 (Italia)",
-    accuracy: 0.516,
-    balancedAccuracy: 0.489,
-    precision: 0.058,
-    recall: 0.458,
-    f1: 0.102,
-    rocAuc: 0.496,
-    prAuc: 0.057,
-    threshold: 0.13,
-    specificity: 0.520,
-    falsePositiveRate: 0.480,
+    accuracy: 0.782,
+    balancedAccuracy: 0.715,
+    precision: 0.716,
+    recall: 0.528,
+    f1: 0.608,
+    rocAuc: 0.844,
+    prAuc: 0.724,
+    threshold: 0.5,
+    specificity: 0.902,
+    falsePositiveRate: 0.098,
     recommended: true,
-    status: "In uso",
-    scope: "Italia · FIRMS + ERA5-Land · 19 celle",
+    status: "In uso · finestra storica",
+    scope: "Italia · clean3 FIRMS + ERA5-Land · 331 celle",
     features: [
       ...BASE_FEATURES,
       "temperature_mean_last_7d_c",
@@ -134,9 +132,9 @@ export const MODELS = [
       "wind_speed_10m_max_last_7d_ms",
     ],
     methodologyNotes: [
-      "Modello italiano valutato sulle stesse 19 celle con split temporale ed embargo di 7 giorni.",
-      "Le otto feature meteo riassumono i sette giorni precedenti; la soglia 0,13 è stata scelta sulla validazione.",
-      "Il test include 399 righe e 24 positivi. Le metriche sono esplorative e non dimostrano un vantaggio predittivo affidabile.",
+      "RandomForestClassifier(n_estimators=100, random_state=42) sul clean3 italiano arricchito con otto feature ERA5-Land.",
+      "Test casuale 80/20: 1.391 righe, 445 positive, soglia 0,5. Il confronto FIRMS-only usa le stesse righe.",
+      "Forecast storico: dati fino al 15 luglio 2026, finestra prevista 16–22 luglio 2026. Non rappresenta il rischio odierno.",
     ],
   },
 ];
@@ -165,18 +163,18 @@ export const ITALY_CONFUSION_MATRICES = {
     source: "Test temporale italiano isolato (19 celle, N = 399)",
   },
   "random-forest-italia-era5": {
-    testRows: 399, positives: 24, negatives: 375,
-    truePositive: 11, falseNegative: 13, trueNegative: 195, falsePositive: 180,
-    source: "Test temporale italiano isolato (19 celle, N = 399)",
+    testRows: 1391, positives: 445, negatives: 946,
+    truePositive: 235, falseNegative: 210, trueNegative: 853, falsePositive: 93,
+    source: "Random holdout (1.391 righe, seed 42)",
   },
 };
 
 export const ITALY_MODEL_LIMITATIONS = [
-  "Il modello riguarda 19 celle campionate in Italia, non l'intero territorio nazionale.",
-  "Il test temporale contiene 399 righe e 24 positivi: le metriche hanno elevata incertezza.",
-  "Le stesse celle compaiono in training e test; la generalizzazione geografica non è stata verificata.",
+  "Il clean3 globale è stato filtrato alla griglia italiana: 331 celle su 3.475 presenti nella griglia FIRMS.",
+  "310 celle hanno un match ERA5 esatto; 21 costiere usano un punto ERA5 terrestre entro 11,2 km.",
+  "Il test casuale 80/20 non isola date o celle; le metriche possono essere ottimistiche.",
   "Le feature ERA5-Land sono stime su griglia 0,1° e non misure locali di stazione.",
-  "Il modello è sperimentale e non è un sistema operativo di allerta incendi.",
+  "Il forecast 16–22 luglio 2026 è storico e non aggiornato; il modello non è un sistema operativo di allerta incendi.",
 ];
 
 // Feature utilizzate da tutti i modelli (identiche per ogni classificatore).

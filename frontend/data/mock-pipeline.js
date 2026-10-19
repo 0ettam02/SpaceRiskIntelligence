@@ -1,65 +1,10 @@
-// Pipeline del modello italiano FIRMS + ERA5-Land (modalità demo).
+// Stato della pipeline FIRMS clean3 + ERA5-Land.
 export const PIPELINE_STEPS = [
-  {
-    id: 1,
-    title: "Selezione FIRMS Italia",
-    status: "passed",
-    durationLabel: "dato storico",
-    records: "21 celle italiane candidate",
-    input: "Rilevamenti NASA FIRMS campionati",
-    output: "Pannello giornaliero FIRMS Italia",
-    warnings: [],
-  },
-  {
-    id: 2,
-    title: "Merge con ERA5-Land",
-    status: "passed",
-    durationLabel: "dato storico",
-    records: "8.512 righe giornaliere · 19 celle con meteo valido",
-    input: "Coordinate cella + data",
-    output: "Pannello FIRMS + ERA5-Land Italia",
-    warnings: ["Due celle sono escluse perché prive di valori ERA5-Land validi."],
-  },
-  {
-    id: 3,
-    title: "Feature engineering e target",
-    status: "passed",
-    durationLabel: "dato storico",
-    records: "7.809 righe · 25 feature · 338 target positivi",
-    input: "Pannello italiano cella × data",
-    output: "dati_ml_storico_italia_era5_v1.csv.gz",
-    warnings: ["Target fire_next_7d: attività rilevata nei sette giorni successivi."],
-  },
-  {
-    id: 4,
-    title: "Split temporale con embargo",
-    status: "passed",
-    durationLabel: "dato storico",
-    records: "6.745 train / 399 validation / 399 test",
-    input: "Righe ML italiane",
-    output: "Split cronologico, embargo 7 giorni",
-    warnings: ["Le stesse 19 celle sono presenti nei diversi split; non è testata la generalizzazione geografica."],
-  },
-  {
-    id: 5,
-    title: "Addestramento Random Forest FIRMS + ERA5-Land",
-    status: "passed",
-    durationLabel: "riaddestrata all'avvio",
-    records: "Un solo algoritmo usato per le previsioni",
-    input: "Split temporale italiano",
-    output: "Probabilità per le 19 celle italiane",
-    warnings: ["Modello sperimentale, non adatto a decisioni operative."],
-  },
-  {
-    id: 6,
-    title: "Metriche di valutazione",
-    status: "passed",
-    durationLabel: "test temporale isolato",
-    records: "ROC-AUC 0,496 · PR-AUC 0,057 · F1 0,102",
-    input: "Predizioni sui 399 esempi di test",
-    output: "Metriche e curve mostrate nella scheda modello",
-    warnings: [],
-  },
+  { id: 1, title: "Selezione del dataset FIRMS clean3", status: "passed", durationLabel: "run riproducibile", records: "1.547.140 righe globali · 331 celle italiane presenti", input: "dataset_pulito3_lag_target_final.csv", output: "Sottoinsieme sulla griglia FIRMS nazionale", warnings: ["Copertura temporale: 18 giugno–15 luglio 2026."] },
+  { id: 2, title: "Merge giornaliero con ERA5-Land", status: "passed", durationLabel: "join data + cella", records: "9.268 righe cella-giorno · 310 match esatti · 21 nearest-land", input: "Data + coordinate cella", output: "Dataset FIRMS clean3 + ERA5-Land", warnings: ["Le associazioni costiere hanno distanza massima 11,2 km."] },
+  { id: 3, title: "Feature e target a sette giorni", status: "passed", durationLabel: "target osservabile", records: "6.951 righe etichettate · 23 feature combinate", input: "Lag FIRMS e variabili meteo", output: "fire_next_7d", warnings: ["L'ultimo giorno non ha ancora il target completo."] },
+  { id: 4, title: "Holdout riproducibile", status: "passed", durationLabel: "random_state=42", records: "80% train · 20% test · 1.391 righe di test", input: "Righe con target disponibile", output: "Split casuale comune al confronto", warnings: ["Non isola date o celle: le metriche possono essere ottimistiche."] },
+  { id: 5, title: "Random Forest FIRMS + ERA5-Land", status: "passed", durationLabel: "bundle verificato", records: "331 celle · soglia 0,5", input: "Dataset unito", output: "Snapshot storico 16–22 luglio 2026", warnings: ["Non è una previsione del rischio attuale."] },
+  { id: 6, title: "Confronto appaiato", status: "passed", durationLabel: "stesse righe e split", records: "F1 0,591 → 0,608 · ROC-AUC 0,804 → 0,844", input: "FIRMS-only vs FIRMS + ERA5", output: "Report con metriche e matrice di confusione", warnings: ["Risultati esplorativi da verificare con split temporale e spaziale."] },
 ];
-
-export const PIPELINE_LAST_RUN = "2026-07-17";
+export const PIPELINE_LAST_RUN = "2026-07-15";

@@ -29,6 +29,7 @@ def get_map_cells(
         "total": len(cells),
         "modelAvailable": "random_forest_italia_era5" in (store.model_results or {}),
         "modelSlug": "random-forest-italia-era5",
+        "forecast": getattr(store, "forecast_metadata", None),
     }
 
 

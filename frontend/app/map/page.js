@@ -89,7 +89,7 @@ export default function MapPage() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <PageHeader
           title="Rischio incendi in Italia"
-          description="Esplora le 19 celle italiane del dataset e le probabilità a 7 giorni del modello FIRMS + ERA5-Land."
+          description="Random Forest FIRMS clean3 + ERA5-Land · 331 celle italiane presenti nel dataset clean3."
         />
         <button
           type="button"
@@ -263,9 +263,14 @@ export default function MapPage() {
         </div>
       </div>
       </div>
+      {cellsData?.forecast ? (
+        <p role="status" className="rounded-xl border border-amber-400/30 bg-amber-400/[0.06] p-3 text-sm leading-6 text-muted">
+          Forecast storico: feature FIRMS aggiornate al {cellsData.forecast.referenceDate}, previsione dal {cellsData.forecast.forecastStart} al {cellsData.forecast.forecastEnd} (osservazioni fino al {cellsData.forecast.observedThrough}). Non rappresenta il rischio attuale. Il dataset clean3 copre {cellsData.forecast.cells} celle italiane su {cellsData.forecast.nationalCells} nella griglia FIRMS. ERA5-Land è associato a tutte le celle presenti: {cellsData.forecast.weatherExactCells} match esatti e {cellsData.forecast.weatherNearestCells} punti terrestri vicini (massimo {cellsData.forecast.weatherMaxDistanceKm.toFixed(1)} km).
+        </p>
+      ) : null}
       {isMockMode ? (
         <p className="rounded-xl border border-amber-400/25 bg-amber-400/[0.06] p-3 text-sm text-muted">
-          Modalità demo: la mappa usa valori sintetici sulle coordinate italiane. Per inferenze reali avvia il backend con il dataset FIRMS + ERA5-Land.
+          Modalità demo: snapshot storico prodotto dal modello FIRMS clean3 + ERA5-Land; non è aggiornato in tempo reale.
         </p>
       ) : null}
 
